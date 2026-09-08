@@ -70,6 +70,13 @@ Copy-Item .env.example .env
 
 설정할 때는 **슬래시를 `/`로** 쓰고(`DAS_ROOT=F:/texsr`), 해당 드라이브를 Docker Desktop → Settings → Resources → **File sharing**에 공유해야 한다. 누락하면 마운트가 조용히 빈 디렉터리가 된다.
 
+> ⚠️ **이 아래 docker 명령은 전부 Windows PowerShell에서 실행할 것.**
+> 이 데스크탑에는 Docker 데몬이 **둘** 있다 — Docker Desktop과, WSL `Ubuntu-24.04` 안의
+> 네이티브 docker-ce(systemd `enabled`라 배포판이 켜지면 같이 뜬다).
+> **둘은 이미지·컨테이너·빌드 캐시를 공유하지 않는다.** WSL 셸 안에서 빌드하면 이미지가
+> docker-ce에 만들어져 Docker Desktop에서는 보이지 않는다 (6 GB를 두 번 받게 된다).
+> 이상하면 `docker context ls`로 어느 데몬에 붙어 있는지 확인할 것.
+
 ### 5. GPU 패스스루 — 이것부터
 
 실패하면 나머지가 전부 무의미하다.
