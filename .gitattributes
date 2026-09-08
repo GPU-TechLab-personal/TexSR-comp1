@@ -1,0 +1,16 @@
+# Force LF in the working tree on every machine, regardless of each clone's
+# core.autocrlf setting. This matters because the desktop clones this repo and
+# feeds docker/ straight into `docker build`: Dockerfiles, requirements.txt and
+# compose.yaml are consumed by Linux tooling inside containers.
+* text=auto eol=lf
+
+# PowerShell is the one thing that stays CRLF - these run on Windows.
+*.ps1 text eol=crlf
+
+# Never touch binaries.
+*.png binary
+*.jpg binary
+*.pth binary
+*.h5 binary
+*.tfrecord binary
+*.parquet binary

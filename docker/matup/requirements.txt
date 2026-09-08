@@ -1,0 +1,43 @@
+# Copy of external/matup_egsr/requirements.txt (@ c74ec99), with the minimum
+# changes needed to build in 2026 on an RTX 3080 Ti. Line order is preserved so
+# this file can be diffed against upstream directly:
+#
+#     diff <(sed '/^#/d;/^$/d' docker/matup/requirements.txt) \
+#          <(sed '/^#/d;/^$/d' external/matup_egsr/requirements.txt)
+#
+# NOTE: there is NO hardware incompatibility here. torch 2.0.0 ships CUDA 11.7
+# wheels, and CUDA 11.1+ supports Ampere (sm_86), so the pinned versions are
+# fine on a 3080 Ti. Every change below is "time rot" instead: upstream left
+# these unpinned in 2024 and they resolve to different versions today.
+
+-f https://download.pytorch.org/whl/torch_stable.html
+einops
+matplotlib
+# CHANGED: was `numpy`.
+# torch 2.0.0 is built against the NumPy 1.x C ABI. This image is Python 3.10,
+# where numpy 2.x IS installable, so scikit-image/pandas can drag it in and
+# break torch at import time.
+numpy<2
+opencv-python
+setuptools
+tensorboard
+# CHANGED: both commented out - the base image (pytorch/pytorch:2.0.0-cuda11.7-
+# cudnn8-runtime) already provides exactly these versions. Reinstalling from
+# the torch_stable index risks pulling a differently-built (e.g. CPU) wheel.
+# Verify after build:  pip list | grep -i torch
+# torch==2.0.0
+# torchvision==0.15.1
+tqdm
+natsort
+PyYAML
+scikit-image
+lpips
+pandas
+# CHANGED: was `timm`.
+# sr_modules/SwinIR/models/network_swinir.py does
+#     from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+# and that module path was REMOVED in timm 1.0.
+timm<0.9
+# ADDED: not in upstream requirements.txt at all.
+# sr_modules/SwinIR/main_test_swinir.py imports `requests` at module top level.
+requests

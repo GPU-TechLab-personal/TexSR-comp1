@@ -1,0 +1,59 @@
+# Run every command from this directory, so compose picks up ./.env
+#   cd docker
+#   docker compose build
+#   docker compose run --rm matup   bash
+#   docker compose run --rm deeptex bash
+#
+# Container-internal paths are fixed by contract, so anything written into
+# configs/ stays valid on any host:
+#   /workspace  -> the repo (code, submodules, configs, runs)
+#   /data       -> the DAS folder named by DAS_ROOT in .env
+#
+# DAS_ROOT IS NOT DECIDED YET (see docs/OPEN-ITEMS.md). Until it is, /data
+# falls back to the empty ./_das_placeholder directory, which is enough for
+# `docker compose build` and for the victorian_wood smoke test - that example
+# material ships inside the repo, so it is reached via /workspace, not /data.
+#
+# The two stacks are deliberately NOT sharing an image: MatUp needs CUDA 11.7
+# (torch 2.0.0) and DeepTextures needs CUDA 11.2 (TF 2.10.1).
+
+# Without this the project name would default to the directory name ("docker"),
+# producing containers called docker-matup-1.
+name: texsr
+
+x-gpu: &gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+
+services:
+  matup:
+    build: ./matup
+    image: texsr/matup:torch2.0.0-cu117
+    working_dir: /workspace/external/matup_egsr
+    volumes:
+      - ..:/workspace
+      - ${DAS_ROOT:-./_das_placeholder}:/data
+    # MatUp's dataLoader uses DataLoader(num_workers=8, pin_memory=True).
+    # Docker's default 64 MB /dev/shm is far too small and the workers die with
+    # a bus error partway through the optimization.
+    shm_size: "8gb"
+    <<: *gpu
+    stdin_open: true
+    tty: true
+
+  deeptex:
+    build: ./deeptex
+    image: texsr/deeptex:tf2.10.1
+    working_dir: /workspace/external/DeepTextures
+    volumes:
+      - ..:/workspace
+      - ${DAS_ROOT:-./_das_placeholder}:/data
+    shm_size: "8gb"
+    <<: *gpu
+    stdin_open: true
+    tty: true

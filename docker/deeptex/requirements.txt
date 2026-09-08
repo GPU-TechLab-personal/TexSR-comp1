@@ -1,0 +1,24 @@
+# Copy of external/DeepTextures/requirements.txt (@ e4ee562) with a SINGLE
+# line changed. Line order is preserved so this file can be diffed against
+# upstream directly:
+#
+#     diff <(sed '/^#/d;/^$/d' docker/deeptex/requirements.txt) \
+#          <(sed '/^#/d;/^$/d' external/DeepTextures/requirements.txt)
+#
+# CHANGED: was `tensorflow-gpu==2.1.0`. Three independent reasons, all verified:
+#   1. tensorflow-gpu 2.1.0 (Jan 2020) publishes wheels only for cp27/35/36/37.
+#      It cannot be installed on this image's Python 3.8 at all - pip fails with
+#      "no matching distribution".
+#   2. TF 2.1 is built on CUDA 10.1 (2019), which predates Ampere entirely. An
+#      RTX 3080 Ti is sm_86 and needs CUDA 11.1+, so the GPU would go unused
+#      even if installation somehow succeeded.
+#   3. 2.10.1 is the NEWEST TF that runs this code unmodified: from TF 2.11 the
+#      new Keras optimizers break train_esrgan.py's `optimizer_G.lr(steps)`.
+# Already satisfied by the base image; listed here to document intent and to
+# make pip fail loudly if the base image ever drifts.
+tensorflow==2.10.1
+numpy
+opencv-python
+PyYAML
+tqdm
+Pillow

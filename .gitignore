@@ -1,0 +1,29 @@
+# local environment settings
+docker/.env
+
+# bigsize output
+data/
+runs/
+checkpoints/
+logs/
+output/
+*.pth
+*.tfrecord
+
+# DAS placeholder is bind-mounted at /data until DAS_ROOT is set,
+# so anything written there would otherwise land in the repo
+docker/_das_placeholder/*
+!docker/_das_placeholder/.gitkeep
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# editor/os
+.vscode/
+.DS_Store
+Thumbs.db
+
+# temporary files
+*.tmp

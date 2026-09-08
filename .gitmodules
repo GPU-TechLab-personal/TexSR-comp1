@@ -1,0 +1,9 @@
+[submodule "external/matup_esgr"]
+	path = external/matup_egsr
+	url = https://github.com/AlbanGauthier/matup_egsr.git
+[submodule "external/DeepTextures"]
+	path = external/DeepTextures
+	url = https://github.com/NethamGH/DeepTextures.git
+[submodule "external/esrgan-tf2"]
+	path = external/esrgan-tf2
+	url = https://github.com/peteryuX/esrgan-tf2.git
