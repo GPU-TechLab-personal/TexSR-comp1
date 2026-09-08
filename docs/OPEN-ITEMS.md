@@ -138,9 +138,9 @@ it, or both (both is the only way to tell "faithful reproduction" apart from
 
 | Item | Note |
 |---|---|
-| `.gitignore` | Not created yet. Needs `docker/.env`, `runs/`, `checkpoints/`, `logs/`, `*.pth`, `*.tfrecord` before the first commit that could pick them up. |
-| `.gitattributes` | `core.autocrlf=true` is on. Matters if the desktop ever runs `.sh` files through WSL2 (CRLF breaks the shebang). |
+| ~~`.gitignore`~~ | **Done.** Covers `docker/.env`, `runs/`, `checkpoints/`, `logs/`, `*.pth`, `*.tfrecord`, and `docker/_das_placeholder/*` (with `.gitkeep` negated). |
+| ~~`.gitattributes`~~ | **Done.** `* text=auto eol=lf` so the desktop checks out LF regardless of its own `core.autocrlf`, since it feeds `docker/` straight into `docker build`. |
 | SwinIR checkpoint | Not downloaded yet. Must land at `external/matup_egsr/pretrained_models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN.pth`, **exactly 142,473,939 bytes**. `sr_swinir.py` hardcodes the path and `exit(0)`s if missing. |
-| Org repository registration | Deferred by request. Repo has no commits and no remote yet. |
-| SSH remote execution | Deferred by request. Docker Desktop is not headless — logging out kills the daemon and running containers. |
+| ~~Org repository registration~~ | **Done.** `https://github.com/GPU-TechLab-personal/TexSR-comp1` (private). |
+| ~~SSH remote execution~~ | **Abandoned.** Verified that Docker Desktop is not headless: over SSH the daemon is unreachable (`open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified`) and the session dies on disconnect. Experiments now run directly on the desktop via screen streaming. Noted for the record: the desktop's WSL Ubuntu-24.04 already has docker-ce 29.8.0 + nvidia-container-toolkit 1.20.0 installed and `enabled`, with the `nvidia` runtime registered — a ready fallback if the Docker Desktop path ever fails. |
 | `.gitmodules` section label | Reads `[submodule "external/matup_esgr"]` (typo) while `path`/`url` are correct. Harmless; left as-is. |
