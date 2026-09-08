@@ -46,6 +46,20 @@ services:
     stdin_open: true
     tty: true
 
+  # Data preparation only - no CUDA, no GPU reservation. Kept separate from the
+  # two method images so pyarrow never lands in a pinned method environment.
+  # /data is mounted READ-ONLY here: the DAS holds the only copy of MatSynth and
+  # this stage has no reason to write to it (see docs/OPEN-ITEMS.md #1).
+  dataprep:
+    build: ./dataprep
+    image: texsr/dataprep:py3.11
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+      - ${DAS_ROOT:-./_das_placeholder}:/data:ro
+    stdin_open: true
+    tty: true
+
   deeptex:
     build: ./deeptex
     image: texsr/deeptex:tf2.10.1

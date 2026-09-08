@@ -1,0 +1,12 @@
+# Data-wrangling only. This file has no upstream counterpart - it exists because
+# MatSynth ships as HuggingFace parquet shards and neither method image can read
+# them without dragging pyarrow into a pinned method environment.
+#
+# Everything is pinned on purpose. See docs/OPEN-ITEMS.md #8 for what unpinned
+# dependencies already cost us once in this repo.
+pyarrow==17.0.0
+numpy<2
+# <5 for the same reason as the method images: OpenCV 5 is a major bump and the
+# resize/imwrite behaviour here feeds every downstream metric.
+opencv-python-headless<5
+Pillow<11
