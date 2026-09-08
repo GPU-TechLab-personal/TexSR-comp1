@@ -1,0 +1,38 @@
+{
+  "name": "DeepTextures - TF 2.10.1 / CUDA 11.2",
+
+  // docker/compose.yaml stays the single source of truth: it already carries the
+  // /workspace and /data mounts, shm_size 8gb and the GPU reservation. Nothing
+  // about the container is defined twice here.
+  "dockerComposeFile": ["../../docker/compose.yaml"],
+  "service": "deeptex",
+
+  // Start only this stack. The two stacks have exclusive CUDA requirements and
+  // there is no reason to bring the other one up alongside it.
+  "runServices": ["deeptex"],
+
+  // The repo root, NOT compose's working_dir (which points into the submodule) -
+  // VS Code should open the whole workspace.
+  "workspaceFolder": "/workspace",
+
+  // compose.yaml's CMD is `bash`, correct for `docker compose run` but it only
+  // survives detached start because of tty/stdin_open. Let the Dev Containers
+  // extension supply its own keep-alive command instead of depending on that.
+  "overrideCommand": true,
+
+  // Closing the window stops the stack. Images and build cache are untouched.
+  "shutdownAction": "stopCompose",
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance"],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3"
+      }
+    }
+  }
+
+  // Deliberately NO "features" and NO "postCreateCommand". Both install packages
+  // into the container at create time, which is exactly the dependency drift
+  // that docker/deeptex/requirements.txt exists to prevent.
+}

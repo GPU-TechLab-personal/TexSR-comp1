@@ -115,6 +115,31 @@ docker compose run --rm matup python main.py --upscaler swinir
 
 ---
 
+## VS Code devcontainer
+
+CLI 대신 컨테이너 안에서 편집·실행하려면 `.devcontainer/`에 두 스택이 정의돼 있다. `docker/compose.yaml`을 그대로 재사용하므로 마운트·`shm_size`·GPU 예약이 이중으로 정의되지 않는다.
+
+`F1` → **Dev Containers: Reopen in Container** → 스택 선택:
+
+| 설정 이름 | 서비스 | 인터프리터 |
+|---|---|---|
+| `MatUp - torch 2.0.0 / CUDA 11.7` | matup | `/opt/conda/bin/python` |
+| `DeepTextures - TF 2.10.1 / CUDA 11.2` | deeptex | `/usr/bin/python3` |
+
+터미널은 **`/workspace`(저장소 루트)에서 열린다.** compose의 `working_dir`와 다르므로 MatUp을 돌릴 때는 `cd external/matup_egsr`가 필요하다 — `sr_swinir.py`가 체크포인트를 `./pretrained_models/...`로 찾기 때문에 CWD가 틀리면 조용히 `exit(0)` 된다 (위 4단계 참조).
+
+> ⚠️ **이중 데몬 함정이 여기서 형태를 바꿔 재현된다.**
+> Dev Containers 확장은 컨테이너를 직접 만들지 않고 **자기가 붙어 있는 호스트에서 `docker`를
+> 실행하는 클라이언트**다. VS Code 창이 `WSL: Ubuntu-24.04`에 매여 있으면 그 선택이 컨테이너로
+> 상속돼, 컨테이너가 Docker Desktop이 아니라 WSL 안 docker-ce에 만들어진다.
+> **안에서는 멀쩡해 보이는 게 함정이다** — 이미지는 Docker Desktop에 없고 6 GB를 다시 받는다.
+> **반드시 Windows 경로(`C:\...`)로 연 창에서 Reopen할 것.** 왼쪽 아래 원격 표시기가 `WSL:`로
+> 시작하면 잘못된 창이다. 의심되면 Windows PowerShell에서 `docker images texsr/matup`.
+
+`features`와 `postCreateCommand`는 의도적으로 비워뒀다. 둘 다 컨테이너 생성 시점에 패키지를 설치하는데, 그게 바로 `docker/*/requirements.txt`가 막으려는 드리프트다.
+
+---
+
 ## 구조
 
 ```
@@ -123,6 +148,7 @@ docker/          컨테이너 정의. 두 스택은 CUDA 요구가 배타적이�
   deeptex/       TF 2.10.1 + CUDA 11.2
   compose.yaml   /workspace(repo) · /data(DAS) 고정 마운트, GPU 예약, shm 8GB
   .env.example   DAS_ROOT — 유일한 머신별 값
+.devcontainer/   VS Code devcontainer 정의. compose.yaml을 재사용만 한다
 external/        upstream 서브모듈 (커밋 고정)
 docs/            OPEN-ITEMS.md — 미해결 결정·불확실성
 ```
