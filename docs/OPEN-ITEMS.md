@@ -7,28 +7,50 @@ Last updated: 2026-09-08
 
 ---
 
-## 1. `DAS_ROOT` — the MatSynth data path (BLOCKING for data work)
+## 1. `DAS_ROOT` — the MatSynth data path
 
-**Status:** undecided.
+**Status:** RESOLVED 2026-09-08 — `DAS_ROOT=U:/`.
 
-The desktop's DAS path is not settled, so `docker/.env` has not been created and
-`docker/.env.example` leaves `DAS_ROOT` commented out.
+The DAS is a multi-bay USB enclosure with three disks:
 
-**Current workaround:** `docker/compose.yaml` uses
-`${DAS_ROOT:-./_das_placeholder}`, binding an empty directory at `/data`. That
-is enough for `docker compose build` and for the MatUp smoke test on
-`victorian_wood`, because that example material ships in the repo and is reached
-through `/workspace`, not `/data`.
+| Drive | Label | Size | Free | Contents |
+|---|---|---|---|---|
+| T: | NAS-1TB | 931.5 GB | 931.2 GB | empty |
+| **U:** | **HITACHI-A** | **1863 GB** | **1581.9 GB** | **`MatSynth/`** |
+| V: | HITACHI-B | 1863 GB | 1862.6 GB | empty |
 
-**Blocks:** everything that touches MatSynth — dataset download, training-set
-construction, tfrecord generation, DeepTextures training, test-material prep.
+`DAS_ROOT=U:/` rather than `U:/MatSynth`, so that `/data` has room for run
+outputs and derived datasets beside the source data:
 
-**To close:**
-1. Decide the DAS path on the desktop (e.g. `F:/texsr`).
-2. `cd docker && cp .env.example .env`, then set `DAS_ROOT` with forward slashes.
-3. On Windows, share that drive under Docker Desktop → Settings → Resources →
-   File sharing, otherwise the bind mount silently fails.
-4. Verify: `docker compose run --rm matup ls /data`.
+```
+/data/MatSynth/data/*.parquet   the downloaded HF shards
+/data/...                       anything we generate later
+```
+
+Pointing it at `U:/MatSynth` would leave nowhere inside `/data` to write.
+
+**⚠️ The enclosure is not reliable.** On 2026-09-08 **T: and V: silently
+stopped enumerating** — Explorer showed neither, `Get-Disk` reported only three
+physical disks total, and the two bays were absent at the hardware level, not
+merely unlettered. Ghost PnP entries under instance id `202000917003C` show the
+same enclosure has held at least six different disks over time. Power-cycling
+the enclosure brought both back with no data loss.
+
+**Why this matters more than it looks:** U: is in that same enclosure and holds
+the only copy of MatSynth here. Had this happened mid-training rather than
+mid-session, the dataset would have vanished under a running job. Before any
+long unattended run:
+
+- confirm all three bays are present (`Get-Volume | Where-Object DriveLetter`)
+- do not treat U: as durable storage for anything generated — results worth
+  keeping belong on C: or pushed off-machine
+- if it recurs, move MatSynth off the enclosure before the training round
+
+**Windows note:** `DAS_ROOT` uses forward slashes (`U:/`), and the drive must be
+shared under Docker Desktop → Settings → Resources → File sharing, otherwise
+the bind mount silently becomes an empty directory.
+
+**Verify:** `docker compose run --rm matup ls /data/MatSynth/data | head`
 
 ---
 
@@ -111,6 +133,28 @@ affect the pipeline.
 
 **To close:** record `load_dataset(...).num_rows` at collection time and use the
 measured value.
+
+### The local copy is incomplete (train only)
+
+Counted on `U:/MatSynth/data` on 2026-09-08:
+
+| split | shards present | expected |
+|---|---|---|
+| test | **8** | 8 ✅ |
+| train | **295** | 431 ❌ |
+
+281 GB on disk. The train download stopped in the ~300 range — 287, 288, 291,
+293–295, 298–300, 302 and then everything from 304 to 430 are missing. No
+zero-byte files, so what did land is probably intact, though unverified.
+
+**This does not block MatUp**, which is per-material test-time optimisation with
+no training, and draws from the complete test split. It blocks only the
+DeepTextures training round (#6), and it interacts with the count question
+above: any "we sampled N of M" statement must be based on what was actually
+read, not on the shard names.
+
+**To close:** either finish the train download before the training round, or
+decide to train on the 295 shards present and say so explicitly.
 
 ---
 
