@@ -95,11 +95,13 @@ docker compose build
 
 두 Dockerfile 끝에 **빌드 타임 검증**이 들어 있어, 의존성 핀이 틀리면 실험 도중이 아니라 여기서 실패한다.
 
-다만 그 검증이 찍는 버전 문자열을 **빌드 로그에서 읽으려 하지 말 것.** BuildKit이 `RUN` 출력을 접어버리고, 재빌드 때는 레이어가 캐시돼 아예 찍히지 않는다. torchvision 버전(→ `docs/OPEN-ITEMS.md` #2)은 런타임에서 확인한다:
+다만 그 검증이 찍는 버전 문자열을 **빌드 로그에서 읽으려 하지 말 것.** BuildKit이 `RUN` 출력을 접어버리고, 재빌드 때는 레이어가 캐시돼 아예 찍히지 않는다. 런타임에서 확인한다:
 
 ```powershell
-docker compose run --rm matup python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__)"
+docker compose run --rm matup python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__, torch.cuda.is_available())"
 ```
+
+`2.0.0 0.15.0 True`가 정상이다. **torchvision이 0.15.0인 것은 오류가 아니라 확인된 편차다** — 베이스 이미지가 upstream 핀 0.15.1을 싣고 있지 않다. torchvision은 이 프로젝트에서 호출 지점이 없어(timm이 끌고 오는 전이 import뿐) 그대로 두기로 했다. 근거는 `docs/OPEN-ITEMS.md` #2.
 
 ### 7. MatUp 스모크 테스트
 

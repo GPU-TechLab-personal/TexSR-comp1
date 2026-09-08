@@ -18,7 +18,17 @@
 # make pip fail loudly if the base image ever drifts.
 tensorflow==2.10.1
 numpy
-opencv-python
+# CHANGED: was `opencv-python`.
+# Unpinned, this resolved to 5.0.0.93 - a major version, against code written
+# for OpenCV 4. Nothing here calls an API that 5.x dropped (imread / imwrite /
+# resize / getGaussianKernel / filter2D are all bedrock), so it very likely ran
+# fine - but modules/utils.py:302-312 implements SSIM on filter2D, and a silent
+# behavioural shift there moves reported metrics instead of crashing. Not a risk
+# worth carrying in a comparison study.
+# Note there is no `numpy<2` in this file to hold opencv back indirectly the way
+# it does in the matup image: this is Python 3.8, where numpy is capped at 1.x
+# anyway and the opencv 5.x wheels accept it. The pin has to be explicit here.
+opencv-python<5
 PyYAML
 tqdm
 Pillow

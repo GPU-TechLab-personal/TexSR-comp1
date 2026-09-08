@@ -34,30 +34,42 @@ construction, tfrecord generation, DeepTextures training, test-material prep.
 
 ## 2. torchvision version in the MatUp base image
 
-**Status:** unverified.
+**Status:** RESOLVED 2026-09-08 — measured, deviation accepted.
 
-`docker/matup/requirements.txt` comments out upstream's `torch==2.0.0` and
-`torchvision==0.15.1` on the grounds that
-`pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime` already provides them, and that
-reinstalling from the `torch_stable` index risks pulling a differently-built
-wheel. It is confirmed that the image ships torch 2.0.0; **it is not confirmed
-whether its torchvision is 0.15.1 or 0.15.0.**
-
-**Why it matters:** low risk. MatUp uses torchvision only lightly, and a 0.15.0
-/ 0.15.1 mismatch is unlikely to change behaviour — but it is an unverified
-claim currently sitting in a comment, which is worse than a known deviation.
-
-**To close:** do NOT try to read this off the build log. The Dockerfile's
-build-time check does print `matup deps OK | torch <ver> | torchvision <ver>`,
-but BuildKit collapses `RUN` output, and on a cached rebuild the layer does not
-execute at all, so the line is simply absent. Ask a running container instead:
+**Measurement.** From the built image on the desktop:
 
 ```
-docker compose run --rm matup python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__)"
+docker compose run --rm matup python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__, torch.cuda.is_available())"
+2.0.0 0.15.0 True
 ```
 
-If torchvision is not 0.15.1, decide whether to restore the pin or record the
-deviation here.
+So `pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime` ships **torch 2.0.0** (exactly
+upstream's pin) and **torchvision 0.15.0** — *not* the pinned 0.15.1. The claim
+previously sitting in `docker/matup/requirements.txt`, that the base image
+"already provides exactly these versions", was therefore half wrong; it has been
+corrected in place.
+
+**Verdict: keep 0.15.0, do not restore the pin.** Grepping the pinned sources
+shows torchvision has no call site in this project:
+
+- `matup_egsr` @ c74ec99 — no `torchvision` import anywhere in its own code
+- `SwinIR` — no `torchvision` import either; `models/network_swinir.py:11` imports
+  `timm`, which is what drags torchvision in transitively
+
+So the only thing 0.15.0 vs 0.15.1 could affect is a module that gets imported
+and never called. Against that, restoring `torchvision==0.15.1` would force a
+reinstall from the `torch_stable` index — which is precisely the
+differently-built-wheel risk (CPU-only build clobbering the CUDA one) that
+commenting the pin out was meant to avoid. Trading a real risk for a nil one is
+the wrong direction.
+
+`torch.cuda.is_available()` returning `True` in the same call confirms the CUDA
+build survived intact.
+
+**Note for reproduction writeups:** the official PyTorch image for torch 2.0.0
+does not carry the torchvision release that upstream pinned. If exact upstream
+parity is ever required, it has to come from a different base image, not from a
+pip reinstall on top of this one.
 
 ---
 
@@ -109,9 +121,26 @@ measured value.
 The workable window is roughly **TF 2.5 – 2.10**:
 - **Upper bound (firm):** from TF 2.11 the new Keras optimizers break
   `train_esrgan.py`'s `optimizer_G.lr(steps)`.
-- **Lower bound (unverified):** TF 2.5+ builds against CUDA 11.2, which supports
-  Ampere (sm_86). TF 2.4 uses CUDA 11.0, which does not. This comes from
-  TensorFlow's tested-build-configurations table, not from a build we ran.
+- **Lower bound (still unverified):** TF 2.5+ builds against CUDA 11.2, which
+  supports Ampere (sm_86). TF 2.4 uses CUDA 11.0, which does not. This comes
+  from TensorFlow's tested-build-configurations table, not from a build we ran.
+
+**The chosen version is no longer theoretical.** Measured on the desktop
+(RTX 3080 Ti, driver 591.86) on 2026-09-08:
+
+```
+docker compose run --rm deeptex python -c "import tensorflow as tf; print(tf.__version__, tf.config.list_physical_devices('GPU'))"
+2.10.1 [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
+```
+
+So TF 2.10.1 / CUDA 11.2 really does see sm_86 on this card. Only the *lower*
+end of the window (2.5–2.9) remains table-derived.
+
+That run also emits three messages that look alarming and are not. Do not chase
+them: `Unable to register cuBLAS factory: ... already been registered` is known
+TF 2.10 duplicate-registration noise; `could not open file to read NUMA node`
+is normal under Docker Desktop's WSL2 VM, which exposes no NUMA topology; the
+oneDNN lines are informational.
 
 2.10.1 was chosen as the newest version that runs the code unmodified. Moving
 closer to upstream's 2.1.0 would be more faithful to the paper but means older
@@ -165,7 +194,75 @@ does not mention the discrepancy. Not needed until the training round.
 
 ---
 
-## 8. Deferred housekeeping
+## 8. `opencv-python` major-version drift
+
+**Status:** RESOLVED 2026-09-08 — pinned `opencv-python<5` in both images.
+
+Neither `requirements.txt` pinned `opencv-python`. Measured in the built images
+on 2026-09-08, before the pin below was added:
+
+| | Python | opencv-python | numpy |
+|---|---|---|---|
+| matup | 3.10 | **4.11.0.86** | 1.26.4 |
+| deeptex | 3.8 | **5.0.0.93** | 1.23.4 |
+
+Two separate problems, and the second is the worse one:
+
+1. **deeptex resolved to OpenCV 5.x** against a 2020-era codebase. Auditing the
+   call sites, every one is bedrock API that 5.x keeps — `cv2.imread`,
+   `imwrite`, `resize` (`test.py`, `modules/utils.py:370,402,433-438`) and
+   `getGaussianKernel` / `filter2D` (`modules/utils.py:302-312`, the SSIM
+   implementation). So this probably *works*. It is undeclared drift rather than
+   a known break.
+
+2. **matup's 4.x is held there by accident.** Nothing pins opencv; it stayed on
+   4.11 only because `numpy<2` forced pip to backtrack off the 5.x wheels. That
+   coupling is invisible and load-bearing: relax or retarget the numpy pin later
+   and matup silently jumps a major version of OpenCV too.
+
+Note the Dockerfiles' build-time checks cannot catch either case — both only do
+`import cv2`, which succeeds on any version.
+
+**Why it matters:** this is precisely the time-rot failure that
+`docker/matup/requirements.txt` was written to prevent, reappearing in the
+dependency that file left open. SSIM is a reported comparison metric, so a
+behavioural change in `filter2D` would move published numbers, not just crash.
+
+**Decision:** `opencv-python<5` added to both requirements files, with the
+reasoning in a comment beside each. matup's behaviour does not change (it was
+already on 4.11.0.86) — the pin only converts an accident into an intention.
+deeptex actually moves off 5.0.0.93, so its pip layer must be rebuilt:
+
+```
+docker compose build deeptex
+```
+
+**Verified after rebuild**, same day:
+
+| | before the pin | after |
+|---|---|---|
+| matup | 4.11.0.86 | 4.11.0.86 (unchanged, as predicted) |
+| deeptex | **5.0.0.93** | **4.14.0.94** |
+
+The two images land on different 4.x releases because their Python and numpy
+constraints differ; the pin only ever had to exclude the major bump, so that is
+fine. To re-check later:
+
+```
+docker compose run --rm matup   pip list --format=freeze | grep opencv
+docker compose run --rm deeptex pip list --format=freeze | grep opencv
+```
+
+(from PowerShell, replace `grep opencv` with `Select-String opencv`)
+
+Unrelated but visible in that output: the deeptex image carries pip 20.2.4 and
+says so on every invocation. That is what the TF 2.10.1 / Python 3.8 base ships.
+Leave it — upgrading pip inside the image would change how every unpinned
+requirement in this file resolves, which is the opposite of what #8 is for.
+
+---
+
+## 9. Deferred housekeeping
 
 | Item | Note |
 |---|---|
