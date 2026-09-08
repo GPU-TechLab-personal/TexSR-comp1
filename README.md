@@ -162,3 +162,7 @@ docs/            OPEN-ITEMS.md — 미해결 결정·불확실성
 3. **MatUp은 `height`를 출력하지 않는다.** 산출 맵은 4장뿐이고, 512² 중 **유효 영역은 496²**(8px 검은 테두리)라 비교 시 전 방법·GT에서 잘라내야 공정하다.
 4. **DeepTextures는 학습 데이터 준비 스크립트가 없다.** upstream에서 삭제됐으므로 우리가 작성해야 한다. `external/esrgan-tf2`가 삭제된 `train_psnr.py`/`psnr.yaml`의 공여자다.
 5. **`requirements.txt`를 upstream 것으로 되돌리지 말 것.** `docker/*/requirements.txt`에 변경 사유가 줄별로 주석돼 있다.
+6. **MatUp을 같은 저장소에서 둘 이상 동시에 돌리지 말 것.** 중간 산출물이 `--render_dir`·`--upsamplings_dir`의 **고정 기본 경로**(`./data/<재질>/radiance_LR`, `radiance_Upscaled`)에 쌓이고, `main_optim.py`가 성공 시 그 둘을 `shutil.rmtree`로 지운다. 저장소가 컨테이너에 바인드 마운트돼 있으므로 **먼저 끝난 실행이 아직 돌고 있는 실행의 입력을 삭제한다.** 피해자는 원인과 무관해 보이는 `ZeroDivisionError: division by zero`(`data_utils.py:11`)로 죽는다 — `load_renderings`의 glob이 빈 리스트를 반환해 `output_map_size`가 0으로 남기 때문이다. 실제로 한 번 당했다.
+   - 재질을 병렬로 돌리려면 실행마다 경로를 분리할 것: `--render_dir ./data/<재질>/radiance_LR_<태그> --upsamplings_dir ./data/<재질>/radiance_Upscaled_<태그>`
+   - devcontainer 창을 두 개 열어두면 이 상황을 만들기 쉽다.
+   - **`docker compose run`은 클라이언트를 죽여도 컨테이너가 계속 돈다.** Ctrl+C나 터미널 종료로 멈췄다고 믿지 말 것 — `docker ps`로 확인하고 `docker stop`으로 끊어야 한다.
