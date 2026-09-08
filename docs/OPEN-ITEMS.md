@@ -47,9 +47,17 @@ whether its torchvision is 0.15.1 or 0.15.0.**
 / 0.15.1 mismatch is unlikely to change behaviour — but it is an unverified
 claim currently sitting in a comment, which is worse than a known deviation.
 
-**To close:** read the last line of the matup build output — the build-time
-check prints `matup deps OK | torch <ver> | torchvision <ver>`. If it is not
-0.15.1, decide whether to restore the pin or record the deviation here.
+**To close:** do NOT try to read this off the build log. The Dockerfile's
+build-time check does print `matup deps OK | torch <ver> | torchvision <ver>`,
+but BuildKit collapses `RUN` output, and on a cached rebuild the layer does not
+execute at all, so the line is simply absent. Ask a running container instead:
+
+```
+docker compose run --rm matup python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__)"
+```
+
+If torchvision is not 0.15.1, decide whether to restore the pin or record the
+deviation here.
 
 ---
 
@@ -134,7 +142,30 @@ it, or both (both is the only way to tell "faithful reproduction" apart from
 
 ---
 
-## 7. Deferred housekeeping
+## 7. DeepTextures LR schedule never fires
+
+**Status:** observed in upstream config; no decision yet.
+
+`configs/esrgan.yaml` sets `niter: 40000` while
+`lr_steps: [50000, 100000, 200000, 300000]` with `lr_rate: 0.5`. The first decay
+step lands 10k iterations *after* training ends, so both learning rates stay
+constant at `1e-4` for the whole run — the multi-step decay that
+`train_esrgan.py` logs at every step is dead code as configured.
+
+**Why it matters:** same class as #6, and compounding with it. ESRGAN's
+published recipe is PSNR pre-train → GAN fine-tune *with* LR decay; this config
+has neither. So "DeepTextures as published" sits two deviations away from
+"ESRGAN as published", and a weak reproduction cannot be attributed to the
+paper's method without separating them.
+
+**To close:** decide together with #6 — train as-configured (faithful to the
+DeepTextures repo) or with `lr_steps` scaled into the 40k window (faithful to
+ESRGAN). Either way state the choice explicitly in the writeup, since the paper
+does not mention the discrepancy. Not needed until the training round.
+
+---
+
+## 8. Deferred housekeeping
 
 | Item | Note |
 |---|---|

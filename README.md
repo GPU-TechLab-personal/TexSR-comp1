@@ -39,7 +39,9 @@ git -C external/matup_egsr submodule update --init sr_modules/SwinIR
 
 `DeepTextures`는 논문 학습 이미지 300장을 포함해 약 560 MB를 받는다.
 
-확인 — 네 줄이 나오고 SRFlow만 `-` 상태여야 한다:
+확인 — **다섯 줄**이 나오고 `sr_modules/SRFlow`만 `-` 상태여야 한다. 최상위 3개에 더해
+`matup_egsr`가 SwinIR·SRFlow를 중첩 서브모듈로 들고 있고, `--recursive`는 받지 않은
+SRFlow까지 `-`를 달아 함께 나열한다:
 
 ```powershell
 git submodule status --recursive
@@ -91,7 +93,13 @@ docker run --rm --gpus all nvidia/cuda:11.7.1-base-ubuntu22.04 nvidia-smi
 docker compose build
 ```
 
-두 Dockerfile 끝에 **빌드 타임 검증**이 들어 있어, 의존성 핀이 틀리면 실험 도중이 아니라 여기서 실패한다. matup 쪽 마지막 줄의 torchvision 버전을 확인할 것 (→ `docs/OPEN-ITEMS.md` #2).
+두 Dockerfile 끝에 **빌드 타임 검증**이 들어 있어, 의존성 핀이 틀리면 실험 도중이 아니라 여기서 실패한다.
+
+다만 그 검증이 찍는 버전 문자열을 **빌드 로그에서 읽으려 하지 말 것.** BuildKit이 `RUN` 출력을 접어버리고, 재빌드 때는 레이어가 캐시돼 아예 찍히지 않는다. torchvision 버전(→ `docs/OPEN-ITEMS.md` #2)은 런타임에서 확인한다:
+
+```powershell
+docker compose run --rm matup python -c "import torch, torchvision; print(torch.__version__, torchvision.__version__)"
+```
 
 ### 7. MatUp 스모크 테스트
 
