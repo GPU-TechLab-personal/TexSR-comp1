@@ -113,6 +113,8 @@ docker compose run --rm matup python main.py --upscaler swinir
 
 `output/<타임스탬프>/`에 16-bit PNG 4장(`baseColor_opt`, `metallic_opt`, `normal_opt`, `roughness_opt`)과 `render_opt.png`가 나오고 **8px 검은 테두리가 보이면** 의존성·경로·체크포인트·GPU가 전부 맞은 것이다.
 
+여기까지가 구축이다. **실제 실험을 돌리는 것은 `docs/RUNBOOK.md`를 볼 것** — 실험 전 점검, MatSynth 재질 추출부터 결과까지의 전체 절차, 코드 지도, 증상별 역추적표가 거기 있다.
+
 ---
 
 ## VS Code devcontainer
@@ -149,8 +151,10 @@ docker/          컨테이너 정의. 두 스택은 CUDA 요구가 배타적이�
   compose.yaml   /workspace(repo) · /data(DAS) 고정 마운트, GPU 예약, shm 8GB
   .env.example   DAS_ROOT — 유일한 머신별 값
 .devcontainer/   VS Code devcontainer 정의. compose.yaml을 재사용만 한다
+scripts/         MatSynth 추출 등 데이터 가공 (dataprep 컨테이너에서 실행)
 external/        upstream 서브모듈 (커밋 고정)
-docs/            OPEN-ITEMS.md — 미해결 결정·불확실성
+docs/            RUNBOOK.md     — 실험 운용. 점검·코드 지도·증상별 역추적
+                 OPEN-ITEMS.md  — 미해결 결정·불확실성
 ```
 
 컨테이너 내부 경로가 `/workspace`·`/data`로 고정돼 있어 **호스트 경로 차이는 `.env` 한 줄에만 존재한다.**
