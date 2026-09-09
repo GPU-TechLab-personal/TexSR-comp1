@@ -80,11 +80,12 @@ docker compose run --rm dataprep python scripts/matsynth_extract.py --index 8
 스크립트가 마지막에 이 명령을 그대로 찍어준다. 복사해 쓰면 된다.
 
 ```powershell
+$m = "<재질이름>"
 docker compose run --rm matup python main.py --upscaler swinir --ogl_normals `
-  --input_mat       /workspace/runs/matsynth/<이름>/SVBRDF/ `
-  --render_dir      /workspace/runs/matsynth/<이름>/radiance_LR/ `
-  --upsamplings_dir /workspace/runs/matsynth/<이름>/radiance_Upscaled/ `
-  --output_folder   /workspace/runs/matsynth/<이름>/output/
+  --input_mat       "/workspace/runs/matsynth/$m/SVBRDF/" `
+  --render_dir      "/workspace/runs/matsynth/$m/radiance_LR/" `
+  --upsamplings_dir "/workspace/runs/matsynth/$m/radiance_Upscaled/" `
+  --output_folder   "/workspace/runs/matsynth/$m/matup-output-$m/"
 ```
 
 **경로 4개를 실행마다 분리하는 것이 핵심이다.** 기본값을 쓰면 동시 실행이 서로를
@@ -99,7 +100,36 @@ loss 1 ... loss 10
 ...done
 ```
 
-결과는 `output/<타임스탬프>/`에 **512² 16-bit PNG 5장**.
+결과는 `matup-output-<재질이름>/<타임스탬프>/`에 **512² 16-bit PNG 5장**. 타임스탬프
+하위 폴더는 MatUp이 `--output_folder` 아래에 스스로 만드는 것이라 없앨 수 없다.
+
+### 2.4 전부 자동으로 — 권장
+
+위 명령을 재질마다 손으로 치는 대신:
+
+```powershell
+scripts\run_matup.ps1 -PostProcess
+```
+
+`runs/matsynth`의 모든 재질을 순차 실행하고 후처리 체인까지 돈다. 사전 점검(§1)을
+자동으로 수행하고, **이미 결과가 있는 재질은 건너뛴다**(`-Force`로 무시). GPU 이탈
+서명을 만나면 즉시 중단하고, 그 외 실패는 2회 연속이면 멈춘다. 재질별 로그는
+`runs/_logs/<타임스탬프>/`에 남는다.
+
+`-PostProcess`가 도는 네 단계 — 순서가 중요하다:
+
+| 스크립트 | 컨테이너 | 하는 일 |
+|---|---|---|
+| `matup_height.py` | dataprep | 논문 §3.3 법선 적분으로 height 복원 (MatUp은 출력 안 함) |
+| `matup_render.py` | **matup** | LR·bilinear·GT를 MatUp 렌더러·같은 광원으로 렌더 |
+| `matup_postprocess.py` | dataprep | 테두리 크롭·법선 G 교정·크기 통일 → `compare/`, `--metrics` |
+| `matup_montage.py` | dataprep | 4행×6열 몽타주 → `runs/montages/` |
+
+앞의 둘이 MatUp이 만들지 않는 두 열을 채우고, 셋째가 전부를 `compare/`로 정규화하며,
+넷째는 거기서만 읽는다. 따로 돌릴 때도 이 순서를 지켜야 한다.
+
+`matup_render.py --verify`는 MatUp 자신의 출력 맵을 다시 렌더해 `render_opt.png`와
+비교한다. 12개 전부 max ≤ 3.3e-4로 일치했다 — 맵 변환이 맞다는 확인이다.
 
 ---
 

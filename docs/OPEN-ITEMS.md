@@ -3,7 +3,7 @@
 Decisions and unknowns that are deliberately unresolved. Each entry says what
 blocks it, why it matters, and how to close it.
 
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 ---
 
@@ -306,7 +306,116 @@ requirement in this file resolves, which is the opposite of what #8 is for.
 
 ---
 
-## 9. Deferred housekeeping
+## 9. MatUp output is less sharp than its own bilinear initialisation
+
+**Status:** open. Cause narrowed to the optimisation stage; four hypotheses
+measured and ruled out.
+
+**Observation.** MatUp initialises from a bilinear x4 upsample
+(`dataLoader.load_material`, `cv2.INTER_LINEAR`) and learns a residual on top,
+so a ratio below 1.0 against that initialisation means the optimisation
+*removed* sharpness. On `0559_brick_uneven_stones` (MatSynth, 128 -> 512):
+
+| map | \|grad\| ratio | Laplacian-var ratio |
+|---|---|---|
+| baseColor | 0.883x | 0.850x |
+| normal | 0.908x | 0.774x |
+| roughness | 0.972x | 0.914x |
+
+Output reaches 27% of the GT `|grad|`.
+
+### Ruled out, with the measurement that ruled it out
+
+1. **Our invocation.** The author's bundled `victorian_wood`, run with the
+   author's own default command in the same container and checkpoint, gives
+   **1.399x / 4.945x**. The setup works.
+
+2. **`--ogl_normals`.** With the flag 0.883x/0.850x, without it 0.881x/0.845x —
+   no effect on sharpness. (It *does* pick the output convention. Note
+   `data_utils.py` hardcodes `opengl_normals=False` in the `write_normal` call,
+   so output is always DirectX regardless. MatSynth is OpenGL — its dataset card
+   states "We adopt the OpenGL standard for the Normal map" — so passing the
+   flag is correct and the output needs a Y flip before comparison.)
+
+3. **LR construction.** Suspected the 32x decimation (4096 -> 128) band-limited
+   the input past what the upsampler can work with. Rebuilt the pair as a
+   native-resolution 512 crop for GT with a x4 decimation for LR
+   (`matsynth_extract.py --mode crop`): **0.851x / 0.835x**. No improvement.
+   Hypothesis refuted.
+
+4. **The SwinIR checkpoint.** Ran the render and upsample stages in isolation
+   and measured SwinIR against a bilinear x4 of the same renders:
+
+   | | \|grad\| | Laplacian-var |
+   |---|---|---|
+   | victorian_wood | 1.629x | 48.7x |
+   | brick | 1.159x | **13.4x** |
+
+   Weaker than on the author's example but plainly working. The optimisation is
+   handed a target 13x sharper than bilinear and still returns 0.88x.
+
+### Measured across all 12 materials of `test-00000`
+
+The single-material conclusion did not survive. `matup/bilinear` on `|grad|`,
+from `scripts/matup_postprocess.py --metrics`:
+
+| map | above 1.0 | range |
+|---|---|---|
+| baseColor | **5 / 12** | 0.440 – 1.831 |
+| roughness | 5 / 11 | 0.547 – 11.440 |
+| **normal** | **1 / 12** | 0.577 – 1.175 |
+
+So **baseColor and roughness are strongly material-dependent** — `acg_plastic_009`
+gets 0.440x while `acg_roofing_tiles_006` gets 1.831x, and `th_brick_wall_005`
+sharpens roughness by 11.4x. The brick this item was opened on (0.879x) sits
+mid-range; generalising from it was the mistake.
+
+**The normal map is the exception, and it is the real finding.** It is smoothed
+on 11 of 12 materials with a narrow spread, while the other maps swing wildly.
+That is systematic rather than material-dependent, and it is what hypothesis (b)
+predicts: the optimisation can fit the upsampled radiance by moving baseColor and
+roughness, which is easier than moving geometry, so the normal is left smooth.
+The paper reports no per-map numbers, so this is not something it contradicts —
+it is something it never measured.
+
+### What is left
+
+Why the normal specifically. Untested: inverse-problem ambiguity (the paper
+itself concedes metalness diverges and adds a regulariser, §3.2);
+`--alpha_reg 1e-1` possibly over-regularising; and whether the effect survives
+outside this shard.
+
+Note the reconstructed `height` (scripts/matup_height.py) exceeds 1.0 on all 12,
+but that says nothing about MatUp — that map is built by integration plus a
+high-pass, so adding high frequency is what it does by construction.
+
+### Not defects — do not chase these
+
+- **The gap to GT.** GT is a 512 view of a 4096 material; recovering 16x the
+  pixels from a band-limited 128 input is not possible. A large gap is expected.
+- **The 8px border** — the paper's stated design (README operational note 3).
+- **The inverted normal Y** — convention, not error.
+
+### Caveats on judging this at all
+
+The paper reports **no quantitative metrics whatsoever** (zero occurrences of
+PSNR, SSIM, RMSE or LPIPS), so there is no published figure for how sharp MatUp
+"should" be. And the repo is the first author's own reimplementation, carrying
+his caveat that it "may [have] slight differences which prevent me from
+replicating all results perfectly".
+
+All 12 materials come from one shard (`test-00000`) of one dataset, and
+`|grad|` / Laplacian variance are proxies for sharpness, not for quality — a
+result can be sharper and still wrong.
+
+**To close:** decide whether the normal-map result is worth pursuing. It is the
+only systematic effect found, and the comparison this project exists to make
+runs on rendered appearance, where geometry matters. Widening to other shards
+would establish whether it holds beyond these 12.
+
+---
+
+## 10. Deferred housekeeping
 
 | Item | Note |
 |---|---|
