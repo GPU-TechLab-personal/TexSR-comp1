@@ -6,6 +6,10 @@
 # dependencies already cost us once in this repo.
 pyarrow==17.0.0
 numpy<2
+# DCT-based Poisson solve for the normal-integration height reconstruction the
+# MatUp paper describes in 3.3 but its reference implementation omits.
+# scipy.fft.dctn/idctn only; numpy has no DCT.
+scipy==1.14.1
 # <5 for the same reason as the method images: OpenCV 5 is a major bump and the
 # resize/imwrite behaviour here feeds every downstream metric.
 opencv-python-headless<5
