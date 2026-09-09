@@ -7,6 +7,7 @@ Run it in the dataprep container, never in a method container:
 
     docker compose run --rm dataprep python scripts/matsynth_extract.py --list
     docker compose run --rm dataprep python scripts/matsynth_extract.py --index 0
+    docker compose run --rm dataprep python scripts/matsynth_extract.py --index 0 --count 10
 
 Layout produced under --out:
 
@@ -90,6 +91,15 @@ def fit_channels(arr, want):
     return arr[:, :, :3]
 
 
+def center_crop(arr, size):
+    h, w = arr.shape[:2]
+    if size > min(h, w):
+        raise SystemExit("crop size %d exceeds source %dx%d" % (size, w, h))
+    y = (h - size) // 2
+    x = (w - size) // 2
+    return arr[y:y + size, x:x + size]
+
+
 def resize_square(arr, size):
     # INTER_AREA is the correct kernel when shrinking; it averages the block a
     # pixel covers instead of sampling one point out of it.
@@ -107,13 +117,20 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--shard", default=DEFAULT_SHARD)
     ap.add_argument("--index", type=int, default=0,
-                    help="row within the shard (see --list)")
+                    help="first row within the shard (see --list)")
+    ap.add_argument("--count", type=int, default=1,
+                    help="how many consecutive rows to extract from --index")
     ap.add_argument("--out", default="/workspace/runs/matsynth",
                     help="destination root; runs/ is gitignored")
     ap.add_argument("--lr-size", type=int, default=128,
                     help="LR map size fed to MatUp (its --material_size)")
     ap.add_argument("--scale", type=int, default=4,
                     help="MatUp's fixed upscaling factor; GT is lr-size*scale")
+    ap.add_argument("--mode", choices=["resize", "crop"], default="resize",
+                    help="how the LR/GT pair is built from the 4096^2 source. "
+                         "resize: decimate the whole map (GT 8x, LR 32x). "
+                         "crop: take a gt-size window at NATIVE resolution as GT, "
+                         "then area-average that window x4 for LR.")
     ap.add_argument("--list", action="store_true",
                     help="list the materials in the shard and exit")
     args = ap.parse_args()
@@ -129,32 +146,50 @@ def main():
             print("  [%2d] %-40s category=%s" % (i, n, c))
         return
 
-    columns = ["name", "category"] + list(MAPS)
-    row = None
-    seen = 0
-    for batch in pf.iter_batches(batch_size=1, columns=columns):
-        if seen == args.index:
-            row = batch
-            break
-        seen += 1
-    if row is None:
-        raise SystemExit("index %d out of range (shard has %d rows)"
-                         % (args.index, pf.metadata.num_rows))
+    last = args.index + args.count - 1
+    if last >= pf.metadata.num_rows:
+        raise SystemExit("rows %d-%d requested but shard has %d"
+                         % (args.index, last, pf.metadata.num_rows))
 
+    columns = ["name", "category"] + list(MAPS)
+    extracted = []
+    # One pass over the shard: iter_batches streams, so asking for row 9 by
+    # re-opening the file nine times would re-read everything nine times.
+    for position, row in enumerate(pf.iter_batches(batch_size=1, columns=columns)):
+        if position < args.index:
+            continue
+        if position > last:
+            break
+        extracted.append(extract_row(row, position, args, gt_size=args.lr_size * args.scale))
+
+    print()
+    print("extracted %d material(s) into %s" % (len(extracted), args.out))
+    for safe in extracted:
+        print("  " + safe)
+    print()
+    print("run MatUp per material with explicit per-run paths")
+    print("(README operational note 6 - shared default paths destroy each other):")
+    print()
+    root = args.out.rstrip("/")
+    print('  $m = "%s"' % extracted[0])
+    print("  docker compose run --rm matup python main.py --upscaler swinir --ogl_normals `")
+    print('      --input_mat       "%s/$m/SVBRDF/" `' % root)
+    print('      --render_dir      "%s/$m/radiance_LR/" `' % root)
+    print('      --upsamplings_dir "%s/$m/radiance_Upscaled/" `' % root)
+    print('      --output_folder   "%s/$m/matup-output-$m/"' % root)
+
+
+def extract_row(row, position, args, gt_size):
     name = row.column("name")[0].as_py()
     category = row.column("category")[0].as_py()
     safe = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in name)
 
-    gt_size = args.lr_size * args.scale
     lr_dir = os.path.join(args.out, safe, "SVBRDF")
     gt_dir = os.path.join(args.out, safe, "GT")
     os.makedirs(lr_dir, exist_ok=True)
     os.makedirs(gt_dir, exist_ok=True)
 
-    print("material : %s  (category=%s)" % (name, category))
-    print("shard    : %s  row %d" % (os.path.basename(args.shard), args.index))
-    print("writing  : %s" % os.path.join(args.out, safe))
-    print()
+    print("[%2d] %s  (category=%s)" % (position, name, category))
 
     report = {}
     for column, (filename, channels) in MAPS.items():
@@ -166,20 +201,31 @@ def main():
         src_ch = 1 if src.ndim == 2 else src.shape[2]
         src_desc = "%dx%d %s ch=%d" % (src.shape[1], src.shape[0], src.dtype, src_ch)
 
-        for size, folder in ((gt_size, gt_dir), (args.lr_size, lr_dir)):
-            arr = fit_channels(src, channels)
-            arr = resize_square(arr, size)
-            write_png(os.path.join(folder, filename), as_integer(arr))
+        arr = fit_channels(src, channels)
+        if args.mode == "crop":
+            # GT is a native-resolution window; LR is that same window decimated
+            # x4. Decimating the WHOLE 4096^2 map instead (mode=resize) band-limits
+            # the 128^2 input so hard that there is no pixel-level structure left
+            # for the RGB upsampler to enhance, and MatUp then converges to
+            # something smoother than its own bilinear initialisation.
+            gt_arr = center_crop(arr, gt_size)
+            lr_arr = resize_square(gt_arr, args.lr_size)
+        else:
+            gt_arr = resize_square(arr, gt_size)
+            lr_arr = resize_square(arr, args.lr_size)
+        write_png(os.path.join(gt_dir, filename), as_integer(gt_arr))
+        write_png(os.path.join(lr_dir, filename), as_integer(lr_arr))
 
         report[column] = src_desc
-        print("  %-14s %-24s -> %d^2 (LR) + %d^2 (GT)  kept %s"
-              % (column, src_desc, args.lr_size, gt_size, src.dtype))
+
+    print("     " + "  ".join("%s %s" % (c, d.split()[1]) for c, d in report.items()))
 
     meta = {
         "name": name,
         "category": category,
         "shard": os.path.basename(args.shard),
-        "row_index": args.index,
+        "row_index": position,
+        "mode": args.mode,
         "lr_size": args.lr_size,
         "gt_size": gt_size,
         "source_maps": report,
@@ -189,15 +235,7 @@ def main():
     with open(os.path.join(args.out, safe, "meta.json"), "w") as fh:
         json.dump(meta, fh, indent=2)
 
-    print()
-    print("done. run MatUp with explicit per-run paths (README operational note 6):")
-    print()
-    print("  docker compose run --rm matup python main.py \\")
-    print("      --upscaler swinir --ogl_normals \\")
-    print("      --input_mat       /workspace/runs/matsynth/%s/SVBRDF/ \\" % safe)
-    print("      --render_dir      /workspace/runs/matsynth/%s/radiance_LR/ \\" % safe)
-    print("      --upsamplings_dir /workspace/runs/matsynth/%s/radiance_Upscaled/ \\" % safe)
-    print("      --output_folder   /workspace/runs/matsynth/%s/output/" % safe)
+    return safe
 
 
 if __name__ == "__main__":
