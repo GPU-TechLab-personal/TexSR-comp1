@@ -30,6 +30,7 @@ like a textured one.
 """
 import argparse
 import glob
+import json
 import os
 
 import cv2
@@ -142,6 +143,66 @@ def process(mat_dir, args):
     return True
 
 
+SUMMARY_MAPS = ["baseColor", "normal", "roughness", "metallic", "height"]
+
+
+def collect(mat_dirs, dest):
+    """Gather everything worth sharing into one folder.
+
+    A single directory is the point: it is the only part of runs/ that is
+    committed, so .gitignore stays two lines instead of a ladder of negations
+    for metrics.json buried under compare/<timestamp>/.
+    """
+    os.makedirs(dest, exist_ok=True)
+    rows = []
+    for d in mat_dirs:
+        name = os.path.basename(d.rstrip("/"))
+        newest = sorted(glob.glob(os.path.join(d, "compare", "*", "montage.png")))[-1]
+        cv2.imwrite(os.path.join(dest, name + ".png"),
+                    cv2.imread(newest, cv2.IMREAD_UNCHANGED))
+
+        mpath = os.path.join(os.path.dirname(newest), "metrics.json")
+        if not os.path.exists(mpath):
+            continue
+        with open(mpath) as fh:
+            m = json.load(fh)
+        with open(os.path.join(dest, name + ".json"), "w") as fh:
+            json.dump(m, fh, indent=2)
+        rows.append((name, m))
+
+    if not rows:
+        print("collected %d montage(s) into %s" % (len(mat_dirs), dest))
+        return
+
+    lines = [
+        "# MatUp vs bilinear",
+        "",
+        "`matup / bilinear` on mean gradient magnitude, over the valid region.",
+        "bilinear is not just a baseline here - it is MatUp's own initialisation",
+        "(`dataLoader.py` resizes every map INTER_LINEAR x4 before optimising), so",
+        "**below 1.0 means the optimisation removed detail it started with.**",
+        "",
+        "`n/a` marks a constant map with no gradient to divide by (metallic is all",
+        "zero on non-metals). `height` is reconstructed by scripts/matup_height.py,",
+        "not produced by MatUp - it adds high frequency by construction, so its",
+        "column says nothing about MatUp's quality.",
+        "",
+        "| material | " + " | ".join(SUMMARY_MAPS) + " |",
+        "|---" * (len(SUMMARY_MAPS) + 1) + "|",
+    ]
+    for name, m in sorted(rows):
+        cells = []
+        for k in SUMMARY_MAPS:
+            v = m["maps"].get(k, {}).get("matup_over_bilinear", {}).get("grad")
+            cells.append("n/a" if v is None else "%.3f" % v)
+        lines.append("| %s | %s |" % (name, " | ".join(cells)))
+
+    with open(os.path.join(dest, "summary.md"), "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    print("collected %d montage(s) + metrics + summary.md into %s"
+          % (len(mat_dirs), dest))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -165,13 +226,7 @@ def main():
     made = [d for d in dirs if process(d, args)]
 
     if args.collect:
-        os.makedirs(args.collect, exist_ok=True)
-        for d in made:
-            name = os.path.basename(d.rstrip("/"))
-            newest = sorted(glob.glob(os.path.join(d, "compare", "*", "montage.png")))[-1]
-            img = cv2.imread(newest, cv2.IMREAD_UNCHANGED)
-            cv2.imwrite(os.path.join(args.collect, name + ".png"), img)
-        print("collected %d montage(s) into %s" % (len(made), args.collect))
+        collect(made, args.collect)
 
     print("\n%d montage(s) written" % len(made))
 

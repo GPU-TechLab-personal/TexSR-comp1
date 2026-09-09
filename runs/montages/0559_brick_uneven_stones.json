@@ -1,0 +1,109 @@
+{
+  "material": "0559_brick_uneven_stones",
+  "run": "Sep09_11h48m34s",
+  "border": 8,
+  "scale": 4,
+  "size": 496,
+  "maps": {
+    "baseColor": {
+      "bilinear": {
+        "grad": 0.007625422477761926,
+        "lapvar": 4.350293368472119e-05
+      },
+      "matup": {
+        "grad": 0.006702435009986571,
+        "lapvar": 2.8782693041599715e-05
+      },
+      "gt": {
+        "grad": 0.025104520181636586,
+        "lapvar": 0.0048362389888115505
+      },
+      "matup_over_bilinear": {
+        "grad": 0.8789591697421264,
+        "lapvar": 0.6616264836343343
+      }
+    },
+    "normal": {
+      "bilinear": {
+        "grad": 0.006440286005621321,
+        "lapvar": 2.2674702001840816e-05
+      },
+      "matup": {
+        "grad": 0.005943245684562697,
+        "lapvar": 1.0930462556904336e-05
+      },
+      "gt": {
+        "grad": 0.010088579725139421,
+        "lapvar": 0.00012762428960411327
+      },
+      "matup_over_bilinear": {
+        "grad": 0.9228232534044624,
+        "lapvar": 0.4820554005965309
+      },
+      "normal_Y_corr_vs_gt": {
+        "before_flip": -0.9856585887606968,
+        "after_flip": 0.9856585887606968
+      }
+    },
+    "roughness": {
+      "bilinear": {
+        "grad": 0.01185144132549987,
+        "lapvar": 0.00014004077223700426
+      },
+      "matup": {
+        "grad": 0.011467131637015628,
+        "lapvar": 0.00010393493447233037
+      },
+      "gt": {
+        "grad": 0.03894048321790391,
+        "lapvar": 0.005871925105486829
+      },
+      "matup_over_bilinear": {
+        "grad": 0.9675727468137271,
+        "lapvar": 0.7421762449041014
+      }
+    },
+    "metallic": {
+      "bilinear": {
+        "grad": 0.0,
+        "lapvar": 0.0
+      },
+      "matup": {
+        "grad": 4.206383576284491e-06,
+        "lapvar": 2.7289932529531964e-08
+      },
+      "gt": {
+        "grad": 0.0,
+        "lapvar": 0.0
+      },
+      "matup_over_bilinear": {
+        "grad": null,
+        "lapvar": null
+      }
+    },
+    "height": {
+      "bilinear": {
+        "grad": 0.009751892275612172,
+        "lapvar": 5.110600046109691e-06
+      },
+      "matup": {
+        "grad": 0.013890181298923096,
+        "lapvar": 4.7805329872628894e-05
+      },
+      "gt": {
+        "grad": 0.010192010657906326,
+        "lapvar": 7.248523540832508e-06
+      },
+      "matup_over_bilinear": {
+        "grad": 1.4243575407062363,
+        "lapvar": 9.354152045026384
+      }
+    }
+  },
+  "render_columns": [
+    "bilinear",
+    "gt",
+    "lr",
+    "matup"
+  ]
+}

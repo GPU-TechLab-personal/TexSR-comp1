@@ -3,12 +3,23 @@ docker/.env
 
 # bigsize output
 data/
-runs/
 checkpoints/
 logs/
 output/
 *.pth
 *.tfrecord
+
+# Experiment outputs stay out of git - they are regenerable from the code and
+# MatSynth (scripts/run_matup.ps1 -PostProcess) and would otherwise put ~600 MB
+# of binaries in the history permanently.
+#
+# runs/montages/ is the exception, and the reason it exists: montages, per-material
+# metrics and summary.md are what gets shared with the lab, and they are small and
+# self-contained. Note `runs/*` rather than `runs/` - git will not descend into an
+# ignored directory, so the negation below only works if the directory itself is
+# not the thing being ignored.
+runs/*
+!runs/montages/
 
 # DAS placeholder is bind-mounted at /data until DAS_ROOT is set,
 # so anything written there would otherwise land in the repo

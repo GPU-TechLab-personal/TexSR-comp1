@@ -1,0 +1,109 @@
+{
+  "material": "acg_roofing_tiles_006",
+  "run": "Sep09_11h56m44s",
+  "border": 8,
+  "scale": 4,
+  "size": 496,
+  "maps": {
+    "baseColor": {
+      "bilinear": {
+        "grad": 0.003168908064096151,
+        "lapvar": 1.5183876889554609e-05
+      },
+      "matup": {
+        "grad": 0.005800930226473867,
+        "lapvar": 0.00048729645334942464
+      },
+      "gt": {
+        "grad": 0.004507566308141425,
+        "lapvar": 0.00016907304712359712
+      },
+      "matup_over_bilinear": {
+        "grad": 1.8305770029110744,
+        "lapvar": 32.093019252852926
+      }
+    },
+    "normal": {
+      "bilinear": {
+        "grad": 0.011633936485463632,
+        "lapvar": 9.853903380066222e-05
+      },
+      "matup": {
+        "grad": 0.013664620524837048,
+        "lapvar": 0.00028496139673281584
+      },
+      "gt": {
+        "grad": 0.017768862445317328,
+        "lapvar": 0.003516633070252175
+      },
+      "matup_over_bilinear": {
+        "grad": 1.1745483174943163,
+        "lapvar": 2.89186310989484
+      },
+      "normal_Y_corr_vs_gt": {
+        "before_flip": -0.9121027252957175,
+        "after_flip": 0.912102725295717
+      }
+    },
+    "roughness": {
+      "bilinear": {
+        "grad": 0.009152257550484467,
+        "lapvar": 6.31615843491983e-05
+      },
+      "matup": {
+        "grad": 0.022540865494657992,
+        "lapvar": 0.005820041652142004
+      },
+      "gt": {
+        "grad": 0.024973856459545477,
+        "lapvar": 0.0065272351941759125
+      },
+      "matup_over_bilinear": {
+        "grad": 2.4628749104055543,
+        "lapvar": 92.14527647003011
+      }
+    },
+    "metallic": {
+      "bilinear": {
+        "grad": 0.0,
+        "lapvar": 0.0
+      },
+      "matup": {
+        "grad": 0.0004726222239171897,
+        "lapvar": 1.9649631179048125e-05
+      },
+      "gt": {
+        "grad": 0.0,
+        "lapvar": 0.0
+      },
+      "matup_over_bilinear": {
+        "grad": null,
+        "lapvar": null
+      }
+    },
+    "height": {
+      "bilinear": {
+        "grad": 0.023512499437850127,
+        "lapvar": 6.881807690056106e-05
+      },
+      "matup": {
+        "grad": 0.033526072077074566,
+        "lapvar": 0.0026533412767764794
+      },
+      "gt": {
+        "grad": 0.0245564012918182,
+        "lapvar": 0.00041280495143034023
+      },
+      "matup_over_bilinear": {
+        "grad": 1.4258829507127904,
+        "lapvar": 38.555876541136634
+      }
+    }
+  },
+  "render_columns": [
+    "bilinear",
+    "gt",
+    "lr",
+    "matup"
+  ]
+}

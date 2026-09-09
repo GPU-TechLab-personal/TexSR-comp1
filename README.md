@@ -17,6 +17,8 @@
 
 코드는 GitHub로, **데이터는 GitHub를 타지 않는다** (DAS에 있음).
 
+예외는 `runs/montages/` 하나다. 연구실 공유용 산출물 — 재질별 4행×6열 몽타주, `metrics.json`, `summary.md` — 만 커밋한다(약 36 MB). 나머지 `runs/`는 600 MB가 넘고 **코드와 MatSynth로부터 재생성 가능**하므로(`scripts\run_matup.ps1 -PostProcess`) git 히스토리에 넣지 않는다.
+
 ---
 
 ## 데스크탑 초기 구축
