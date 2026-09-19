@@ -21,6 +21,36 @@
       "matup_over_bilinear": {
         "grad": 1.247953749671522,
         "lapvar": 0.6885875639931875
+      },
+      "deeptex": {
+        "grad": 0.002851231890651418,
+        "lapvar": 6.458740112099793e-05
+      },
+      "deeptex_over_bilinear": {
+        "grad": 1.526434941454978,
+        "lapvar": 8.083051488497597
+      },
+      "vs_gt": {
+        "lr": {
+          "psnr": 48.1411193759568,
+          "ssim": 0.9861212170961228,
+          "bits": 8
+        },
+        "bilinear": {
+          "psnr": 50.85254490759013,
+          "ssim": 0.9937216809563519,
+          "bits": 8
+        },
+        "matup": {
+          "psnr": 34.833282080406825,
+          "ssim": 0.9812858285854523,
+          "bits": 8
+        },
+        "deeptex": {
+          "psnr": 22.361930911816167,
+          "ssim": 0.8965552823973333,
+          "bits": 8
+        }
       }
     },
     "normal": {
@@ -43,6 +73,23 @@
       "normal_Y_corr_vs_gt": {
         "before_flip": -0.8090010916258431,
         "after_flip": 0.8090010916258429
+      },
+      "vs_gt": {
+        "lr": {
+          "psnr": 20.38000628036933,
+          "ssim": 0.4462999243782728,
+          "bits": 8
+        },
+        "bilinear": {
+          "psnr": 20.66194576917433,
+          "ssim": 0.4268008423417841,
+          "bits": 8
+        },
+        "matup": {
+          "psnr": 19.971593945235156,
+          "ssim": 0.39646657656706535,
+          "bits": 8
+        }
       }
     },
     "roughness": {
@@ -61,6 +108,25 @@
       "matup_over_bilinear": {
         "grad": null,
         "lapvar": null
+      },
+      "vs_gt": {
+        "lr": {
+          "psnr": null,
+          "ssim": 1.0,
+          "bits": 8,
+          "identical": true
+        },
+        "bilinear": {
+          "psnr": null,
+          "ssim": 1.0,
+          "bits": 8,
+          "identical": true
+        },
+        "matup": {
+          "psnr": 26.23487748839181,
+          "ssim": 0.7950824818089925,
+          "bits": 8
+        }
       }
     },
     "metallic": {
@@ -79,6 +145,25 @@
       "matup_over_bilinear": {
         "grad": null,
         "lapvar": null
+      },
+      "vs_gt": {
+        "lr": {
+          "psnr": null,
+          "ssim": 1.0,
+          "bits": 8,
+          "identical": true
+        },
+        "bilinear": {
+          "psnr": null,
+          "ssim": 1.0,
+          "bits": 8,
+          "identical": true
+        },
+        "matup": {
+          "psnr": 25.323978682023416,
+          "ssim": 0.34389886995593677,
+          "bits": 8
+        }
       }
     },
     "height": {
@@ -97,13 +182,75 @@
       "matup_over_bilinear": {
         "grad": 1.6446851429609646,
         "lapvar": 3.5653186146892755
+      },
+      "vs_gt": {
+        "lr": {
+          "psnr": 27.75643222611684,
+          "ssim": 0.7684773713571657,
+          "bits": 8
+        },
+        "bilinear": {
+          "psnr": 31.86024726705001,
+          "ssim": 0.8890243426813664,
+          "bits": 8
+        },
+        "matup": {
+          "psnr": 25.240924807457247,
+          "ssim": 0.892430355706724,
+          "bits": 8
+        }
       }
     }
   },
   "render_columns": [
     "bilinear",
+    "deeptex",
     "gt",
     "lr",
     "matup"
-  ]
+  ],
+  "render_metrics": {
+    "lr": {
+      "grad": 0.022944569900887623,
+      "lapvar": 0.007935847580064737
+    },
+    "bilinear": {
+      "grad": 0.01566193495509339,
+      "lapvar": 0.0005629096452767541
+    },
+    "matup": {
+      "grad": 0.012660427438750984,
+      "lapvar": 0.0002506846941537754
+    },
+    "gt": {
+      "grad": 0.05202663724582813,
+      "lapvar": 0.03424492159932373
+    },
+    "deeptex": {
+      "grad": 0.061300597327746925,
+      "lapvar": 0.03148765926649709
+    },
+    "vs_gt": {
+      "lr": {
+        "psnr": 17.04145766031548,
+        "ssim": 0.2529777982982994,
+        "bits": 8
+      },
+      "bilinear": {
+        "psnr": 21.720068285602093,
+        "ssim": 0.5037802001703277,
+        "bits": 8
+      },
+      "matup": {
+        "psnr": 21.905324926467294,
+        "ssim": 0.4762054412814556,
+        "bits": 8
+      },
+      "deeptex": {
+        "psnr": 20.007854005247374,
+        "ssim": 0.31969785691370517,
+        "bits": 8
+      }
+    }
+  }
 }

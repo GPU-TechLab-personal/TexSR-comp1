@@ -4,7 +4,7 @@ Turn a MatUp run into a comparison-ready LR / bilinear / MatUp / GT set.
 
 Run it in the dataprep container:
 
-    docker compose run --rm dataprep python scripts/matup_postprocess.py --all --metrics
+    docker compose run --rm dataprep python scripts/compare/matup_postprocess.py --all --metrics
 
 Three things have to be normalised before MatUp output can be put next to the
 ground truth, or differences that have nothing to do with quality get read as
@@ -36,9 +36,16 @@ import argparse
 import glob
 import json
 import os
+import sys
 
 import cv2
 import numpy as np
+
+# texsr_metrics lives in scripts/common because BOTH methods must measure with
+# the same code - see the note in that file about runs/montages/ being committed.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                os.pardir, "common"))
+import texsr_metrics  # noqa: E402
 
 # map name -> (LR/GT filename, MatUp output filename)
 MAPS = {
@@ -60,6 +67,19 @@ RENDER = {"lr": "render_lr.png", "bilinear": "render_bilinear.png",
 PRECROPPED_RENDER = {"gt", "bilinear"}   # both are produced at 496^2 already
 
 COLUMNS = ["lr", "bilinear", "matup", "gt"]
+
+# --deeptex-root adds a fifth column, on baseColor and render only.
+#
+# Not because the method cannot do more - the paper applies its 3-channel network
+# to all five channel types - but because the other four would each need a choice
+# the paper does not specify. A 1-channel GT needs a 1-channel result, the network
+# emits three non-identical channels, and the collapse upstream uses for metrics
+# (rgb2ycbcr) is not what it uses to WRITE, while the paper's real metrics (deltaE,
+# FLIP) have no code in the repo at all. See scripts/deeptex/deeptex_compare.py for the
+# full argument. Those cells stay empty and matup_montage.py draws its placeholder.
+DEEPTEX_COLUMN = "deeptex"
+DEEPTEX_MAPS = {"baseColor", "render"}
+ORDER_WITH_DEEPTEX = ["lr", "bilinear", "matup", "deeptex", "gt"]
 U16_MAX = 65535
 
 
@@ -198,6 +218,43 @@ def corr(a, b):
 
 # ------------------------------------------------------------------- per-material
 
+def deeptex_column(path, border, side):
+    """Crop a DeepTextures SR output into the same valid region as the MatUp column.
+
+    MatUp's 512^2 contains only 496^2 of prediction; the 8px rim is zero padding it
+    never optimised (README operational note 3). DeepTextures has no such rim - its
+    whole output is valid - so cropping it is not symmetry for its own sake, it is
+    the only way both columns cover the same pixels of the same material. Not doing
+    it would measure MatUp on padding.
+    """
+    a = read(path)
+    if a.shape[0] > side and border:
+        a = a[border:-border, border:-border]
+    if a.shape[0] != side:
+        a = cv2.resize(a, (side, side), interpolation=cv2.INTER_NEAREST)
+    return to_u16(a)
+
+
+def full_reference(cols, gt_key="gt"):
+    """PSNR/SSIM of every non-GT column against GT.
+
+    New in this pass. Until DeepTextures existed there was no second method to
+    compare against GT in the same units, so the chain measured only reference-free
+    sharpness. Both sides are quantised to 8 bits first (texsr_metrics.full_reference)
+    because MatUp writes 16-bit and DeepTextures writes 8-bit, and scoring at 16
+    would hand MatUp precision the other method structurally cannot have.
+    """
+    out = {}
+    for col, arr in cols.items():
+        if col == gt_key:
+            continue
+        try:
+            out[col] = texsr_metrics.full_reference(arr, cols[gt_key])
+        except ValueError as e:
+            out[col] = {"error": str(e)}
+    return out
+
+
 def process(mat_dir, args):
     name = os.path.basename(mat_dir.rstrip("/"))
     runs = sorted(glob.glob(os.path.join(mat_dir, "matup-output-%s" % name, "*")))
@@ -243,14 +300,23 @@ def process(mat_dir, args):
               "scale": scale, "size": gts["baseColor"].shape[0] - 2 * border,
               "maps": {}}
 
+    dtx_dir = os.path.join(args.deeptex_root, name) if args.deeptex_root else ""
+
     for m in opts:
         cols = build_columns(lrs[m], gts[m], opts[m], border, scale,
                              m == "normal", m in PRECROPPED)
-        for col in COLUMNS:
+        if dtx_dir and m in DEEPTEX_MAPS:
+            p = os.path.join(dtx_dir, m + ".png")
+            if os.path.exists(p):
+                cols[DEEPTEX_COLUMN] = deeptex_column(p, border, report["size"])
+            else:
+                print("  ! %s: no DeepTextures output for %s (%s)" % (name, m, p))
+        order = [c for c in ORDER_WITH_DEEPTEX if c in cols]
+        for col in order:
             write(os.path.join(out_root, m, col + ".png"), cols[col])
         if not args.no_sheet:
             write(os.path.join(out_root, "sheet_%s.png" % m),
-                  make_sheet(cols, "%s  -  %s  (%s)" % (name, m, stamp)))
+                  make_sheet(cols, "%s  -  %s  (%s)" % (name, m, stamp), order))
 
         if args.metrics:
             gb, lb = sharpness(cols["bilinear"])
@@ -271,6 +337,16 @@ def process(mat_dir, args):
                     "before_flip": corr(1.0 - flipped, to_float(cols["gt"])[..., 1]),
                     "after_flip":  corr(flipped,       to_float(cols["gt"])[..., 1]),
                 }
+            if DEEPTEX_COLUMN in cols:
+                gd, ld = sharpness(cols[DEEPTEX_COLUMN])
+                entry[DEEPTEX_COLUMN] = {"grad": gd, "lapvar": ld}
+                entry["deeptex_over_bilinear"] = {
+                    "grad": gd / gb if gb else None,
+                    "lapvar": ld / lb if lb else None}
+            # Added keys only; every key above keeps the value it had before
+            # texsr_metrics existed, so the committed runs/montages/*.json stay
+            # comparable.
+            entry["vs_gt"] = full_reference(cols)
             report["maps"][m] = entry
 
     # renders: three columns, no bilinear - a render is not an upsample
@@ -286,15 +362,26 @@ def process(mat_dir, args):
         if a.shape[0] != side:          # the LR render is native 128^2
             a = cv2.resize(a, (side, side), interpolation=cv2.INTER_NEAREST)
         rcols[col] = to_u16(a)
+    if dtx_dir:
+        p = os.path.join(dtx_dir, "render.png")
+        if os.path.exists(p):
+            rcols[DEEPTEX_COLUMN] = deeptex_column(p, border, side)
+        else:
+            print("  ! %s: no DeepTextures render (%s)" % (name, p))
     if rcols:
         for col, a in rcols.items():
             write(os.path.join(out_root, "render", col + ".png"), a)
         if not args.no_sheet:
-            ordered = {k: rcols[k] for k in COLUMNS if k in rcols}
+            ordered = {k: rcols[k] for k in ORDER_WITH_DEEPTEX if k in rcols}
             write(os.path.join(out_root, "sheet_render.png"),
                   make_sheet(ordered, "%s  -  render  (%s)" % (name, stamp),
                              list(ordered)))
         report["render_columns"] = sorted(rcols)
+        if args.metrics and "gt" in rcols:
+            rentry = {c: dict(zip(("grad", "lapvar"), sharpness(a)))
+                      for c, a in rcols.items()}
+            rentry["vs_gt"] = full_reference(rcols)
+            report["render_metrics"] = rentry
 
     if args.metrics:
         with open(os.path.join(out_root, "metrics.json"), "w") as fh:
@@ -310,6 +397,16 @@ def process(mat_dir, args):
             fmt = lambda v: "  n/a  " if v is None else "%.3fx" % v
             line = "      %-10s matup/bilinear  |grad| %s  Lapvar %s" % (
                 m, fmt(r["grad"]), fmt(r["lapvar"]))
+            d = report["maps"][m].get("deeptex_over_bilinear")
+            if d:
+                line += "   deeptex/bilinear |grad| %s" % fmt(d["grad"])
+            v = report["maps"][m].get("vs_gt", {})
+            pf = lambda e: ("identical" if e.get("identical")
+                            else ("n/a" if e.get("psnr") is None else "%.2f" % e["psnr"]))
+            if "matup" in v:
+                line += "   PSNR matup %s" % pf(v["matup"])
+                if "deeptex" in v:
+                    line += " / deeptex %s" % pf(v["deeptex"])
             if m == "normal":
                 c = report["maps"][m]["normal_Y_corr_vs_gt"]
                 line += "   Y corr %+.3f -> %+.3f" % (c["before_flip"], c["after_flip"])
@@ -328,6 +425,9 @@ def main():
                     help="MatUp's --tile_width; the border should be half of it")
     ap.add_argument("--no-sheet", action="store_true")
     ap.add_argument("--metrics", action="store_true")
+    ap.add_argument("--deeptex-root", default="",
+                    help="runs/deeptex/eval/<tag>; adds a fifth column for the "
+                         "two maps an RGB method can produce (baseColor, render)")
     args = ap.parse_args()
 
     if args.material:

@@ -6,9 +6,15 @@ bilinear is not just a baseline here - it is MatUp's own initialisation
 **below 1.0 means the optimisation removed detail it started with.**
 
 `n/a` marks a constant map with no gradient to divide by (metallic is all
-zero on non-metals). `height` is reconstructed by scripts/matup_height.py,
+zero on non-metals). `height` is reconstructed by scripts/matup/matup_height.py,
 not produced by MatUp - it adds high frequency by construction, so its
 column says nothing about MatUp's quality.
+
+`<material>_deeptex.png` is a separate 5x2 sheet - LR / bilinear / MatUp /
+DeepTex / GT over baseColor and render. DeepTextures is a colour model:
+its released code has no notion of a map type, and the 300 training files
+that ship with it are colour-dominated, so the other four maps are not
+part of that comparison. See docs/DEEPTEX-DEVIATIONS.md 0.5-0.8.
 
 | material | baseColor | normal | roughness | metallic | height |
 |---|---|---|---|---|---|
