@@ -65,6 +65,17 @@ import texsr_metrics  # noqa: E402
 
 TILE = 512  # split_large_image's hardcoded grid (modules/utils.py:376-395)
 
+# What goes ON the image. `upstream` and `ours` are internal names for which
+# tiling implementation ran - they say nothing to a reader, and "ours" hides that
+# BOTH arms are the paper's method with the paper's checkpoint. Only the join
+# differs, so the label says that. ASCII only: cv2's Hershey fonts have no Hangul.
+DISPLAY = {
+    "bicubic":  "Bicubic",
+    "upstream": "DeepTextures - paper tiling",
+    "ours":     "DeepTextures - overlap tiling",
+    "GT":       "Ground truth",
+}
+
 
 def read(path):
     a = cv2.imread(path, cv2.IMREAD_UNCHANGED)
@@ -108,7 +119,10 @@ def seam_ratio(img, tile=TILE):
 def label(img, text, size):
     cell = cv2.resize(img, (size, size), interpolation=cv2.INTER_AREA)
     cv2.rectangle(cell, (0, 0), (size, 22), (18, 18, 18), -1)
-    cv2.putText(cell, text, (6, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.45,
+    scale = 0.45
+    while cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, scale, 1)[0][0] > size - 12             and scale > 0.28:
+        scale -= 0.02
+    cv2.putText(cell, text, (6, 16), cv2.FONT_HERSHEY_SIMPLEX, scale,
                 (235, 235, 235), 1, cv2.LINE_AA)
     return cell
 
@@ -167,7 +181,7 @@ def main():
         report["materials"][stem] = entry
 
         order = ["bicubic", "upstream", "ours", "GT"]
-        cells = [label(imgs[k], k, args.cell) for k in order if k in imgs]
+        cells = [label(imgs[k], DISPLAY[k], args.cell) for k in order if k in imgs]
         cv2.imwrite(os.path.join(args.out, "sheet_%s.png" % stem), np.hstack(cells))
 
         # A close-up straddling the first interior boundary, upstream vs GT.
@@ -177,7 +191,7 @@ def main():
             crop = lambda im: im[y0:y0 + 192, b - half:b + half]
             zoom = lambda im: cv2.resize(crop(im), (args.cell, args.cell),
                                          interpolation=cv2.INTER_NEAREST)
-            pair = [label(zoom(imgs[k]), "%s  x=%d" % (k, b), args.cell)
+            pair = [label(zoom(imgs[k]), "%s   x=%d" % (DISPLAY[k], b), args.cell)
                     for k in ("upstream", "ours", "GT") if k in imgs]
             cv2.imwrite(os.path.join(args.out, "seam_%s.png" % stem), np.hstack(pair))
 

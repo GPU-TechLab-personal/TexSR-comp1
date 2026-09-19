@@ -54,7 +54,11 @@ ROWS = [("LR", "lr"), ("bilinear", "bilinear"), ("MatUp", "matup"), ("GT", "gt")
 # for why it is not a fifth row above.
 DEEPTEX_COLUMNS = ["baseColor", "render"]
 DEEPTEX_ROWS = [("LR", "lr"), ("bilinear", "bilinear"), ("MatUp", "matup"),
-                ("DeepTex", "deeptex"), ("GT", "gt")]
+                ("DeepTextures", "deeptex"), ("GT", "gt")]
+# "DeepTextures" is 129px at the row-label size and the default gutter is 82px of
+# usable width, so this sheet gets a wider one rather than a smaller font than its
+# sibling rows. Only this sheet: LEFT stays put, so montage.png is unchanged.
+DEEPTEX_LEFT = 160
 
 PAD = 6
 LEFT = 96
@@ -89,7 +93,7 @@ def placeholder(size, note):
     return cell
 
 
-def build(mat_dir, cmp_dir, size, columns, rows, suffix=""):
+def build(mat_dir, cmp_dir, size, columns, rows, suffix="", left=LEFT):
     """Draw one contact sheet for the given grid.
 
     `run_dir` used to be a parameter and was never read - process() still
@@ -114,9 +118,9 @@ def build(mat_dir, cmp_dir, size, columns, rows, suffix=""):
     for col in columns:
         # Overwrite the render note too: "run matup_render.py" is the wrong advice
         # for this row - nothing MatUp does will ever fill it.
-        notes[("DeepTex", col)] = ["run", "deeptex_compare.py"]
+        notes[("DeepTextures", col)] = ["run", "deeptex_compare.py"]
 
-    w = LEFT + len(columns) * (size + PAD) + PAD
+    w = left + len(columns) * (size + PAD) + PAD
     h = TITLE + HEAD + len(rows) * (size + PAD) + PAD
     sheet = np.full((h, w, 3), 18, np.uint8)
 
@@ -124,7 +128,7 @@ def build(mat_dir, cmp_dir, size, columns, rows, suffix=""):
                 (255, 255, 255), 1, cv2.LINE_AA)
 
     for c, col in enumerate(columns):
-        x = LEFT + c * (size + PAD)
+        x = left + c * (size + PAD)
         cv2.putText(sheet, col, (x + 4, TITLE + 22), FONT, 0.55,
                     (210, 210, 210), 1, cv2.LINE_AA)
 
@@ -133,7 +137,7 @@ def build(mat_dir, cmp_dir, size, columns, rows, suffix=""):
         cv2.putText(sheet, row, (10, y + size // 2), FONT, 0.62,
                     (210, 210, 210), 1, cv2.LINE_AA)
         for c, col in enumerate(columns):
-            x = LEFT + c * (size + PAD)
+            x = left + c * (size + PAD)
             arr = cells.get((row, col))
             cell = to_display(arr, size)
             if cell is None:
@@ -172,7 +176,8 @@ def process(mat_dir, args):
     if any(os.path.exists(os.path.join(cmp_dir, c, "deeptex.png"))
            for c in DEEPTEX_COLUMNS):
         dsheet, _, _ = build(mat_dir, cmp_dir, args.size,
-                             DEEPTEX_COLUMNS, DEEPTEX_ROWS, "    DeepTextures")
+                             DEEPTEX_COLUMNS, DEEPTEX_ROWS, "",
+                             left=DEEPTEX_LEFT)
         dout = os.path.join(cmp_dir, "montage_deeptex.png")
         if not cv2.imwrite(dout, dsheet):
             raise SystemExit("cv2.imwrite failed for " + dout)
