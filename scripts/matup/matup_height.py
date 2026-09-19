@@ -2,7 +2,7 @@
 """
 Reconstruct the height map MatUp's implementation never writes, per paper 3.3.
 
-    docker compose run --rm dataprep python scripts/matup_height.py --all
+    docker compose run --rm dataprep python scripts/matup/matup_height.py --all
 
 The paper:
 

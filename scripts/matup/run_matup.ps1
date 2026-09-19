@@ -25,9 +25,9 @@
       nvml errors; continuing only wastes time and buries the first failure.
 
 .EXAMPLE
-    scripts\run_matup.ps1
-    scripts\run_matup.ps1 -Material acg_metal_026
-    scripts\run_matup.ps1 -Force -PostProcess
+    scripts\matup\run_matup.ps1
+    scripts\matup\run_matup.ps1 -Material acg_metal_026
+    scripts\matup\run_matup.ps1 -Force -PostProcess
 #>
 [CmdletBinding()]
 param(
@@ -36,11 +36,12 @@ param(
     [switch]   $Force,
     [switch]   $SkipPreflight,
     [switch]   $PostProcess,
-    [int]      $TileWidth     = 17
+    [int]      $TileWidth     = 17,
+    [string[]] $AllowContainers = @()
 )
 
 $ErrorActionPreference = "Stop"
-$repo    = Split-Path -Parent $PSScriptRoot
+$repo    = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $compose = Join-Path $repo "docker\compose.yaml"
 $stamp   = Get-Date -Format "yyyyMMdd-HHmmss"
 $logDir  = Join-Path $repo "runs\_logs\$stamp"
@@ -50,6 +51,8 @@ $logDir  = Join-Path $repo "runs\_logs\$stamp"
 # against a Y-inverted surface.
 $OGL = "--ogl_normals"
 
+. (Join-Path (Split-Path -Parent $PSScriptRoot) "common\preflight.ps1")
+
 function Say([string]$msg, [string]$colour = "Gray") { Write-Host $msg -ForegroundColor $colour }
 
 # ---------------------------------------------------------------- preflight
@@ -57,20 +60,13 @@ function Say([string]$msg, [string]$colour = "Gray") { Write-Host $msg -Foregrou
 function Invoke-Preflight {
     Say "preflight" "Cyan"
 
-    $ctx = (docker context show).Trim()
-    if ($ctx -ne "desktop-linux") {
-        throw "docker context is '$ctx', expected 'desktop-linux'. A WSL context " +
-              "builds into the native docker-ce, which shares no images with " +
-              "Docker Desktop (docs/OPEN-ITEMS.md #10)."
-    }
-    Say "  context        $ctx" "DarkGray"
-
-    $running = docker ps --format "{{.Names}}"
-    if ($running) {
-        throw "containers already running: $running. A leftover MatUp container " +
-              "will delete this run's intermediates out from under it."
-    }
-    Say "  no stray containers" "DarkGray"
+    # The docker-context and stray-container checks live in common/preflight.ps1
+    # so this script and run_deeptex.ps1 cannot drift apart on the two-daemon trap,
+    # which is the most-warned-about failure in this repo. The reason a stray
+    # container matters differs per method, so it is passed in.
+    Invoke-SharedPreflight -Repo $repo -AllowContainers $AllowContainers `
+        -Reason ("a leftover MatUp container will delete this run's intermediates " +
+                 "out from under it (README operational note 6).")
 
     $ck = Join-Path $repo "external\matup_egsr\pretrained_models\003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN.pth"
     if (-not (Test-Path $ck)) { throw "SwinIR checkpoint missing: $ck" }
@@ -259,13 +255,13 @@ if ($PostProcess -and $bad -eq 0) {
     # write, postprocess normalises everything into compare/, montage reads only
     # from there - so montage must come last and the other two must come first.
     Invoke-Step "height reconstruction (paper 3.3)" dataprep `
-        @("python", "scripts/matup_height.py", "--all")
+        @("python", "scripts/matup/matup_height.py", "--all")
     Invoke-Step "LR / bilinear / GT renders" matup `
-        @("python", "/workspace/scripts/matup_render.py", "--all")
+        @("python", "/workspace/scripts/matup/matup_render.py", "--all")
     Invoke-Step "comparison sets + metrics" dataprep `
-        @("python", "scripts/matup_postprocess.py", "--all", "--metrics")
+        @("python", "scripts/compare/matup_postprocess.py", "--all", "--metrics")
     Invoke-Step "montages" dataprep `
-        @("python", "scripts/matup_montage.py", "--all", "--collect", "/workspace/runs/montages")
+        @("python", "scripts/compare/matup_montage.py", "--all", "--collect", "/workspace/runs/montages")
 } elseif ($PostProcess) {
     Say "`nskipping the post-processing chain: $bad material(s) failed" "Yellow"
 }

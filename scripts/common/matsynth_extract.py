@@ -5,9 +5,9 @@ layout MatUp expects, plus a ground-truth copy at the super-resolved size.
 
 Run it in the dataprep container, never in a method container:
 
-    docker compose run --rm dataprep python scripts/matsynth_extract.py --list
-    docker compose run --rm dataprep python scripts/matsynth_extract.py --index 0
-    docker compose run --rm dataprep python scripts/matsynth_extract.py --index 0 --count 10
+    docker compose run --rm dataprep python scripts/common/matsynth_extract.py --list
+    docker compose run --rm dataprep python scripts/common/matsynth_extract.py --index 0
+    docker compose run --rm dataprep python scripts/common/matsynth_extract.py --index 0 --count 10
 
 Layout produced under --out:
 
