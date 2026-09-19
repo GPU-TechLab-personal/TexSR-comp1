@@ -1,5 +1,6 @@
 # local environment settings
 docker/.env
+docker/.env.bak-*
 
 # bigsize output
 data/
@@ -20,6 +21,11 @@ output/
 # not the thing being ignored.
 runs/*
 !runs/montages/
+# runs/tiling/ is the second collected folder, same reasoning: the tiling
+# experiment's shareable output (comparison sheets, seam close-ups, the report
+# and its summary) is a few MB. Everything it was derived from stays ignored -
+# runs/deeptex/tiling/ holds a 375 MB checkpoint copy and ~100 MB of JPEG tiles.
+!runs/tiling/
 
 # DAS placeholder is bind-mounted at /data until DAS_ROOT is set,
 # so anything written there would otherwise land in the repo
