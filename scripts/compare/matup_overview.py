@@ -9,18 +9,19 @@ matup_montage.py answers "what did the methods do to THIS material". This answer
 twelve separate files cannot show. Cells come from the same compare/ directories,
 so nothing is recomputed and nothing can drift from the per-material sheets.
 
-The gradient column is why this sheet exists rather than a table. Over the twelve
-materials MatUp lands at 14-47% of the ground truth's mean gradient magnitude and
-DeepTextures at 78-156%, while PSNR prefers MatUp on ten of twelve - and prefers
-the untouched LR input over BOTH methods on several. Printing |grad| as a
-percentage of GT next to the pictures puts that contradiction where it cannot be
-missed: one method removes detail, the other invents it at roughly the right
-amount, and a single number hides which.
+Pictures only, deliberately. An earlier version printed each method's mean
+gradient magnitude as a percentage of the ground truth beside every row, because
+that number contradicts PSNR - MatUp lands at 13-47% on eleven of the twelve
+materials while DeepTextures lands at 77-156%, yet PSNR prefers MatUp on ten of
+twelve and on several prefers the untouched LR input to both methods. The
+contradiction is real and belongs in the report; it does not belong stamped on
+the contact sheet, where it tells the eye what to conclude before the eye has
+looked. The numbers are in runs/montages/<material>.json under maps.<map>, and
+in summary.md.
 """
 
 import argparse
 import glob
-import json
 import os
 
 import cv2
@@ -33,7 +34,6 @@ PAD = 4
 LEFT = 210
 HEAD = 30
 TITLE = 34
-RIGHT = 150          # the |grad| as % of GT column
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
@@ -78,26 +78,13 @@ def main():
             cells[fname] = cv2.imread(p, cv2.IMREAD_UNCHANGED) if os.path.exists(p) else None
         if cells["gt"] is None:
             continue
-
-        # |grad| as a percentage of GT, read from the metrics the montage shares.
-        pct = {}
-        mpath = os.path.join(cmp_dir, "metrics.json")
-        if os.path.exists(mpath):
-            with open(mpath) as fh:
-                mm = json.load(fh)
-            e = mm.get("maps", {}).get(args.map, {})
-            g = (e.get("gt") or {}).get("grad")
-            for _, fname in COLUMNS:
-                v = (e.get(fname) or {}).get("grad")
-                if g and v is not None:
-                    pct[fname] = 100.0 * v / g
-        rows.append((os.path.basename(d.rstrip("/")), cells, pct))
+        rows.append((os.path.basename(d.rstrip("/")), cells))
 
     if not rows:
         raise SystemExit("nothing to draw under " + args.root)
 
     size = args.size
-    w = LEFT + len(COLUMNS) * (size + PAD) + PAD + RIGHT
+    w = LEFT + len(COLUMNS) * (size + PAD) + PAD
     h = TITLE + HEAD + len(rows) * (size + PAD) + PAD
     sheet = np.full((h, w, 3), 18, np.uint8)
 
@@ -109,10 +96,8 @@ def main():
         x = LEFT + c * (size + PAD)
         cv2.putText(sheet, lab, (x + 3, TITLE + 20), FONT,
                     fit(lab, size - 6, 0.5), (215, 215, 215), 1, cv2.LINE_AA)
-    cv2.putText(sheet, "|grad| as % of GT", (LEFT + len(COLUMNS) * (size + PAD) + 6,
-                TITLE + 20), FONT, 0.42, (215, 215, 215), 1, cv2.LINE_AA)
 
-    for r, (name, cells, pct) in enumerate(rows):
+    for r, (name, cells) in enumerate(rows):
         y = TITLE + HEAD + r * (size + PAD)
         cv2.putText(sheet, name, (8, y + size // 2), FONT,
                     fit(name, LEFT - 16, 0.46), (215, 215, 215), 1, cv2.LINE_AA)
@@ -124,15 +109,6 @@ def main():
                 cv2.putText(cell, "n/a", (size // 2 - 18, size // 2), FONT, 0.5,
                             (110, 110, 110), 1, cv2.LINE_AA)
             sheet[y:y + size, x:x + size] = cell
-
-        xr = LEFT + len(COLUMNS) * (size + PAD) + 6
-        for i, key in enumerate(("matup", "deeptex")):
-            if key in pct:
-                # Red when detail was lost, green when it is near or above GT.
-                col = (90, 220, 90) if pct[key] >= 70 else (90, 90, 235)
-                cv2.putText(sheet, "%-12s %3.0f%%" % (key, pct[key]),
-                            (xr, y + size // 2 - 8 + i * 22), FONT, 0.42,
-                            col, 1, cv2.LINE_AA)
 
     if not cv2.imwrite(args.out, sheet):
         raise SystemExit("cv2.imwrite failed for " + args.out)
