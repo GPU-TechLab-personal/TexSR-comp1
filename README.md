@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **MatUp** (EGSR 2024) | 재질 1개당 test-time 최적화. 학습 불필요. LR 재질을 100개 조명으로 렌더 → SwinIR로 렌더를 ×4 업샘플 → HR 맵을 역최적화 |
-| **DeepTextures** (Sci. Rep. 2026) | TF2 ESRGAN (3채널 RGB, ×4). **사전학습 가중치가 배포된 적 없어 직접 학습해야 함.** 논문의 OpenGameArt 300장을 MatSynth로 대체 |
+| **DeepTextures** (Sci. Rep. 2026) | TF2 ESRGAN (3채널 RGB, ×4). **사전학습 가중치가 배포된 적 없어 직접 학습해야 함.** 학습은 서브모듈에 동봉된 논문 원본 300장(`data/textures_db`)으로, 평가는 이미 추출해 둔 MatSynth 12개 재질로 한다 → `docs/RUNBOOK.md` §2.5 |
 
 ## 머신 역할
 
@@ -17,7 +17,7 @@
 
 코드는 GitHub로, **데이터는 GitHub를 타지 않는다** (DAS에 있음).
 
-예외는 `runs/montages/` 하나다. 연구실 공유용 산출물 — 재질별 4행×6열 몽타주, `metrics.json`, `summary.md` — 만 커밋한다(약 36 MB). 나머지 `runs/`는 600 MB가 넘고 **코드와 MatSynth로부터 재생성 가능**하므로(`scripts\run_matup.ps1 -PostProcess`) git 히스토리에 넣지 않는다.
+예외는 `runs/montages/` 하나다. 연구실 공유용 산출물 — 재질별 4행×6열 몽타주, `metrics.json`, `summary.md` — 만 커밋한다(약 36 MB). 나머지 `runs/`는 600 MB가 넘고 **코드와 MatSynth로부터 재생성 가능**하므로(`scripts\matup\run_matup.ps1 -PostProcess`) git 히스토리에 넣지 않는다.
 
 ---
 
@@ -153,11 +153,21 @@ docker/          컨테이너 정의. 두 스택은 CUDA 요구가 배타적이�
   compose.yaml   /workspace(repo) · /data(DAS) 고정 마운트, GPU 예약, shm 8GB
   .env.example   DAS_ROOT — 유일한 머신별 값
 .devcontainer/   VS Code devcontainer 정의. compose.yaml을 재사용만 한다
-scripts/         추출·실행·후처리. run_matup.ps1 하나로 전체 파이프라인이 돈다
-                 (→ docs/RUNBOOK.md §2.4)
-external/        upstream 서브모듈 (커밋 고정)
-docs/            RUNBOOK.md     — 실험 운용. 점검·코드 지도·증상별 역추적
-                 OPEN-ITEMS.md  — 미해결 결정·불확실성
+configs/deeptex/ DeepTextures 학습 config 3종. upstream 것을 편집하지 않고 따로 둔다
+                 psnr_texsr / esrgan_scaled(실사용) / esrgan_asconfigured(결함 보존 기준선)
+scripts/         실험별로 나뉜다. 공유되는 것만 common/에 있다
+  common/        preflight.ps1        두 오케스트레이터가 쓰는 사전점검
+                 texsr_metrics.py     두 방법이 **같은 코드로** 재도록 공유
+                 matsynth_extract.py  MatSynth → LR/GT 쌍 (두 실험의 평가 데이터)
+  matup/         matup_height.py · matup_render.py · run_matup.ps1  (→ RUNBOOK §2.4)
+  deeptex/       texsr_*(데이터 준비 4단계) · deeptex_*(학습·평가·비교)
+                 run_deeptex.ps1                                    (→ RUNBOOK §2.5)
+  compare/       matup_postprocess.py · matup_montage.py
+                 두 방법의 결과를 한 격자에 놓는 곳. 양쪽 오케스트레이터가 호출한다
+external/        upstream 서브모듈 (커밋 고정, **수정하지 않는다**)
+docs/            RUNBOOK.md            — 실험 운용. 점검·코드 지도·증상별 역추적
+                 OPEN-ITEMS.md         — 미해결 결정·불확실성
+                 DEEPTEX-DEVIATIONS.md — upstream 대비 편차 전체 목록 + 근거
 ```
 
 컨테이너 내부 경로가 `/workspace`·`/data`로 고정돼 있어 **호스트 경로 차이는 `.env` 한 줄에만 존재한다.**
@@ -167,7 +177,13 @@ docs/            RUNBOOK.md     — 실험 운용. 점검·코드 지도·증상
 1. **`--nb_lights`와 `--up_batch_size`는 함께 바꿔야 한다.** `sr_swinir.py`가 기본값 100/10에서만 렌더를 온전히 커버한다. `nb_lights`만 바꾸면 렌더가 **조용히 누락/중복**된다.
 2. **MatSynth 법선은 OpenGL 규약**이므로 MatUp에 `--ogl_normals`가 필요하다. 반면 MatUp **출력은 항상 DirectX**로 하드코딩돼 있어 비교 전 되돌려야 한다.
 3. **MatUp은 `height`를 출력하지 않는다.** 산출 맵은 4장뿐이고, 512² 중 **유효 영역은 496²**(8px 검은 테두리)라 비교 시 전 방법·GT에서 잘라내야 공정하다.
-4. **DeepTextures는 학습 데이터 준비 스크립트가 없다.** upstream에서 삭제됐으므로 우리가 작성해야 한다. `external/esrgan-tf2`가 삭제된 `train_psnr.py`/`psnr.yaml`의 공여자다.
+4. **DeepTextures의 학습 데이터 준비·학습·평가 스크립트는 이제 존재한다.** upstream이 삭제한 것들을
+   `scripts/deeptex/` 아래에 새로 썼다. **서브모듈은 한 바이트도 고치지 않았다** —
+   `modules/*`를 바깥에서 import해 구동한다(`matup_render.py:14`와 같은 규약).
+   **학습은 `external/DeepTextures/train_esrgan.py` 원본을 그대로 돌린다** — 우리 트레이너가
+   아니다(`scripts\deeptex\run_deeptex.ps1 -Stage paper`).
+   전체 절차는 `docs/RUNBOOK.md` §2.5, 편차 목록은 `docs/DEEPTEX-DEVIATIONS.md`.
+   `external/esrgan-tf2`는 여전히 삭제된 `train_psnr.py`/`psnr.yaml`의 공여자다.
 5. **`requirements.txt`를 upstream 것으로 되돌리지 말 것.** `docker/*/requirements.txt`에 변경 사유가 줄별로 주석돼 있다.
 6. **MatUp을 같은 저장소에서 둘 이상 동시에 돌리지 말 것.** 중간 산출물이 `--render_dir`·`--upsamplings_dir`의 **고정 기본 경로**(`./data/<재질>/radiance_LR`, `radiance_Upscaled`)에 쌓이고, `main_optim.py`가 성공 시 그 둘을 `shutil.rmtree`로 지운다. 저장소가 컨테이너에 바인드 마운트돼 있으므로 **먼저 끝난 실행이 아직 돌고 있는 실행의 입력을 삭제한다.** 피해자는 원인과 무관해 보이는 `ZeroDivisionError: division by zero`(`data_utils.py:11`)로 죽는다 — `load_renderings`의 glob이 빈 리스트를 반환해 `output_map_size`가 0으로 남기 때문이다. 실제로 한 번 당했다.
    - 재질을 병렬로 돌리려면 실행마다 경로를 분리할 것: `--render_dir ./data/<재질>/radiance_LR_<태그> --upsamplings_dir ./data/<재질>/radiance_Upscaled_<태그>`

@@ -3,7 +3,7 @@
 Decisions and unknowns that are deliberately unresolved. Each entry says what
 blocks it, why it matters, and how to close it.
 
-Last updated: 2026-09-09
+Last updated: 2026-09-16
 
 ---
 
@@ -209,10 +209,34 @@ unknown for reproduction quality.
 `external/esrgan-tf2` is pinned as a submodule specifically as the donor for
 those two deleted files.
 
-**To close:** decide whether to train with the restored pre-train stage, without
-it, or both (both is the only way to tell "faithful reproduction" apart from
-"upstream defect"). Not needed until the training round.
+**RESOLVED 2026-09-16 — 복원하되, 현실적으로 "잘린" 복원만 가능하다.**
+`scripts/deeptex/deeptex_train.py --stage psnr`가 donor의 사전학습 레시피를 돌리고,
+`configs/deeptex/esrgan_scaled.yaml`의 `pretrain_dir`이 그 출력을 가리킨다.
+이번 조사에서 위 항목이 프레이밍하지 않았던 두 가지가 나왔다:
 
+1. **donor의 단계를 복원하는 것만으로는 고쳐지지 않았을 것이다.** 탐색이 깨진 방식이,
+   사전학습 체크포인트를 아무리 잘 만들어도 만족시킬 수 없는 형태다 — upstream은
+   `pretrain_dir = cfg['pretrain_name']`(`:71`)인데 donor는 `'./checkpoints/' + name`이다.
+   `pretrain_name: './checkpoints/'`면 `./checkpoints/` **바로 아래**의 체크포인트 상태 파일을
+   찾으므로 `./checkpoints/psnr_pretrain/` 하위 디렉터리는 보이지 않는다. 두 단계를 다 돌리고,
+   `generator.summary()` 300줄 밑으로 `print` 한 줄이 지나가는 걸 본 뒤, 결국 랜덤 초기화로
+   학습했을 것이다. 우리 config 키는 전체 경로이고, 설정됐는데 못 찾으면 **치명(exit 9)**,
+   복원되면 generator 가중치 전후 비교로 **증명**한다.
+
+2. **donor의 `niter: 1000000`은 이 카드에서 70~180시간**이라 선택지가 아니다.
+   `configs/deeptex/psnr_texsr.yaml`은 `niter: 40000`으로 자르고 `lr_steps`를 같은 1/5 간격
+   (`[8000, 16000, 24000, 32000]`)으로 맞췄다. 이것 자체가 편차이고 그렇게 기술해야 한다 —
+   `docs/DEEPTEX-DEVIATIONS.md` §4.
+
+**2026-09-18 최종 결정: 사전학습을 쓰지 않는다.** 논문이 안 하기 때문이다. 비교는
+`external/DeepTextures/train_esrgan.py` **원본**을 그대로 돌린 결과로 한다
+(`-Stage paper`, `docs/DEEPTEX-DEVIATIONS.md` §0.4).
+
+사전학습을 복원한 판(`scripts/deeptex/deeptex_train.py --stage psnr` + `--stage esrgan`)은
+지우지 않고 남겨 뒀다. 다만 그 arm은 **네 변수가 동시에 다르므로**(사전학습·shuffle·손실·LR
+스케줄) 사전학습만의 기여를 분리하지 못한다. 그걸 알고 싶으면 세 번째 실행이 필요하다.
+
+**2026-09-18 실측 — 예측이 확인됐다.** 40k 완주 로그에 `[*] cannot find pretrain model ./checkpoints/.`가 그대로 찍혔고, **40,000 스텝 전체가 랜덤 초기화에서 출발했다.** 그 결과 `loss_D`가 학습 시간의 **50%** 동안 `0.0000`으로 찍혔다 — 이 항목이 예고한 #8과의 결합이다 (`DEEPTEX-DEVIATIONS.md` §2.6).
 ---
 
 ## 7. DeepTextures LR schedule never fires
@@ -231,10 +255,25 @@ has neither. So "DeepTextures as published" sits two deviations away from
 "ESRGAN as published", and a weak reproduction cannot be attributed to the
 paper's method without separating them.
 
-**To close:** decide together with #6 — train as-configured (faithful to the
-DeepTextures repo) or with `lr_steps` scaled into the 40k window (faithful to
-ESRGAN). Either way state the choice explicitly in the writeup, since the paper
-does not mention the discrepancy. Not needed until the training round.
+**RESOLVED 2026-09-16 — config 2종으로 배포하고, 한쪽을 다른 쪽으로 편집하지 않는다.**
+
+- `configs/deeptex/esrgan_scaled.yaml` — `lr_steps: [5000, 10000, 20000, 30000]`.
+  upstream이 `niter`를 나눈 것과 같은 10으로 경계값도 나눈 것이라, ESRGAN이 발표한 스케줄의
+  *형태*가 복원된다. **비교는 이걸로 돌린다.**
+- `configs/deeptex/esrgan_asconfigured.yaml` — upstream의 `[50000, ...]` 그대로. 감쇠는 여전히 안 걸린다.
+
+`scripts/deeptex/deeptex_train.py`가 **`lr_steps[0] < niter`를 단언**하고, `--allow-dead-lr-schedule`이
+없으면 시작을 거부한다. 조용한 no-op을 기록된 선택으로 바꾸는 것이고, 실제 문제가 바로 그것이었다 —
+아무도 감쇠가 안 걸리게 하기로 *결정*한 적이 없다.
+
+한 파일을 편집하지 않고 2종으로 두는 이유: `batch_size`와 `lr_steps`는 프로토콜 가시적이라,
+읽는 사람이 git 히스토리를 뒤지지 않고 두 상태를 다 볼 수 있어야 한다.
+
+**2026-09-18: 비교는 `esrgan_paper.yaml`로 돈다** — 서브모듈 config에서 tfrecord 경로 한 줄만
+바꾼 것이라, `lr_steps [50000, ...]`가 그대로 들어 있고 감쇠는 여전히 안 걸린다. 그게 논문이
+배포한 상태이기 때문이다. `esrgan_scaled.yaml`은 남겨 두되 이번 비교에는 쓰지 않는다.
+
+**2026-09-18 실측 — 예측이 확인됐다.** 40k 완주 로그의 `[metrics]` **411줄이 전부 `lr_G=1.0e-04`**다. 감쇠는 한 번도 걸리지 않았다 (`DEEPTEX-DEVIATIONS.md` §2.6).
 
 ---
 
@@ -357,7 +396,7 @@ Output reaches 27% of the GT `|grad|`.
 ### Measured across all 12 materials of `test-00000`
 
 The single-material conclusion did not survive. `matup/bilinear` on `|grad|`,
-from `scripts/matup_postprocess.py --metrics`:
+from `scripts/compare/matup_postprocess.py --metrics`:
 
 | map | above 1.0 | range |
 |---|---|---|
@@ -385,7 +424,7 @@ itself concedes metalness diverges and adds a regulariser, §3.2);
 `--alpha_reg 1e-1` possibly over-regularising; and whether the effect survives
 outside this shard.
 
-Note the reconstructed `height` (scripts/matup_height.py) exceeds 1.0 on all 12,
+Note the reconstructed `height` (scripts/matup/matup_height.py) exceeds 1.0 on all 12,
 but that says nothing about MatUp — that map is built by integration plus a
 high-pass, so adding high frequency is what it does by construction.
 
@@ -426,3 +465,40 @@ would establish whether it holds beyond these 12.
 | ~~SSH remote execution~~ | **Abandoned.** Verified that Docker Desktop is not headless: over SSH the daemon is unreachable (`open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified`) and the session dies on disconnect. Experiments now run directly on the desktop via screen streaming. |
 | ⚠️ **Two Docker daemons on the desktop** | Docker Desktop **and** a native docker-ce 29.8.0 inside WSL `Ubuntu-24.04` (systemd `enabled`, so it starts with the distro; nvidia-container-toolkit 1.20.0 present, `nvidia` runtime registered). **They share no images, containers, or build cache.** Running `docker compose build` from inside the WSL shell builds into docker-ce, and those images will not appear in Docker Desktop — an easy way to re-download 6 GB and lose an afternoon. **Convention: run all docker commands from PowerShell on Windows.** Verify with `docker context ls` / `docker info --format "{{.Name}}"` if anything looks wrong. |
 | `.gitmodules` section label | Reads `[submodule "external/matup_esgr"]` (typo) while `path`/`url` are correct. Harmless; left as-is. |
+
+---
+
+## 11. DeepTextures upstream 결함 — 조사 완료
+
+**Status:** RESOLVED 2026-09-16 — 전체 목록과 대응은 `docs/DEEPTEX-DEVIATIONS.md`.
+
+#6·#7만 알려져 있었는데, 학습을 실제로 돌리려고 코드를 전부 읽은 결과 **열여덟 개**가 나왔다.
+심각도 순으로 넷만 여기 옮긴다 — 나머지는 위 문서의 대조표에 있다:
+
+1. **`test.py`로는 직접 학습한 모델을 평가할 수 없다.** `:36`이 체크포인트 경로를
+   `'./checkpoints/original'`로 하드코딩하는데(+주석 처리된 대안 8개) 학습은
+   `./checkpoints/<sub_name>`에 쓴다. CLI 플래그도 없다. donor는
+   `'./checkpoints/' + cfg['sub_name']`이었다. → `scripts/deeptex/deeptex_sr.py`로 대체.
+2. **`train_esrgan.py:23-25`가 엉뚱한 로거를 죽인다.** Python 로거를 끄는데, 정작 시끄러운
+   cuBLAS/NUMA는 C++ 로거에서 나온다(#5). 결과적으로 체크포인트 불일치 경고가 사라져서
+   **#6이 조용했던 것**이다.
+3. **`modules/dataset.py:40-50`의 `tf.Assert` 3개가 반환값을 버린다.** HR≠LR×4가 에러가 아니라
+   **어긋난 쌍**으로 학습된다. → `texsr_verify_tfrecord.py`가 학습 전 전수 검사.
+4. **`modules/utils.py:401`이 평가 타일을 JPEG q95로 굽는다.** SR 경로만 그 손실을 먹고
+   bicubic 기준선은 안 먹어서, 내장 비교가 SR에 불리하게 편향된다.
+
+**2026-09-19 — 귀속을 나눠야 한다.** 이 저장소는 `github.com/peteryuX/esrgan-tf2`의 포크이고,
+`modules/models.py`·`losses.py`·`dataset.py`·`lr_scheduler.py`가 donor와 **바이트 동일**하다.
+`train_esrgan.py`는 **한 줄**만 다른데, 하필 그 줄이 사전학습 로딩을 깨뜨린 줄이다(#6).
+따라서 위 네 개 중 2번(로거)은 **donor 결함이지 논문 저자의 코드가 아니다.** 3번(`tf.Assert`)도
+마찬가지다. 논문에 귀속 가능한 것은 `train_esrgan.py`의 그 한 줄, config의 `niter` 1/10 축소(#7),
+그리고 `test.py`+타일링(위 1번·4번)뿐이다. 전체 대조는 `DEEPTEX-DEVIATIONS.md` §0.7·§1.1·§1.2.
+
+측정된 것 하나: **#8(`from_logits=False`)의 실제 증상은 NaN이 아니라 그래디언트 소멸**이고,
+D 포화 시 upstream은 기울기가 **정확히 `0.000e+00`**, 수정판은 `1.095e-27`이다
+(`DEEPTEX-DEVIATIONS.md` §2.5). 사전학습 없이 GAN을 시작하면 `loss_D`가 즉시 0으로 떨어지는
+것이 관찰되며, 이것이 #6을 해소해야 하는 실증적 이유다.
+
+**서브모듈은 한 바이트도 고치지 않았다.** `scripts/matup/matup_render.py:14`가 `matup_egsr`에 대해
+세운 규약(바깥에서 import해 구동)을 그대로 따랐고, 그래서 `esrgan_asconfigured.yaml`로
+"upstream 그대로"를 계속 돌려볼 수 있다 — #6·#7이 요구하는 분리가 그것 없이는 불가능하다.

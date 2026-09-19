@@ -1,0 +1,89 @@
+# Stage 2 of 2: GAN fine-tuning, with BOTH upstream defects repaired.
+# This is the config the comparison actually runs on.
+#
+# Differences from external/DeepTextures/configs/esrgan.yaml, and only these:
+#
+# 1. lr_steps SCALED INTO THE RUN (OPEN-ITEMS #7)
+#    Upstream pairs niter: 40000 with lr_steps: [50000, 100000, 200000, 300000].
+#    The first boundary lands 10k steps AFTER training ends, so
+#    PiecewiseConstantDecay returns 1e-4 for every step of the run and the
+#    multi-step decay train_esrgan.py logs at :128,:142-144 is dead code.
+#    Upstream inherited those boundaries from ESRGAN's niter: 400000 and cut niter
+#    by 10x without touching them. Scaling them by the same 10x restores the
+#    published SHAPE of the schedule:
+#        [50000, 100000, 200000, 300000] / 10 = [5000, 10000, 20000, 30000]
+#
+# 2. pretrain_dir IS A FULL PATH AND IS ENFORCED (OPEN-ITEMS #6)
+#    Upstream does `pretrain_dir = cfg['pretrain_name']` (train_esrgan.py:71) with
+#    pretrain_name: './checkpoints/', while the donor does
+#    `'./checkpoints/' + cfg['pretrain_name']` with 'psnr_pretrain'. So upstream
+#    looks for a checkpoint state file directly in ./checkpoints/ and CANNOT find
+#    one in ./checkpoints/psnr_pretrain/ - restoring the donor's PSNR stage does
+#    not help, the lookup still misses. It then prints one line (:78-79) under 300+
+#    lines of generator.summary() and trains from random init.
+#    deeptex_train.py treats a set-but-unresolvable pretrain_dir as fatal, and
+#    additionally proves the restore changed the generator's weights.
+#
+# Everything else - batch_size, the loss weights, gan_type, save_steps, network_G -
+# is upstream's value untouched. See configs/deeptex/esrgan_asconfigured.yaml for
+# the unmodified schedule if the "upstream as published" baseline is ever wanted.
+
+# general setting
+batch_size: 8           # upstream's value. 12 GB fits 16-24, but batch size is
+                        # protocol-visible, so it is not raised silently.
+input_size: 32
+gt_size: 128
+ch_size: 3
+scale: 4
+sub_name: 'esrgan_texsr'
+
+pretrain_dir: '/workspace/runs/deeptex/checkpoints/psnr_texsr'
+
+checkpoint_root: '/workspace/runs/deeptex/checkpoints'
+log_root: '/workspace/runs/deeptex/logs'
+
+# generator setting
+network_G:
+    nf: 64
+    nb: 23
+
+# No network_D block: it is a DEAD KEY. Grep both repos - the discriminator is
+# built as DiscriminatorVGG128(cfg['gt_size'], cfg['ch_size']) at
+# train_esrgan.py:33, so nf comes from the Python default (models.py:114-115) and
+# the donor's `network_D: {nf: 64}` never had any effect either.
+
+# dataset setting
+train_dataset:
+    path: '/workspace/runs/deeptex/datasets/textures_db/textures_db_lrx4.tfrecord'
+    using_bin: True
+    using_flip: True
+    using_rot: True
+    # No num_samples: also a dead key in both repos. The real record count lives in
+    # <tfrecord>.meta.json, where the trainer actually reads and verifies it.
+val_dataset:
+    hr_dir: '/workspace/runs/deeptex/datasets/textures_db/HR_val'
+    lr_dir: '/workspace/runs/deeptex/datasets/textures_db/LRx4_val'
+
+# training setting
+niter: 40000
+
+lr_G: !!float 1e-4
+lr_D: !!float 1e-4
+lr_steps: [5000, 10000, 20000, 30000]   # CHANGED - see note 1
+lr_rate: 0.5
+
+adam_beta1_G: 0.9
+adam_beta2_G: 0.99
+adam_beta1_D: 0.9
+adam_beta2_D: 0.99
+
+w_pixel: !!float 1e-2
+pixel_criterion: l1
+
+w_feature: 1.0
+feature_criterion: l1
+
+w_gan: !!float 5e-3
+gan_type: ragan
+
+save_steps: 5000
