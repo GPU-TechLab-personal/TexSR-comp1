@@ -91,6 +91,28 @@
 → **§0.6**에 2026-09-19 추가 확인(Zenodo 아카이브, PNG/JPG 구성, 실제 학습 입력의
 부재, 공개 300장의 맵 종류 분포)이 있다.
 
+#### 모델은 하나다 — 모든 맵을 같은 생성기에 섞어 넣는다 (2026-10-01 원문 확인)
+
+"한 모델로 다섯 맵을 학습했다"는 문장이 논문에 그대로 있지는 않다. 아래가 모두 그 방향을 가리킨다.
+
+| 근거 | 내용 |
+|---|---|
+| 학습 세트 | Dataset 절: 300 텍스처 × 5채널, 텍스처 단위 210/45/45. Training 절: 학습 **1,050장** = 210 × 5. 맵별로 나눴다면 210장씩 다섯 세트로 적었을 것이다 |
+| 단수 표현 | 다섯 채널이 "our model"이 재질 표현을 배우게 했다는 서술, Method 절의 "the model to simultaneously process" |
+| 체크포인트 | Table 2는 1k–80k 체크포인트 한 줄. `test.py:37-42`의 목록도 `esrgan_1k…80k`뿐이고 맵 이름이 없다 |
+| **Fig. 6** | Albedo / Normal / Roughness / Metalness 패치가 각각 **같은 RRDB Generator 하나**로 들어가고, Batch Queue가 여러 종류 패치를 그 생성기로 돌려보낸다 → 한 batch에 맵이 섞인다 |
+
+**쌓아 넣는 것(15채널)은 아니다.** Method 절이 생성기 첫 conv를 3→64로 명시하고, config는
+`ch_size: 3`이다. 각 맵을 별도의 3채널 이미지로 같은 모델에 넣는다. §0.9의 MatSynth arm이 이 구조다.
+
+본문과 그림이 어긋나는 곳:
+
+| | 내용 |
+|---|---|
+| 맵 개수 | 본문은 5개(color, displacement, metalness, normals, roughness), **Fig. 6은 4개**(displacement 없음) |
+| 스텝 산술 | 학습 1,050장 ÷ batch 4 ≈ 263 스텝/epoch인데 본문은 **400**이라고 쓴다(= 1,600 ÷ 4). "50 epoch = 20,000 스텝"도 400 기준이다 |
+| Fig. 6의 성격 | 개념도다. 오타("Preceptual", "authenticicty", "Metainess")가 있고, 판별자 → 데이터셋 → 학습으로 이어지는 화살표처럼 실제 흐름과 다른 부분이 있다. 세부 구현은 본문과 코드를 우선한다 |
+
 ### 0.4 실험은 paper arm 하나로 간다 (결정, 2026-09-18)
 
 **돌리는 것은 `external/DeepTextures/train_esrgan.py` 원본이다.** 우리 트레이너를
@@ -370,6 +392,8 @@ donor를 명시적으로 크레딧하는 문장은 없다.
 | 상수 맵을 거르지 않는다 (상수 맵: metallic 2,439 · roughness 122 · baseColor 47 · height 22 · normal 0, 2,904개 중. 합 2,630 = 전체 14,520쌍의 18%) | 논문은 "텍스처 × 5채널"을 큐레이션 없이 썼다 |
 | 맵 라벨이 이상한 원본도 그대로 | 예: `0325_marble_wall_01`은 roughness가 상수 0이고 metallic이 텍스처다. MatSynth 인덱스 통계도 같다(roughness_mean 0, metallic_mean 0.48) — 우리 코드가 아니라 데이터다 |
 | 소재 약 2,900개 vs 논문 210 | 로컬에 받은 train shard 절반(216/431)만 쓴다. 더 받을 이유가 없다 |
+| 다섯 번째 맵: 논문 displacement, 우리 **height** | 평가 12개를 `matsynth_extract.py`가 height로 뽑았고, 학습과 평가가 같은 맵이어야 한다. MatSynth에는 둘 다 있다. Fig. 6은 이 맵 없이 4개다(§0.3) |
+| 학습 데이터 구성 | baseColor 20%, normal 20%, 회색 맵(roughness·metallic·height) 60%. 컬러가 아닌 맵이 80%다 (Fig. 6의 4맵 구성이면 75%) |
 
 **평가는 `-Stage eval-arms`로만 한다.** `-Stage eval`은 `matup_postprocess` + `matup_montage --collect`로
 커밋된 `runs/montages/`를 다시 쓴다. `eval-arms`는 `runs/deeptex/eval/{paper_allmaps,matsynth_all}`와
@@ -400,6 +424,35 @@ donor를 명시적으로 크레딧하는 문장은 없다.
 평탄한 normal 맵에서 약 8° 각도 오차와 수십 dB의 PSNR 손실이 생긴다. 그래서 리포트에는
 `offset`(채널별 평균 이동)과 `PSNR -off`(이동을 뺀 PSNR)를 **진단용**으로 함께 싣는다.
 예: normal에서 MatSynth arm은 23.65 dB → 이동 제거 후 30.86 dB (bilinear 33.42).
+
+**색이 튀는 것은 레시피, 초록 쏠림은 MatSynth arm에만 (2026-10-01 측정).**
+두 arm의 체크포인트 30k / 35k / 40k를 각자 **자기 학습 쌍 60개**에 돌려 평균(SR − HR)을 쟀다
+(MatSynth는 baseColor 쌍. 체크포인트마다 `deeptex_sr.super_resolve`로 추론하고, 0–1로 자른 뒤 채널별 평균을 비교).
+
+| 체크포인트 | textures_db: 밝기 / G−(R+B)/2 | MatSynth baseColor: 밝기 / G−(R+B)/2 |
+|---|---|---|
+| ckpt-6 (30k) | +0.9 / +0.9 | −5.3 / +3.4 |
+| ckpt-7 (35k) | **+5.4** / +0.6 (B +9.2) | +2.3 / +4.9 |
+| ckpt-8 (40k) | +0.6 / +1.3 | −3.1 / **+6.1** |
+| 밝기가 오르내린 폭 | 4.8 | 7.6 |
+
+20k 이후 로그도 같은 그림이다.
+
+| | textures_db | MatSynth |
+|---|---|---|
+| `loss_G` 평균 / 표준편차 | 0.75 / 0.13 | 0.72 / 0.18 |
+| `loss_D`가 0.0000인 비율 | 37% | 48% |
+
+- **체크포인트마다 색이 튀는 것은 원래 데이터에서도 일어난다** → 데이터가 아니라 레시피 탓이다.
+- **MatSynth arm은 튀는 폭이 더 크고, 초록 쏠림이 점점 커진다.**
+  - 평가 12개 기준 baseColor 이동은 R −7.0 / G +0.8 / B −3.5이고, 12개 중 10개에서 G가 가장 높다.
+  - G가 밝아진 것이 아니라 R·B가 내려가서 초록빛으로 보인다.
+  - 같은 모델을 자기 학습 쌍에 돌려도 같은 이동이 나오므로 파이프라인 문제가 아니다. 채널 순서·열화·인코딩도 별도로 확인했다.
+- **쏠림의 원인은 미검증이다.**
+  - 후보: 컬러가 아닌 맵 80%를 한 모델에 섞은 것, MatSynth 색 분포, 학습 운.
+  - 학습이 arm마다 한 번뿐이고 upstream은 시드를 고정하지 않아서, 지금 자료로는 가를 수 없다.
+  - 가르는 대조군은 **MatSynth baseColor만으로 학습한 모델**이다(실험리스트 2-2와 같은 질문). 섞은 탓으로 확인되면 재현 실패가 아니라 **논문 설계의 한계**로 보고한다. 논문이 바로 이 방식으로 학습했기 때문이다(§0.3).
+- **남은 체크포인트는 30k·35k·40k뿐이다.** `train_esrgan.py:64`의 `max_to_keep=3` 때문에 5k–25k는 학습 중에 지워졌다. 전 구간을 보려면 저장될 때마다 복사해 두면서 다시 학습해야 한다.
 
 ⚠️ **GPU 추론은 비트 단위로 재현되지 않는다.** 같은 체크포인트, 같은 코드로 `deeptex_compare.py`를 두 번
 돌리면 출력이 **최대 1 LSB, 픽셀의 약 3.5%** 에서 다르다. cuDNN 알고리즘 선택 같은 부동소수 차이가 반올림
