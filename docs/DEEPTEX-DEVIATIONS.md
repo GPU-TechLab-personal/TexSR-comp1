@@ -201,11 +201,24 @@ DeepTex는 6열 몽타주의 다섯째 **행**이 아니라 **별도 시트**로
 분리로 얻은 것: `runs/montages/*.png` 12개가 커밋 `2582c86`과 **바이트 동일**로 되돌아왔고
 (검증 완료), DeepTex는 **모든 칸이 찬** 시트를 갖는다. MatUp 측정값도 42개 전부 불변이다.
 
-#### normal·roughness·metallic 확장은 보류 (2026-09-19)
+#### normal·roughness·metallic 확장은 보류 (2026-09-19) → §0.9에서 기준선으로 실행 (2026-10-01)
 
 위 근거 때문에 확장해도 재현되는 것은 논문 Fig. 7이 아니라 "**컬러로 학습된 모델이
 노멀맵에 하는 일**"이다. 할 가치는 있지만(공개물로 논문의 멀티채널 주장을 검증하는 것이
 되므로) 지금은 미룬다.
+
+> **2026-10-01 갱신.** MatSynth arm(§0.9)의 비교 기준선으로 **같은 체크포인트**
+> (`runs/deeptex/paper/checkpoints/esrgan_40k/ckpt-8`, 재학습 없음)를 다섯 맵 + render 전부에
+> 돌렸다. `run_deeptex.ps1 -Stage eval-arms` → `runs/deeptex/eval/paper_allmaps`.
+>
+> - 그 결과 열이 보여 주는 것은 위 문장 그대로 "컬러로 학습된 모델이 학습하지 않은 맵에 하는 일"이다.
+>   논문 Fig. 7의 재현이 아니다.
+> - 1채널 맵의 출력 합치기는 `paper`가 아니라 **`mean`**이다. MatSynth arm과 같은 기준으로 비교하려는
+>   선택이다. 이 체크포인트의 세 출력 채널 차이는 평균 5~10/255라서, `paper` 가중치를 쓰면
+>   roughness·metallic·height 수치가 조금 달라진다.
+> - baseColor·render도 다시 추론한 값이라, 커밋된 `eval/paper`와 최대 1 LSB 다르다(§0.9의 GPU 재현성).
+> - 기존 `runs/montages/*_deeptex.png`(baseColor·render만)는 그대로 둔다.
+>   전체 맵은 `runs/montages/deeptex_matsynth/`에 있다.
 
 #### 기계 장치
 

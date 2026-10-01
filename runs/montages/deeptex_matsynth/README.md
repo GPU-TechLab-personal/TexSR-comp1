@@ -11,6 +11,15 @@ MatUp·GT와 나란히 놓은 결과다. 평가 재질은 이 폴더 상위의 1
 두 모델 모두 40k 스텝, 같은 config다. 데이터 경로 한 줄만 다르다.
 근거와 한계는 `docs/DEEPTEX-DEVIATIONS.md` §0.9에 있다.
 
+**textures_db 열을 읽을 때.**
+- 9월 18일 학습한 **기존 체크포인트 그대로**다. 재학습하지 않았다.
+- 원래 비교(상위 폴더의 `<재질>_deeptex.png`)에서는 baseColor·render에만 썼다.
+- 여기서는 기준선으로 다섯 맵 + render 전부에 돌렸다. 그래서 normal·roughness·metallic·height 칸은
+  "**컬러 위주로 학습된 모델을 학습 때 거의 보지 못한 맵에 적용한 결과**"다. normal에 보이는 빗살무늬 잡음이 그 흔적이다.
+- 1채널 맵은 출력 세 채널의 평균(`mean`)으로 합쳤다. MatSynth 열과 같은 방식이다.
+- baseColor·render도 다시 추론해서, 상위 폴더 결과와 픽셀이 최대 1/255 다를 수 있다.
+- 자세한 내용은 `docs/DEEPTEX-DEVIATIONS.md` §0.5의 2026-10-01 갱신에 있다.
+
 ## 파일
 
 | 파일 | 내용 |
