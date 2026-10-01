@@ -33,6 +33,14 @@ way, because the paper trains one network on all five channel types. They must g
 through the single seeded shuffle below rather than be concatenated: upstream
 reads with shuffle=False (train_esrgan.py:37), so five back-to-back blocks would
 train on one map at a time.
+
+--repeat, one per --hr/--lr pair, packs that pair's records k times. It is how the
+MatSynth ablations change the mix without dropping data: the channel-ratio arm
+writes baseColor and normal three times each (a map's share proportional to its
+real channel count, 3:3:1:1:1). Copies after the first get "~r2".."~rk" appended
+to img_name, because texsr_verify_tfrecord.py fails on a duplicate name, and every
+copy goes through the same single shuffle as everything else. Without --repeat
+the list and its permutation are exactly what they were before the option existed.
 """
 
 import argparse
@@ -75,6 +83,9 @@ def main():
                     help="HR tile directory; repeat to pack several")
     ap.add_argument("--lr", required=True, action="append",
                     help="LRx4 tile directory, paired with the --hr in the same position")
+    ap.add_argument("--repeat", type=int, action="append", default=None,
+                    help="times to pack the --hr/--lr pair in the same position "
+                         "(give one per pair, or none for all 1)")
     ap.add_argument("--out", required=True, help="output .tfrecord path")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--sample", type=int, default=32,
@@ -88,6 +99,10 @@ def main():
     if len(args.hr) != len(args.lr):
         raise SystemExit("%d --hr but %d --lr; they pair up in order"
                          % (len(args.hr), len(args.lr)))
+    repeats = args.repeat or [1] * len(args.hr)
+    if len(repeats) != len(args.hr) or min(repeats) < 1:
+        raise SystemExit("--repeat needs one value >= 1 per --hr/--lr pair, got %s for %d pair(s)"
+                         % (repeats, len(args.hr)))
     for d in args.hr + args.lr:
         if not os.path.isdir(d):
             raise SystemExit("no such directory: %s" % d)
@@ -96,9 +111,9 @@ def main():
         # Plain sys.exit, NOT absl's app.run wrapped in except SystemExit.
         sys.exit("%s already exists (use --overwrite)" % args.out)
 
-    # (name, hr_dir, lr_dir) for every pair across every directory pair.
+    # (file name, hr_dir, lr_dir, record name) for every record to write.
     pairs = []
-    for hr_dir, lr_dir in zip(args.hr, args.lr):
+    for hr_dir, lr_dir, k in zip(args.hr, args.lr, repeats):
         hr_names = sorted(f for f in os.listdir(hr_dir) if f.lower().endswith(".png"))
         if not hr_names:
             raise SystemExit("no PNGs under %s" % hr_dir)
@@ -115,11 +130,13 @@ def main():
         if extra:
             print("[warn] %d LR tile(s) in %s with no HR partner will be ignored: %s"
                   % (len(extra), lr_dir, ", ".join(extra[:5])))
-        pairs += [(n, hr_dir, lr_dir) for n in hr_names]
+        for r in range(1, k + 1):
+            suffix = "" if r == 1 else "~r%d" % r
+            pairs += [(n, hr_dir, lr_dir, os.path.splitext(n)[0] + suffix) for n in hr_names]
 
-    # img_name is the file stem; texsr_verify_tfrecord.py fails on duplicates.
-    stems = [os.path.splitext(n)[0] for n, _, _ in pairs]
-    if len(stems) != len(set(stems)):
+    # img_name is the record name; texsr_verify_tfrecord.py fails on duplicates.
+    names = [p[3] for p in pairs]
+    if len(names) != len(set(names)):
         raise SystemExit("the same file name appears in more than one --hr directory")
 
     order = pairs[:]
@@ -129,8 +146,7 @@ def main():
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     n = 0
     with tf.io.TFRecordWriter(tmp) as w:
-        for name, hr_dir, lr_dir in order:
-            stem = os.path.splitext(name)[0]
+        for name, hr_dir, lr_dir, stem in order:
             with open(os.path.join(hr_dir, name), "rb") as f:
                 hr_b = f.read()
             with open(os.path.join(lr_dir, name), "rb") as f:
@@ -171,6 +187,7 @@ def main():
                   else os.path.abspath(args.hr[0]),
         "lr_dir": [os.path.abspath(d) for d in args.lr] if len(args.lr) > 1
                   else os.path.abspath(args.lr[0]),
+        "repeat": repeats,
         "pairs_manifest": os.path.abspath(args.pairs_manifest) if args.pairs_manifest else "",
         "schema": ["image/img_name", "image/hr_encoded", "image/lr_encoded"],
     }

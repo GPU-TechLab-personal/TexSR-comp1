@@ -273,6 +273,37 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 ⚠️ **`-Stage eval`을 이 arm에 쓰지 말 것.** 그 stage는 `runs/montages/`(커밋됨)를 다시 쓴다.
 `eval-arms`는 `runs/deeptex/eval/`와 `runs/deeptex/report_<tag>/`에만 쓴다. tag는 `-PaperRoot`의 마지막 폴더명이다.
 
+### 2.6.1 비율 ablation — `chratio`, `basecolor` (DEEPTEX-DEVIATIONS §0.10)
+
+학습 쌍은 2.6과 같은 파일을 쓴다. TFRecord만 recipe별로 따로 만든다.
+
+```powershell
+# 데이터 (각 수 분). -Recipe all은 기존 matsynth_all_lrx4.tfrecord를 그대로 다시 만든다
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth -Recipe chratio
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth -Recipe basecolor
+# 학습 (각 약 2.6시간). -KeepAllCheckpoints가 5k마다 저장되는 8개를 checkpoints_all\에 모두 남긴다
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper -PaperConfig configs/deeptex/esrgan_matsynth_chratio.yaml   -PaperRoot runs/deeptex/matsynth_chratio   -KeepAllCheckpoints
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper -PaperConfig configs/deeptex/esrgan_matsynth_basecolor.yaml -PaperRoot runs/deeptex/matsynth_basecolor -KeepAllCheckpoints
+# 평가. 두 번째 명령이 네 arm을 한 표로 묶는다 (report_matsynth_basecolor)
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth_chratio.yaml   -PaperRoot runs/deeptex/matsynth_chratio
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth_basecolor.yaml -PaperRoot runs/deeptex/matsynth_basecolor -ExtraArms matsynth_all,matsynth_chratio
+```
+
+| recipe | 맵 반복 | 레코드 |
+|---|---|---|
+| `all` | 5맵 × 1 (논문 비율) | 14,520 |
+| `chratio` | baseColor × 3, normal × 3, 회색 맵 × 1 (채널 수 비례 3:3:1:1:1) | 26,136 |
+| `basecolor` | baseColor × 1 | 2,904 |
+
+**색 이동 측정 (`deeptex_drift.py`, deeptex 컨테이너):** 체크포인트마다 자기 학습 쌍 60개와 평가 12개의 채널별
+평균 이동과 초록 쏠림을 잰다.
+- 보존한 8개를 보려면 `--ckpt-dir`를 `checkpoints_all\esrgan_40k`로 준다.
+- `--sheet-material <재질>`을 주면 체크포인트마다 그 재질의 다섯 맵 + render 한 줄 시트도 만든다.
+
+```powershell
+docker compose -f docker/compose.yaml run --rm deeptex python /workspace/scripts/deeptex/deeptex_drift.py --cfg /workspace/configs/deeptex/esrgan_matsynth_chratio.yaml --ckpt-dir /workspace/runs/deeptex/matsynth_chratio/checkpoints_all/esrgan_40k --pairs /workspace/runs/deeptex/datasets/matsynth/baseColor --out /workspace/runs/deeptex/drift/matsynth_chratio --sheet-material 0844_syntetic_foam
+```
+
 ⚠️ **`--jobs`를 올리지 말 것.** shard 하나가 ~1 GB row group 하나다. 워커 6개로 시작했다가 16 GB VM에서
 ENOMEM으로 두 번 죽었다. 지금은 열 하나씩 읽고 shard마다 새 프로세스(`maxtasksperchild=1`)를 쓴다.
 4개에서 약 6 GB를 쓴다.

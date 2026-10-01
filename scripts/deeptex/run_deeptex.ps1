@@ -55,6 +55,15 @@ param(
     # Working directory of the upstream trainer, relative to the repo. Its
     # ./checkpoints/<sub_name> lands here, so each arm needs its own.
     [string]   $PaperRoot     = "runs/deeptex/paper",
+    # MatSynth training mix for -Stage prep-matsynth. "all" is the paper's 1:1 per
+    # map; the others are ablations (DEEPTEX-DEVIATIONS 0.10). See $MatsynthRecipes.
+    [ValidateSet("all","chratio","basecolor")]
+    [string]   $Recipe        = "all",
+    # -Stage paper: copy every checkpoint out as it is saved (upstream keeps 3).
+    [switch]   $KeepAllCheckpoints,
+    # -Stage eval-arms: already-evaluated arms (runs/deeptex/eval/<tag>) to add as
+    # report columns. Comma-separated is fine: powershell -File passes one string.
+    [string[]] $ExtraArms     = @(),
     [int]      $MaxSteps      = 0,
     [int]      $CropSize      = 480,
     [int]      $Step          = 240,
@@ -146,6 +155,28 @@ function Invoke-Step {
     }
     $out | Out-File -FilePath $log -Encoding utf8
     return @{ Text = ($out -join "`n"); Code = $code; Log = $log }
+}
+
+# Copy every checkpoint the trainer's `checkpoint` file lists into $dst, once.
+# Upstream's CheckpointManager writes ckpt-N.data/.index BEFORE it lists ckpt-N,
+# so anything listed is complete. The .index goes last, so its presence in $dst
+# marks a finished copy. Saves are ~18 min apart and a checkpoint is deleted only
+# three saves later, so polling every 30 s cannot miss one. Returns the names copied.
+$script:CopyListedCheckpoints = {
+    param([string]$src, [string]$dst)
+    $state = Join-Path $src "checkpoint"
+    if (-not (Test-Path $state)) { return }
+    New-Item -ItemType Directory -Force -Path $dst | Out-Null
+    foreach ($line in Get-Content $state) {
+        if ($line -notmatch '^all_model_checkpoint_paths:\s*"(.+)"') { continue }
+        $name = Split-Path -Leaf $Matches[1]
+        if (Test-Path (Join-Path $dst "$name.index")) { continue }
+        $files = @(Get-ChildItem -Path $src -Filter "$name.*")
+        if (-not ($files | Where-Object { $_.Extension -eq ".index" })) { continue }
+        $files | Where-Object { $_.Extension -ne ".index" } | Copy-Item -Destination $dst -Force
+        $files | Where-Object { $_.Extension -eq ".index" } | Copy-Item -Destination $dst -Force
+        $name
+    }
 }
 
 function Get-FailureKind([string]$text, [int]$code) {
@@ -314,9 +345,39 @@ function Stage-Paper {
         }
     }
 
-    $r = Invoke-Step "paper arm: upstream train_esrgan.py VERBATIM ($niter steps)" deeptex `
-        @("python","/workspace/scripts/deeptex/run_upstream_train.py",
-          "--cfg_path",$cfgPath,"--gpu","0","--log-every","100") "train-paper" $ctrRoot
+    # -KeepAllCheckpoints: upstream keeps only the last three (train_esrgan.py:64,
+    # max_to_keep=3), so 5k-25k are gone by the end of a 40k run. A host-side job
+    # copies each one out as it is listed, leaving the trainer untouched.
+    $keepJob = $null
+    if ($KeepAllCheckpoints) {
+        $keepSrc = Join-Path $hostRoot "checkpoints\$subName"
+        $keepDst = Join-Path $hostRoot "checkpoints_all\$subName"
+        $keepJob = Start-Job -ArgumentList $script:CopyListedCheckpoints.ToString(), $keepSrc, $keepDst `
+            -ScriptBlock {
+                param($code, $src, $dst)
+                $copy = [scriptblock]::Create($code)
+                while ($true) {
+                    & $copy $src $dst | ForEach-Object { "copied $_" }
+                    Start-Sleep -Seconds 30
+                }
+            }
+        Say "  keeping every checkpoint -> $keepDst (background job $($keepJob.Id), every 30 s)" "DarkGray"
+    }
+    try {
+        $r = Invoke-Step "paper arm: upstream train_esrgan.py VERBATIM ($niter steps)" deeptex `
+            @("python","/workspace/scripts/deeptex/run_upstream_train.py",
+              "--cfg_path",$cfgPath,"--gpu","0","--log-every","100") "train-paper" $ctrRoot
+    } finally {
+        if ($keepJob) {
+            Stop-Job $keepJob
+            Receive-Job $keepJob | ForEach-Object { Say "  [keep] $_" "DarkGray" }
+            Remove-Job $keepJob -Force
+            # One last pass: the final save lands moments before the trainer exits.
+            & $script:CopyListedCheckpoints $keepSrc $keepDst | ForEach-Object { Say "  [keep] copied $_" "DarkGray" }
+            $kept = @(Get-ChildItem -Path $keepDst -Filter "ckpt-*.index" -ErrorAction SilentlyContinue)
+            Say "  [keep] $($kept.Count) checkpoint(s) in $keepDst" "DarkGray"
+        }
+    }
     $kind = Get-FailureKind $r.Text $r.Code
     switch ($kind) {
         "cpu-fallback" { throw "TF fell back to CPU - the run would take weeks. (see $($r.Log))" }
@@ -392,13 +453,25 @@ function Stage-Eval {
 
 # ---------------------------------------------------------------- MatSynth arm
 
-# Pairs from MatSynth's train split -> one TFRecord over all five maps -> verify.
+# How many times each map's pairs go into the record. Order matters: "all" must
+# keep the order the original record was built with.
+#   all        the paper's mix, one of each map (20% each)
+#   chratio    proportional to a map's real channel count, 3:3:1:1:1 - baseColor and
+#              normal are 3-channel, the grey maps are 1 channel copied three times
+#   basecolor  baseColor alone - the control for "does mixing maps cause the cast"
+$script:MatsynthRecipes = @{
+    "all"       = [ordered]@{ baseColor = 1; normal = 1; roughness = 1; metallic = 1; height = 1 }
+    "chratio"   = [ordered]@{ baseColor = 3; normal = 3; roughness = 1; metallic = 1; height = 1 }
+    "basecolor" = [ordered]@{ baseColor = 1 }
+}
+
+# Pairs from MatSynth's train split -> one TFRecord over the recipe's maps -> verify.
 # The degradation check runs first and is a hard gate: it rebuilds the 12
 # evaluation materials and requires pixel identity with runs/matsynth, i.e. that
 # the network will be trained on exactly the degradation it is scored on.
 function Stage-PrepMatsynth {
     $ms  = "/workspace/runs/deeptex/datasets/matsynth"
-    $rec = "$ms/matsynth_all_lrx4.tfrecord"
+    $rec = "$ms/matsynth_${Recipe}_lrx4.tfrecord"
     $forceArg = if ($Force) { @("--force") } else { @() }
 
     $r = Invoke-Step "degradation identity vs the 12 eval materials" dataprep `
@@ -409,13 +482,17 @@ function Stage-PrepMatsynth {
         (@("python","scripts/deeptex/matsynth_make_pairs.py","--out",$ms,"--jobs","4") + $forceArg) "prepms-pairs"
     if ($r.Code -ne 0) { throw "pair generation failed (see $($r.Log)); rerunning resumes" }
 
-    # ONE record, one seeded shuffle across all five maps: upstream reads with
-    # shuffle=False, so the record order is the curriculum.
+    # ONE record, one seeded shuffle across all its maps: upstream reads with
+    # shuffle=False, so the record order is the curriculum. "all" passes no
+    # --repeat at all, so its record is byte-for-byte the one that already exists.
+    $mix = $script:MatsynthRecipes[$Recipe]
     $io = @()
-    foreach ($m in "baseColor","normal","roughness","metallic","height") {
+    foreach ($m in $mix.Keys) {
         $io += @("--hr","$ms/$m/HR","--lr","$ms/$m/LRx4")
+        if ($Recipe -ne "all") { $io += @("--repeat", "$($mix[$m])") }
     }
-    $r = Invoke-Step "build one TFRecord over all five maps" deeptex `
+    Say "  recipe $Recipe : $(($mix.Keys | ForEach-Object { '{0} x{1}' -f $_, $mix[$_] }) -join ', ')" "DarkGray"
+    $r = Invoke-Step "build one TFRecord ($Recipe)" deeptex `
         (@("python","/workspace/scripts/deeptex/texsr_build_tfrecord.py") + $io +
          @("--out",$rec,"--pairs-manifest","$ms/pairs_manifest.json","--overwrite")) "prepms-tfrecord"
     if ($r.Code -ne 0) { throw "TFRecord build failed (see $($r.Log))" }
@@ -437,6 +514,15 @@ function Stage-EvalArms {
     $tag = if ($script:EvalTagGiven) { $EvalTag } else { Split-Path -Leaf $PaperRoot }
     $sn  = (Select-String -Path (Join-Path $repo $PaperConfig) -Pattern "^sub_name:\s*'(.+)'").Matches.Groups[1].Value
     $armOut = "/workspace/runs/deeptex/eval/$tag"
+    # Other arms already evaluated by an earlier eval-arms run join the same table.
+    # Checked before the SR passes, not after, so a typo costs nothing. Split on
+    # commas too: powershell -File hands "a,b" over as ONE string.
+    $extra = @($ExtraArms | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+    foreach ($t in $extra) {
+        if (-not (Test-Path (Join-Path $repo "runs\deeptex\eval\$t"))) {
+            throw "-ExtraArms $t : runs\deeptex\eval\$t does not exist - run -Stage eval-arms for that arm first"
+        }
+    }
     $r = Invoke-Step "super-resolve all maps + render with $PaperRoot" deeptex `
         @("python","/workspace/scripts/deeptex/deeptex_compare.py","--cfg","/workspace/$PaperConfig",
           "--ckpt-dir","/workspace/$PaperRoot/checkpoints/$sn","--root","/workspace/runs/matsynth",
@@ -454,10 +540,12 @@ function Stage-EvalArms {
           "--out",$baseOut,"--maps","all","--scalar-collapse","mean") "evalarms-sr-paper_allmaps"
     if ($r.Code -ne 0) { throw "SR failed for the textures_db baseline (see $($r.Log))" }
 
+    $armArgs = @("--arm","textures_db=$baseOut")
+    foreach ($t in $extra) { $armArgs += @("--arm","$t=/workspace/runs/deeptex/eval/$t") }
+    $armArgs += @("--arm","$tag=$armOut")
     $r = Invoke-Step "arms report" dataprep `
-        @("python","scripts/deeptex/deeptex_arms_report.py",
-          "--arm","textures_db=$baseOut","--arm","$tag=$armOut",
-          "--out","/workspace/runs/deeptex/report_$tag") "evalarms-report"
+        (@("python","scripts/deeptex/deeptex_arms_report.py") + $armArgs +
+         @("--out","/workspace/runs/deeptex/report_$tag")) "evalarms-report"
     if ($r.Code -ne 0) { throw "report failed (see $($r.Log))" }
     Say "  report -> runs\deeptex\report_$tag\summary.md" "Green"
 }
