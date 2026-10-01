@@ -375,6 +375,19 @@ donor를 명시적으로 크레딧하는 문장은 없다.
 | 학습 처리량 | 400스텝 프로브 4.2–4.5 st/s. textures_db arm의 4.30과 같아서, 512² PNG 디코딩은 병목이 아니다. 40k ≈ 2.6시간 |
 | 판별자 포화 | `loss_D`는 100스텝 안에 0.0000이 된다 — §2.6의 결함 #8. 그대로 둔다 |
 
+**본학습 (2026-10-01).** 40k 완료: `runs/deeptex/matsynth_all/checkpoints/esrgan_40k/ckpt-8`, step 40000,
+4.5–4.6 st/s, 약 2.5시간, NaN 없음. 결과는 `runs/deeptex/report_matsynth_all/`(`summary.md`, `per_material.md`,
+`metrics_long.csv`, `montages/`, `overview_<맵>.png`).
+
+⚠️ **이 레시피는 색이 일정하게 밀린다 — 결과를 읽기 전에 알아야 한다.** 평탄한 normal 입력
+(127.5, 127.5, 254)에 MatSynth 체크포인트는 약 (111, 121, 249)를, textures_db 체크포인트는 약
+(122, 117, 225)를 낸다. 평가 파이프라인 문제가 아니다 — **자기 학습 쌍 40개**에서도 평균
+(SR − HR)이 normal (−20, −7, −6), baseColor (−6, 0, −4) 레벨이다. 사전학습 없음(#2) + 픽셀 손실
+가중치 0.01 + 포화된 판별자(#8) + 상수 이동에 둔감한 VGG 손실이 겹친 결과로 본다. 이 이동 하나로
+평탄한 normal 맵에서 약 8° 각도 오차와 수십 dB의 PSNR 손실이 생긴다. 그래서 리포트에는
+`offset`(채널별 평균 이동)과 `PSNR -off`(이동을 뺀 PSNR)를 **진단용**으로 함께 싣는다.
+예: normal에서 MatSynth arm은 23.65 dB → 이동 제거 후 30.86 dB (bilinear 33.42).
+
 ⚠️ **GPU 추론은 비트 단위로 재현되지 않는다.** 같은 체크포인트, 같은 코드로 `deeptex_compare.py`를 두 번
 돌리면 출력이 **최대 1 LSB, 픽셀의 약 3.5%** 에서 다르다. cuDNN 알고리즘 선택 같은 부동소수 차이가 반올림
 경계를 넘기 때문이다. 그래서 `eval/paper_allmaps`의 baseColor·render는 커밋된 `eval/paper`와 바이트가 다르고,

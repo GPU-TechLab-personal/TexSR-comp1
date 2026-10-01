@@ -255,6 +255,21 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 | 검증 | `texsr_verify_tfrecord.py --align-sample 16` | deeptex | `alignment` 경고는 정상이다. LR이 `imresize_np(HR)`이 아니라 원본에서 area로 만든 것이라서 |
 | 평가 | `deeptex_compare.py --maps all` ×2 → `deeptex_arms_report.py` | deeptex → dataprep | textures_db·MatSynth 체크포인트를 같은 6개 입력에. 결과는 `runs\deeptex\report_matsynth_all\summary.md` |
 
+리포트 폴더(`runs\deeptex\report_<tag>\`)에 생기는 것:
+
+| 파일 | 내용 |
+|---|---|
+| `montages\<재질>.png` | 행 = 방법(LR / bilinear / MatUp / DeepTextures 두 arm / GT), 열 = 다섯 맵 + render |
+| `overview_<맵>.png` | 행 = 12개 재질, 열 = 방법 |
+| `sheets\<재질>_<맵>.png` | 맵 하나를 496² 원본 크기로 (확대해서 볼 때) |
+| `summary.md` | 맵별 평균표와 arm 간 맞대결 횟수. 표 위에 열 설명이 있다 |
+| `per_material.md` | 재질별 PSNR / SSIM (normal은 각도도) |
+| `metrics_long.csv` | 재질 × 맵 × 열 한 줄씩. 엑셀이나 pandas 피벗용 |
+| `report.json` | 모든 숫자 |
+
+평균은 **모든 열이 유한 PSNR을 갖는 재질에서만** 낸다(`n`). `offset` / `PSNR -off`는 진단용이다
+(DEEPTEX-DEVIATIONS §0.9의 색 이동).
+
 ⚠️ **`-Stage eval`을 이 arm에 쓰지 말 것.** 그 stage는 `runs/montages/`(커밋됨)를 다시 쓴다.
 `eval-arms`는 `runs/deeptex/eval/`와 `runs/deeptex/report_<tag>/`에만 쓴다. tag는 `-PaperRoot`의 마지막 폴더명이다.
 
