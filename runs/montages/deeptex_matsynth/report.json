@@ -1,0 +1,6230 @@
+{
+ "arms": {
+  "textures_db": "/workspace/runs/deeptex/eval/paper_allmaps",
+  "matsynth_all": "/workspace/runs/deeptex/eval/matsynth_all"
+ },
+ "means": {
+  "baseColor": {
+   "columns": {
+    "lr": {
+     "n": 12,
+     "psnr": 31.3150301535603,
+     "identical": 0,
+     "ssim": 0.6732632512387866,
+     "psnr_offset_removed": 31.316572026086064,
+     "max_abs_offset_255": 0.007097776838362817,
+     "angular_err_deg": null,
+     "grad": 0.015271544546583091,
+     "grad_pct_gt": 51.119508007550884,
+     "channel_spread": null
+    },
+    "bilinear": {
+     "n": 12,
+     "psnr": 31.926725302156864,
+     "identical": 0,
+     "ssim": 0.6738166196145247,
+     "psnr_offset_removed": 31.936030920672852,
+     "max_abs_offset_255": 0.10525433305150884,
+     "angular_err_deg": null,
+     "grad": 0.01118734999024105,
+     "grad_pct_gt": 39.73968209741729,
+     "channel_spread": null
+    },
+    "matup": {
+     "n": 12,
+     "psnr": 27.216375135010026,
+     "identical": 0,
+     "ssim": 0.6000431663169263,
+     "psnr_offset_removed": 30.198945784101298,
+     "max_abs_offset_255": 5.103716492694242,
+     "angular_err_deg": null,
+     "grad": 0.010715133464788843,
+     "grad_pct_gt": 43.24415008229288,
+     "channel_spread": null
+    },
+    "dt_textures_db": {
+     "n": 12,
+     "psnr": 25.577882341134664,
+     "identical": 0,
+     "ssim": 0.5804159645861845,
+     "psnr_offset_removed": 28.78910830343163,
+     "max_abs_offset_255": 5.667056546457683,
+     "angular_err_deg": null,
+     "grad": 0.03670455623432093,
+     "grad_pct_gt": 112.36735819446794,
+     "channel_spread": null
+    },
+    "dt_matsynth_all": {
+     "n": 12,
+     "psnr": 26.884165146425033,
+     "identical": 0,
+     "ssim": 0.6279574881008688,
+     "psnr_offset_removed": 30.469508602785094,
+     "max_abs_offset_255": 8.74904037406781,
+     "angular_err_deg": null,
+     "grad": 0.0267683217237082,
+     "grad_pct_gt": 94.62016317338846,
+     "channel_spread": null
+    }
+   },
+   "gt_grad": 0.03483844852286472
+  },
+  "normal": {
+   "columns": {
+    "lr": {
+     "n": 12,
+     "psnr": 33.21764295857714,
+     "identical": 0,
+     "ssim": 0.7340629785790173,
+     "psnr_offset_removed": 33.21781950008024,
+     "max_abs_offset_255": 0.00845541211411724,
+     "angular_err_deg": 6.5149434319250785,
+     "grad": 0.007191606877388806,
+     "grad_pct_gt": 39.20763071626316,
+     "channel_spread": null
+    },
+    "bilinear": {
+     "n": 12,
+     "psnr": 33.41448323062753,
+     "identical": 0,
+     "ssim": 0.7332226581131476,
+     "psnr_offset_removed": 33.422954189167925,
+     "max_abs_offset_255": 0.10422120241501907,
+     "angular_err_deg": 6.2841818647785885,
+     "grad": 0.00536817032999591,
+     "grad_pct_gt": 32.82703738388596,
+     "channel_spread": null
+    },
+    "matup": {
+     "n": 12,
+     "psnr": 32.29288920435108,
+     "identical": 0,
+     "ssim": 0.7210184744339578,
+     "psnr_offset_removed": 33.030280404084934,
+     "max_abs_offset_255": 5.859727280610476,
+     "angular_err_deg": 6.5433914061374425,
+     "grad": 0.004895410932533798,
+     "grad_pct_gt": 28.109490292596746,
+     "channel_spread": null
+    },
+    "dt_textures_db": {
+     "n": 12,
+     "psnr": 19.003152585462942,
+     "identical": 0,
+     "ssim": 0.5381044342498306,
+     "psnr_offset_removed": 26.92752223716243,
+     "max_abs_offset_255": 31.728020399757195,
+     "angular_err_deg": 20.771205302321622,
+     "grad": 0.04432041732104965,
+     "grad_pct_gt": 240.06751708936494,
+     "channel_spread": null
+    },
+    "dt_matsynth_all": {
+     "n": 12,
+     "psnr": 23.64568082002152,
+     "identical": 0,
+     "ssim": 0.6750651949277047,
+     "psnr_offset_removed": 30.856800088061945,
+     "max_abs_offset_255": 20.544642421631114,
+     "angular_err_deg": 13.258067641582992,
+     "grad": 0.012993762652018884,
+     "grad_pct_gt": 93.7728083150709,
+     "channel_spread": null
+    }
+   },
+   "gt_grad": 0.018361530932298052
+  },
+  "roughness": {
+   "columns": {
+    "lr": {
+     "n": 11,
+     "psnr": 32.176813026562684,
+     "identical": 1,
+     "ssim": 0.7227086232527055,
+     "psnr_offset_removed": 32.17681454242903,
+     "max_abs_offset_255": 0.0016044780531643177,
+     "angular_err_deg": null,
+     "grad": 0.011662911047742324,
+     "grad_pct_gt": 45.11663336809329,
+     "channel_spread": null
+    },
+    "bilinear": {
+     "n": 11,
+     "psnr": 32.51813281238176,
+     "identical": 1,
+     "ssim": 0.7197820239019305,
+     "psnr_offset_removed": 32.52100861018214,
+     "max_abs_offset_255": 0.10057254221454924,
+     "angular_err_deg": null,
+     "grad": 0.008295466989070098,
+     "grad_pct_gt": 34.04455351388365,
+     "channel_spread": null
+    },
+    "matup": {
+     "n": 11,
+     "psnr": 23.608770438950884,
+     "identical": 0,
+     "ssim": 0.5743531521292556,
+     "psnr_offset_removed": 26.412467225650428,
+     "max_abs_offset_255": 11.468536414483019,
+     "angular_err_deg": null,
+     "grad": 0.014000259135045334,
+     "grad_pct_gt": 128.4528332612329,
+     "channel_spread": null
+    },
+    "dt_textures_db": {
+     "n": 11,
+     "psnr": 27.67996236475379,
+     "identical": 0,
+     "ssim": 0.6708185434058238,
+     "psnr_offset_removed": 30.74789275048266,
+     "max_abs_offset_255": 4.049459089135371,
+     "angular_err_deg": null,
+     "grad": 0.02554093302212829,
+     "grad_pct_gt": 86.50258062616781,
+     "channel_spread": 6.78145744841432
+    },
+    "dt_matsynth_all": {
+     "n": 11,
+     "psnr": 31.310299179078303,
+     "identical": 0,
+     "ssim": 0.7066569447137354,
+     "psnr_offset_removed": 31.590444283119133,
+     "max_abs_offset_255": 2.754573981884401,
+     "angular_err_deg": null,
+     "grad": 0.021457175184178237,
+     "grad_pct_gt": 82.66822407036213,
+     "channel_spread": 8.603170948741283
+    }
+   },
+   "gt_grad": 0.030535129542031483
+  },
+  "metallic": {
+   "columns": {
+    "lr": {
+     "n": 3,
+     "psnr": 19.36621415270545,
+     "identical": 9,
+     "ssim": 0.5831689578183107,
+     "psnr_offset_removed": 19.366214778498502,
+     "max_abs_offset_255": 0.006572743236212279,
+     "angular_err_deg": null,
+     "grad": 0.03271991028181349,
+     "grad_pct_gt": 48.91058975593785,
+     "channel_spread": null
+    },
+    "bilinear": {
+     "n": 3,
+     "psnr": 19.699649885463725,
+     "identical": 9,
+     "ssim": 0.570217360563437,
+     "psnr_offset_removed": 19.69969271558306,
+     "max_abs_offset_255": 0.07255354665279223,
+     "angular_err_deg": null,
+     "grad": 0.02426143064151773,
+     "grad_pct_gt": 36.35307789632685,
+     "channel_spread": null
+    },
+    "matup": {
+     "n": 3,
+     "psnr": 19.270512800071074,
+     "identical": 3,
+     "ssim": 0.5655249274523807,
+     "psnr_offset_removed": 19.40105823899729,
+     "max_abs_offset_255": 3.9616149627124524,
+     "angular_err_deg": null,
+     "grad": 0.023852496419224784,
+     "grad_pct_gt": 35.70403588543176,
+     "channel_spread": null
+    },
+    "dt_textures_db": {
+     "n": 3,
+     "psnr": 18.713919994578067,
+     "identical": 0,
+     "ssim": 0.5387667850647526,
+     "psnr_offset_removed": 18.729703995153574,
+     "max_abs_offset_255": 1.4321006221817552,
+     "angular_err_deg": null,
+     "grad": 0.057297480991403416,
+     "grad_pct_gt": 83.74985963304421,
+     "channel_spread": 10.260246325671165
+    },
+    "dt_matsynth_all": {
+     "n": 3,
+     "psnr": 19.373283974715605,
+     "identical": 9,
+     "ssim": 0.6047677761059496,
+     "psnr_offset_removed": 19.57265727647335,
+     "max_abs_offset_255": 5.159957075962539,
+     "angular_err_deg": null,
+     "grad": 0.046543392837570356,
+     "grad_pct_gt": 68.45464503137119,
+     "channel_spread": 10.839867026007212
+    }
+   },
+   "gt_grad": 0.06780821842557126
+  },
+  "height": {
+   "columns": {
+    "lr": {
+     "n": 12,
+     "psnr": 31.96781593517646,
+     "identical": 0,
+     "ssim": 0.7870405407410841,
+     "psnr_offset_removed": 31.9678391219369,
+     "max_abs_offset_255": 0.0024934015131807146,
+     "angular_err_deg": null,
+     "grad": 0.014991309480396888,
+     "grad_pct_gt": 69.23941815002723,
+     "channel_spread": null
+    },
+    "bilinear": {
+     "n": 12,
+     "psnr": 34.66469963303978,
+     "identical": 0,
+     "ssim": 0.8316946699135452,
+     "psnr_offset_removed": 34.6647466229069,
+     "max_abs_offset_255": 0.006219107700312175,
+     "angular_err_deg": null,
+     "grad": 0.01200662143527041,
+     "grad_pct_gt": 56.29272565437035,
+     "channel_spread": null
+    },
+    "matup": {
+     "n": 12,
+     "psnr": 31.131301699623673,
+     "identical": 0,
+     "ssim": 0.8248362502784916,
+     "psnr_offset_removed": 31.131474846118795,
+     "max_abs_offset_255": 0.014530558988033298,
+     "angular_err_deg": null,
+     "grad": 0.016678918048187972,
+     "grad_pct_gt": 78.8409330214368,
+     "channel_spread": null
+    },
+    "dt_textures_db": {
+     "n": 12,
+     "psnr": 29.52009137024042,
+     "identical": 0,
+     "ssim": 0.7983806432695103,
+     "psnr_offset_removed": 32.556668852723156,
+     "max_abs_offset_255": 4.036871246856573,
+     "angular_err_deg": null,
+     "grad": 0.02181253372684278,
+     "grad_pct_gt": 96.16837480814355,
+     "channel_spread": 6.140089401571451
+    },
+    "dt_matsynth_all": {
+     "n": 12,
+     "psnr": 34.07537014215085,
+     "identical": 0,
+     "ssim": 0.8293177003933364,
+     "psnr_offset_removed": 34.2251690065147,
+     "max_abs_offset_255": 1.281633782626604,
+     "angular_err_deg": null,
+     "grad": 0.01988483259923058,
+     "grad_pct_gt": 90.49504358471245,
+     "channel_spread": 7.416757558615618
+    }
+   },
+   "gt_grad": 0.02237629109174974
+  },
+  "render": {
+   "columns": {
+    "lr": {
+     "n": 12,
+     "psnr": 22.36968271003703,
+     "identical": 0,
+     "ssim": 0.4111964968885906,
+     "psnr_offset_removed": 22.447628726448972,
+     "max_abs_offset_255": 2.1723807259148455,
+     "angular_err_deg": null,
+     "grad": 0.016215231617688175,
+     "grad_pct_gt": 46.2918877043561,
+     "channel_spread": null
+    },
+    "bilinear": {
+     "n": 12,
+     "psnr": 27.30357302263265,
+     "identical": 0,
+     "ssim": 0.6115635211158961,
+     "psnr_offset_removed": 27.513210721440874,
+     "max_abs_offset_255": 3.3813810212885884,
+     "angular_err_deg": null,
+     "grad": 0.011539667917928225,
+     "grad_pct_gt": 33.93788893610785,
+     "channel_spread": null
+    },
+    "matup": {
+     "n": 12,
+     "psnr": 26.357231902881576,
+     "identical": 0,
+     "ssim": 0.6048242797496605,
+     "psnr_offset_removed": 26.603170874054786,
+     "max_abs_offset_255": 3.986266137161811,
+     "angular_err_deg": null,
+     "grad": 0.011022098534346029,
+     "grad_pct_gt": 33.21123058441078,
+     "channel_spread": null
+    },
+    "dt_textures_db": {
+     "n": 12,
+     "psnr": 25.032820475228874,
+     "identical": 0,
+     "ssim": 0.5237706159833879,
+     "psnr_offset_removed": 25.42834007586212,
+     "max_abs_offset_255": 4.688633395117933,
+     "angular_err_deg": null,
+     "grad": 0.03790787277581859,
+     "grad_pct_gt": 98.53347938440044,
+     "channel_spread": null
+    },
+    "dt_matsynth_all": {
+     "n": 12,
+     "psnr": 25.956563525027317,
+     "identical": 0,
+     "ssim": 0.5914443542626446,
+     "psnr_offset_removed": 26.588003116246256,
+     "max_abs_offset_255": 5.37268612610562,
+     "angular_err_deg": null,
+     "grad": 0.027770357518072487,
+     "grad_pct_gt": 77.44641962445843,
+     "channel_spread": null
+    }
+   },
+   "gt_grad": 0.038161043943481195
+  }
+ },
+ "head_to_head": {
+  "baseColor": {
+   "dt_matsynth_all_vs_dt_textures_db": {
+    "n": 12,
+    "psnr": 11,
+    "ssim": 10,
+    "angle": null
+   },
+   "dt_textures_db_vs_matup": {
+    "n": 12,
+    "psnr": 2,
+    "ssim": 3,
+    "angle": null
+   },
+   "dt_matsynth_all_vs_matup": {
+    "n": 12,
+    "psnr": 1,
+    "ssim": 5,
+    "angle": null
+   }
+  },
+  "normal": {
+   "dt_matsynth_all_vs_dt_textures_db": {
+    "n": 12,
+    "psnr": 11,
+    "ssim": 8,
+    "angle": 6
+   },
+   "dt_textures_db_vs_matup": {
+    "n": 12,
+    "psnr": 0,
+    "ssim": 0,
+    "angle": 0
+   },
+   "dt_matsynth_all_vs_matup": {
+    "n": 12,
+    "psnr": 0,
+    "ssim": 0,
+    "angle": 0
+   }
+  },
+  "roughness": {
+   "dt_matsynth_all_vs_dt_textures_db": {
+    "n": 12,
+    "psnr": 12,
+    "ssim": 12,
+    "angle": null
+   },
+   "dt_textures_db_vs_matup": {
+    "n": 12,
+    "psnr": 8,
+    "ssim": 7,
+    "angle": null
+   },
+   "dt_matsynth_all_vs_matup": {
+    "n": 12,
+    "psnr": 12,
+    "ssim": 9,
+    "angle": null
+   }
+  },
+  "metallic": {
+   "dt_matsynth_all_vs_dt_textures_db": {
+    "n": 12,
+    "psnr": 12,
+    "ssim": 12,
+    "angle": null
+   },
+   "dt_textures_db_vs_matup": {
+    "n": 12,
+    "psnr": 3,
+    "ssim": 3,
+    "angle": null
+   },
+   "dt_matsynth_all_vs_matup": {
+    "n": 12,
+    "psnr": 7,
+    "ssim": 9,
+    "angle": null
+   }
+  },
+  "height": {
+   "dt_matsynth_all_vs_dt_textures_db": {
+    "n": 12,
+    "psnr": 12,
+    "ssim": 12,
+    "angle": null
+   },
+   "dt_textures_db_vs_matup": {
+    "n": 12,
+    "psnr": 4,
+    "ssim": 2,
+    "angle": null
+   },
+   "dt_matsynth_all_vs_matup": {
+    "n": 12,
+    "psnr": 5,
+    "ssim": 5,
+    "angle": null
+   }
+  },
+  "render": {
+   "dt_matsynth_all_vs_dt_textures_db": {
+    "n": 12,
+    "psnr": 11,
+    "ssim": 12,
+    "angle": null
+   },
+   "dt_textures_db_vs_matup": {
+    "n": 12,
+    "psnr": 1,
+    "ssim": 0,
+    "angle": null
+   },
+   "dt_matsynth_all_vs_matup": {
+    "n": 12,
+    "psnr": 1,
+    "ssim": 3,
+    "angle": null
+   }
+  }
+ },
+ "materials": [
+  {
+   "material": "0559_brick_uneven_stones",
+   "run": "Sep09_11h48m34s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 30.5503094521714,
+       "ssim": 0.6780606099754084,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 30.80104896197783,
+       "ssim": 0.6809441253010697,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 30.112981378149165,
+       "ssim": 0.66889082278986,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 28.28341658146043,
+       "ssim": 0.5874821329283225,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 28.860623527450247,
+       "ssim": 0.6260231055525297,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.010553858298976112,
+      "bilinear": 0.007625422477761926,
+      "matup": 0.006702435009986571,
+      "dt_textures_db": 0.024006985396634567,
+      "dt_matsynth_all": 0.021583212627192726,
+      "gt": 0.025104520181636586
+     },
+     "grad_vs_gt": {
+      "lr": 0.4203967342381645,
+      "bilinear": 0.303746991481628,
+      "matup": 0.2669812034443605,
+      "dt_textures_db": 0.956281387691893,
+      "dt_matsynth_all": 0.859734122422319
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0028981854838709678,
+       -0.004544419875130073,
+       -0.0022112382934443287
+      ],
+      "bilinear": [
+       -0.10363553590010406,
+       -0.11074482960457857,
+       -0.10811898413111343
+      ],
+      "matup": [
+       -0.7965660770031218,
+       -1.0560695239334028,
+       -0.8293281737773153
+      ],
+      "dt_textures_db": [
+       1.3115976196670136,
+       3.6323369211758583,
+       2.9461010665972944
+      ],
+      "dt_matsynth_all": [
+       -3.3907794614984392,
+       1.235383064516129,
+       -3.450722717221644
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 30.550310309872234,
+      "bilinear": 30.80197791579787,
+      "matup": 30.169039766647927,
+      "dt_textures_db": 28.65244095709148,
+      "dt_matsynth_all": 29.310054816686208
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 32.808288391867706,
+       "ssim": 0.8506258659044007,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 34.878158757274306,
+       "ssim": 0.9079619779081002,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 33.74162445401009,
+       "ssim": 0.9016095561603455,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 19.54009630795914,
+       "ssim": 0.549579240454389,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 24.32863541303184,
+       "ssim": 0.7979423751005502,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.008162846474257949,
+      "bilinear": 0.006440286005621321,
+      "matup": 0.005943245684562697,
+      "dt_textures_db": 0.03463169512066759,
+      "dt_matsynth_all": 0.01211329167448961,
+      "gt": 0.010088579725139421
+     },
+     "grad_vs_gt": {
+      "lr": 0.8091175067900988,
+      "bilinear": 0.6383739020838554,
+      "matup": 0.5891062812095251,
+      "dt_textures_db": 3.432762198862337,
+      "dt_matsynth_all": 1.20069345780208
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.005019998699271592,
+       0.001955157388137357,
+       0.002743723985431842
+      ],
+      "bilinear": [
+       -0.11811426899063475,
+       -0.11209840010405828,
+       -0.08875845473465141
+      ],
+      "matup": [
+       -0.30763852757544224,
+       0.3789590920915713,
+       0.9995975871488033
+      ],
+      "dt_textures_db": [
+       -4.196373406607701,
+       -8.597343262226847,
+       -28.124288664151926
+      ],
+      "dt_matsynth_all": [
+       -20.291846871748177,
+       -6.5740602237252865,
+       -8.078019315816858
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 32.808289945368415,
+      "bilinear": 34.880646415760694,
+      "matup": 33.807322497582454,
+      "dt_textures_db": 21.900587034726687,
+      "dt_matsynth_all": 30.056807932266672
+     },
+     "angular_err_deg": {
+      "lr": 3.637249096097765,
+      "bilinear": 2.8069489756958976,
+      "matup": 3.24612599653563,
+      "dt_textures_db": 14.776510270247345,
+      "dt_matsynth_all": 10.700182189863883
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 26.465564827297896,
+       "ssim": 0.5910055315276466,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 26.594657598030327,
+       "ssim": 0.5740801221391889,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 23.831743948498858,
+       "ssim": 0.5506151670897041,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 23.220132832741704,
+       "ssim": 0.4320735338809095,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 24.93183764719857,
+       "ssim": 0.5647895313854593,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.01737324354985564,
+      "bilinear": 0.01185144132549987,
+      "matup": 0.011467131637015628,
+      "dt_textures_db": 0.04734665498662496,
+      "dt_matsynth_all": 0.03320941941622795,
+      "gt": 0.03894048321790391
+     },
+     "grad_vs_gt": {
+      "lr": 0.44614863797755433,
+      "bilinear": 0.3043475670083842,
+      "matup": 0.29447841139637715,
+      "dt_textures_db": 1.2158723023975238,
+      "dt_matsynth_all": 0.8528250466331926
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.00012194328824141519
+      ],
+      "bilinear": [
+       -0.11088709677419355
+      ],
+      "matup": [
+       6.89425484521332
+      ],
+      "dt_textures_db": [
+       -2.7165834742455774
+      ],
+      "dt_matsynth_all": [
+       -5.2631739399063475
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 26.46556482773802,
+      "bilinear": 26.595032528281347,
+      "matup": 24.675802633463878,
+      "dt_textures_db": 23.329251950579195,
+      "dt_matsynth_all": 25.55050316911428
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 7.919113866482803,
+      "dt_matsynth_all": 11.655631025359554
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 75.29182573110494,
+       "ssim": 0.9998589869475885,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 4.206383576284491e-06,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.001264145421436004
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 75.2990477982513,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 37.189327154060656,
+       "ssim": 0.9201837864270415,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 48.360712715202446,
+       "ssim": 0.9944658477159577,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.189963813498267,
+       "ssim": 0.9177242163596292,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 31.992940187951096,
+       "ssim": 0.9810437505419678,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 43.265548824462705,
+       "ssim": 0.988366974676396,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.010985903261331439,
+      "bilinear": 0.009751892275612172,
+      "matup": 0.013890181298923096,
+      "dt_textures_db": 0.011180027481014276,
+      "dt_matsynth_all": 0.010748133097623281,
+      "gt": 0.010192010657906326
+     },
+     "grad_vs_gt": {
+      "lr": 1.0778936198236078,
+      "bilinear": 0.9568173153397619,
+      "matup": 1.3628499581824867,
+      "dt_textures_db": 1.0969403247573635,
+      "dt_matsynth_all": 1.0545645465240512
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0010243236212278877
+      ],
+      "bilinear": [
+       -0.0009308337669094692
+      ],
+      "matup": [
+       0.006893860561914672
+      ],
+      "dt_textures_db": [
+       5.544249154526534
+      ],
+      "dt_matsynth_all": [
+       0.34479871227887615
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 37.189327520929695,
+      "bilinear": 48.36071668272752,
+      "matup": 29.18998820749577,
+      "dt_textures_db": 37.9898608538103,
+      "dt_matsynth_all": 43.438440979899156
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 5.34758346160686,
+      "dt_matsynth_all": 5.682618301831221
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 23.042230509765936,
+       "ssim": 0.4403991529740448,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 30.454533975543963,
+       "ssim": 0.7186292720643528,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.90065432812846,
+       "ssim": 0.7073313189300169,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 27.9102913507234,
+       "ssim": 0.6283834708061921,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 28.522883268377367,
+       "ssim": 0.6630547305604982,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.014600319359206627,
+      "bilinear": 0.010731108350340824,
+      "matup": 0.009602122114021675,
+      "dt_textures_db": 0.025560453684281604,
+      "dt_matsynth_all": 0.0239712882474397,
+      "gt": 0.026450904598777327
+     },
+     "grad_vs_gt": {
+      "lr": 0.5519780733654575,
+      "bilinear": 0.40569910606523685,
+      "matup": 0.36301677616218564,
+      "dt_textures_db": 0.9663357103281495,
+      "dt_matsynth_all": 0.9062558960099896
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.10638332466181061,
+       -0.157599505723205,
+       -0.18525624349635797
+      ],
+      "bilinear": [
+       0.9236797606659729,
+       0.8838124349635796,
+       0.8534729448491155
+      ],
+      "matup": [
+       -0.5018860561914672,
+       -0.7709620512486993,
+       -0.6361984586368367
+      ],
+      "dt_textures_db": [
+       0.8426403160770031,
+       4.374959352237253,
+       2.5357740959937565
+      ],
+      "dt_matsynth_all": [
+       -3.5227505528095735,
+       2.4102497398543186,
+       -3.3709311589490114
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 23.04254663267518,
+      "bilinear": 30.514243434578177,
+      "matup": 29.927961531593965,
+      "dt_textures_db": 28.29570231835271,
+      "dt_matsynth_all": 29.021260848988483
+     }
+    }
+   }
+  },
+  {
+   "material": "0844_syntetic_foam",
+   "run": "Sep09_11h49m44s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 48.1411193759568,
+       "ssim": 0.9861212170961228,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 50.85254490759013,
+       "ssim": 0.9937216809563519,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 34.833282080406825,
+       "ssim": 0.9812858285854523,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.376127355996246,
+       "ssim": 0.8986516137571902,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.154557032055287,
+       "ssim": 0.6586677416811063,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0021719381271535017,
+      "bilinear": 0.0018679026620903089,
+      "matup": 0.002331056131177019,
+      "dt_textures_db": 0.002849734689784922,
+      "dt_matsynth_all": 0.0035705813208074598,
+      "gt": 0.002470811487704843
+     },
+     "grad_vs_gt": {
+      "lr": 0.8790383798850769,
+      "bilinear": 0.755987525307088,
+      "matup": 0.9434374669118752,
+      "dt_textures_db": 1.1533598188148557,
+      "dt_matsynth_all": 1.445104710972589
+     },
+     "mean_offset_255": {
+      "lr": [
+       4.06477627471384e-05,
+       -0.0019958051508844952,
+       0.0
+      ],
+      "bilinear": [
+       -0.09711563475546306,
+       -0.09743268730489074,
+       0.0
+      ],
+      "matup": [
+       -6.317276112122789,
+       -3.8896697775754423,
+       0.0
+      ],
+      "dt_textures_db": [
+       -18.866854188345474,
+       -27.519775136576484,
+       1.2612309768470344
+      ],
+      "dt_matsynth_all": [
+       -2.0277461628511966,
+       6.57393421566077,
+       17.950304045265348
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 48.1411251583991,
+      "bilinear": 50.90411994157657,
+      "matup": 43.32845242417282,
+      "dt_textures_db": 41.60936358515172,
+      "dt_matsynth_all": 45.99538820176474
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 20.38000628036933,
+       "ssim": 0.4462999243782728,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 20.66194576917433,
+       "ssim": 0.4268008423417841,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 19.971593945235156,
+       "ssim": 0.39646657656706535,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 12.130865044467392,
+       "ssim": 0.10912830579971394,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 18.048668538660813,
+       "ssim": 0.3837031897664582,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.020677290860679657,
+      "bilinear": 0.014851073760886046,
+      "matup": 0.013542310908835935,
+      "dt_textures_db": 0.11573730757152312,
+      "dt_matsynth_all": 0.03220137476496714,
+      "gt": 0.04986796260278845
+     },
+     "grad_vs_gt": {
+      "lr": 0.4146407789983273,
+      "bilinear": 0.2978079108460634,
+      "matup": 0.2715633485310806,
+      "dt_textures_db": 2.3208749973084215,
+      "dt_matsynth_all": 0.6457327126327504
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.000938963319458897,
+       0.0015120967741935483,
+       -0.004162330905306972
+      ],
+      "bilinear": [
+       -0.11356171956295526,
+       -0.12250829214360041,
+       -0.11552094172736732
+      ],
+      "matup": [
+       0.2505284209157128,
+       0.6110171696149844,
+       14.139592546826222
+      ],
+      "dt_textures_db": [
+       -6.17435857830385,
+       -8.774465888397502,
+       -40.272705840270554
+      ],
+      "dt_matsynth_all": [
+       -27.82156038631634,
+       -11.998764308012486,
+       -11.825474765868886
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 20.38000633074593,
+      "bilinear": 20.66205272457463,
+      "matup": 20.4390324651893,
+      "dt_textures_db": 12.953629263553186,
+      "dt_matsynth_all": 19.921077208650956
+     },
+     "angular_err_deg": {
+      "lr": 17.265820318595644,
+      "bilinear": 16.78549413280822,
+      "matup": 17.751579548365665,
+      "dt_textures_db": 47.64607543610608,
+      "dt_matsynth_all": 22.903029573246933
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 26.23487748839181,
+       "ssim": 0.7950824818089925,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 29.066162165662263,
+       "ssim": 0.9978010493841883,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 41.35729809785868,
+       "ssim": 0.9996601902223304,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.01056782186245785,
+      "dt_textures_db": 0.0004984943631598188,
+      "dt_matsynth_all": 0.00016686676646707237,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       5.007410087148803
+      ],
+      "dt_textures_db": [
+       8.931122366024974
+      ],
+      "dt_matsynth_all": [
+       2.1117935418834546
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 27.002666794052203,
+      "dt_textures_db": 48.790787209760715,
+      "dt_matsynth_all": 53.39566201623914
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 8.548993844875667,
+      "dt_matsynth_all": 8.172202724365434
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 25.323978682023416,
+       "ssim": 0.34389886995593677,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.01170834934371752,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       8.942654136316337
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 29.493804637501768,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 27.75643222611684,
+       "ssim": 0.7684773713571657,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 31.86024726705001,
+       "ssim": 0.8890243426813664,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 25.240924807457247,
+       "ssim": 0.892430355706724,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 29.13102218644532,
+       "ssim": 0.8364843491363353,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 32.19710053503446,
+       "ssim": 0.8909349925485185,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.03017063731443992,
+      "bilinear": 0.024778022434648026,
+      "matup": 0.04075204537021908,
+      "dt_textures_db": 0.03321998753093943,
+      "dt_matsynth_all": 0.032099491079131584,
+      "gt": 0.0332318173975463
+     },
+     "grad_vs_gt": {
+      "lr": 0.9078840604326261,
+      "bilinear": 0.7456114162590919,
+      "matup": 1.226296018743412,
+      "dt_textures_db": 0.9996440198721199,
+      "dt_matsynth_all": 0.965926440168201
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0004511901664932362
+      ],
+      "bilinear": [
+       0.0026746227887617068
+      ],
+      "matup": [
+       -0.03718863813735692
+      ],
+      "dt_textures_db": [
+       4.001723465140478
+      ],
+      "dt_matsynth_all": [
+       -1.7779250130072841
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 27.756432234227688,
+      "bilinear": 31.86024800030292,
+      "matup": 25.24117003858436,
+      "dt_textures_db": 30.10888123862967,
+      "dt_matsynth_all": 32.562172353111116
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 7.567928210637405,
+      "dt_matsynth_all": 8.834253380086672
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 17.04145766031548,
+       "ssim": 0.2529777982982994,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 21.720068285602093,
+       "ssim": 0.5037802001703277,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.905324926467294,
+       "ssim": 0.4762054412814556,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 20.008922129735645,
+       "ssim": 0.3197071161734955,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 21.597602105263963,
+       "ssim": 0.47606125215537753,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.022944569900887623,
+      "bilinear": 0.01566193495509339,
+      "matup": 0.012660427438750984,
+      "dt_textures_db": 0.061298185904120624,
+      "dt_matsynth_all": 0.03774429721067626,
+      "gt": 0.05202663724582813
+     },
+     "grad_vs_gt": {
+      "lr": 0.4410158164263727,
+      "bilinear": 0.3010368492795347,
+      "matup": 0.24334510375771382,
+      "dt_textures_db": 1.1782077249099154,
+      "dt_matsynth_all": 0.7254802387540984
+     },
+     "mean_offset_255": {
+      "lr": [
+       4.8503959092091575,
+       4.735468424817898,
+       2.450974733350676
+      ],
+      "bilinear": [
+       8.441536322840792,
+       8.248935028616025,
+       4.248552939646202
+      ],
+      "matup": [
+       3.2427240504682624,
+       4.792220831165452,
+       3.148181419094693
+      ],
+      "dt_textures_db": [
+       -5.865520941727367,
+       -3.220562890218522,
+       2.958128739594173
+      ],
+      "dt_matsynth_all": [
+       -1.1501447060353798,
+       8.305939451092613,
+       6.667777705515088
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 17.163267523446873,
+      "bilinear": 22.293027175339777,
+      "matup": 22.062936749725313,
+      "dt_textures_db": 20.13984915502578,
+      "dt_matsynth_all": 22.011423605291757
+     }
+    }
+   }
+  },
+  {
+   "material": "1587_cobblestones",
+   "run": "Sep09_11h50m54s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 26.68905545761379,
+       "ssim": 0.5312119389097606,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 27.39864677226422,
+       "ssim": 0.5399464121684985,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 27.462396137392556,
+       "ssim": 0.5427639254172852,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 26.014394945682298,
+       "ssim": 0.49664537243885776,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 26.46466280614704,
+       "ssim": 0.5379152478312886,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.01693037355927601,
+      "bilinear": 0.012781821829145045,
+      "matup": 0.012153750898759967,
+      "dt_textures_db": 0.03029726226210493,
+      "dt_matsynth_all": 0.02649691412408839,
+      "gt": 0.03914589347329001
+     },
+     "grad_vs_gt": {
+      "lr": 0.4324942428719356,
+      "bilinear": 0.3265175653192416,
+      "matup": 0.3104732021777125,
+      "dt_textures_db": 0.7739576127640905,
+      "dt_matsynth_all": 0.6768759574275074
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0012072385535900104,
+       0.0030567117585848075,
+       0.0006788176378772112
+      ],
+      "bilinear": [
+       -0.11018795525494277,
+       -0.10515982700312175,
+       -0.10670850676378772
+      ],
+      "matup": [
+       0.21386820369406867,
+       -0.44028437174817897,
+       -0.9847327003121749
+      ],
+      "dt_textures_db": [
+       -1.1386332596253903,
+       3.3721993691467222,
+       1.2035680606139438
+      ],
+      "dt_matsynth_all": [
+       -5.265588417013528,
+       1.1762039867325702,
+       -4.6330198035900105
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 26.689055574588615,
+      "bilinear": 27.399069808337035,
+      "matup": 27.477431148039745,
+      "dt_textures_db": 26.141800605918853,
+      "dt_matsynth_all": 26.994581539514584
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 29.36392280733203,
+       "ssim": 0.670831391998222,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 29.534306641968247,
+       "ssim": 0.6701581030891545,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.22864105694601,
+       "ssim": 0.6649988310657885,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 18.796931448371062,
+       "ssim": 0.325512203442832,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 24.009193660931853,
+       "ssim": 0.5822887789400822,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.005631380146689072,
+      "bilinear": 0.004185439108140282,
+      "matup": 0.0037925497513576546,
+      "dt_textures_db": 0.041475479023908676,
+      "dt_matsynth_all": 0.011328190679422978,
+      "gt": 0.01563576425842986
+     },
+     "grad_vs_gt": {
+      "lr": 0.36016021050285224,
+      "bilinear": 0.2676836922687515,
+      "matup": 0.24255608415897806,
+      "dt_textures_db": 2.652603245891713,
+      "dt_matsynth_all": 0.7245050828465581
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0018332140998959417,
+       0.002028323361082206,
+       0.0006625585327783559
+      ],
+      "bilinear": [
+       -0.10746455515088449,
+       -0.1076393405306972,
+       -0.08484407518210198
+      ],
+      "matup": [
+       -0.3191133909989594,
+       0.5101294224765869,
+       2.5766820044224765
+      ],
+      "dt_textures_db": [
+       -2.7615846123829346,
+       -9.337083766909469,
+       -31.33353928199792
+      ],
+      "dt_matsynth_all": [
+       -19.221839229968783,
+       -7.198491155046826,
+       -7.497813150364204
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 29.363922959512006,
+      "bilinear": 29.534921567622007,
+      "matup": 29.361147628387407,
+      "dt_textures_db": 21.265684506902783,
+      "dt_matsynth_all": 28.26333049476435
+     },
+     "angular_err_deg": {
+      "lr": 5.636751372094634,
+      "bilinear": 5.488560485425304,
+      "matup": 5.620567830048907,
+      "dt_textures_db": 17.431997482439158,
+      "dt_matsynth_all": 11.397788962056367
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 36.54263465721486,
+       "ssim": 0.8736517106228348,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 37.86060634922777,
+       "ssim": 0.8996025570242029,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.09526880126527,
+       "ssim": 0.6092859562696639,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 30.540331819222807,
+       "ssim": 0.8598758482486467,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 37.32830505677195,
+       "ssim": 0.8827031162103655,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.006918268276544094,
+      "bilinear": 0.005506977753880974,
+      "matup": 0.022536884323236375,
+      "dt_textures_db": 0.01076289301418779,
+      "dt_matsynth_all": 0.009922315255044518,
+      "gt": 0.011307284063915242
+     },
+     "grad_vs_gt": {
+      "lr": 0.6118417329429491,
+      "bilinear": 0.4870292214074028,
+      "matup": 1.9931297556376053,
+      "dt_textures_db": 0.951854835639554,
+      "dt_matsynth_all": 0.877515343114926
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0061093587408949015
+      ],
+      "bilinear": [
+       -0.10997252211238294
+      ],
+      "matup": [
+       7.599326873048907
+      ],
+      "dt_textures_db": [
+       6.446914021852237
+      ],
+      "dt_matsynth_all": [
+       0.1884389633194589
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 36.542645902209,
+      "bilinear": 37.865544676281985,
+      "matup": 21.62233852980365,
+      "dt_textures_db": 36.1290910228665,
+      "dt_matsynth_all": 37.34114365595718
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 7.040962973723026,
+      "dt_matsynth_all": 8.345261302483777
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.0,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.0
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 34.62238721634306,
+       "ssim": 0.887059025357488,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 41.869828144280525,
+       "ssim": 0.9748967960919593,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 36.916128189718414,
+       "ssim": 0.9739496301566849,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 32.80988742560312,
+       "ssim": 0.9589782044601456,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 40.499982013422326,
+       "ssim": 0.9704451759822337,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.014220103270343001,
+      "bilinear": 0.012193808706379575,
+      "matup": 0.014714479622643235,
+      "dt_textures_db": 0.014325297470974968,
+      "dt_matsynth_all": 0.014037249276602149,
+      "gt": 0.013897331785393026
+     },
+     "grad_vs_gt": {
+      "lr": 1.0232254284444176,
+      "bilinear": 0.8774208527708922,
+      "matup": 1.0587989011033818,
+      "dt_textures_db": 1.0307948095498276,
+      "dt_matsynth_all": 1.0100679391821232
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0012275624349635797
+      ],
+      "bilinear": [
+       0.0049915452653485955
+      ],
+      "matup": [
+       -0.0017478537981269512
+      ],
+      "dt_textures_db": [
+       5.038936491935484
+      ],
+      "dt_matsynth_all": [
+       -0.3332588124349636
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 34.622387508105824,
+      "bilinear": 41.8698537394537,
+      "matup": 36.9161294680942,
+      "dt_textures_db": 38.757898840291084,
+      "dt_matsynth_all": 40.584068456825236
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 4.423355786939442,
+      "dt_matsynth_all": 5.030934596791217
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 21.945086288903298,
+       "ssim": 0.3891557503326188,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 28.102811580450236,
+       "ssim": 0.5840877014105899,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 28.311087515381175,
+       "ssim": 0.5909214119643093,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 26.720586151252725,
+       "ssim": 0.5525777649284795,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.449196165365912,
+       "ssim": 0.5852697044776257,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.014853340368439657,
+      "bilinear": 0.010950451811172055,
+      "matup": 0.010698248597397406,
+      "dt_textures_db": 0.024862794716740102,
+      "dt_matsynth_all": 0.0224872025075874,
+      "gt": 0.03410641633782589
+     },
+     "grad_vs_gt": {
+      "lr": 0.4354998842832539,
+      "bilinear": 0.32106720631998503,
+      "matup": 0.3136726090314115,
+      "dt_textures_db": 0.7289770484964699,
+      "dt_matsynth_all": 0.659324693771707
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.6077938020291364,
+       0.6110252991675338,
+       0.611903290842872
+      ],
+      "bilinear": [
+       1.556093912591051,
+       1.6145901079604579,
+       1.6879186719562955
+      ],
+      "matup": [
+       1.0249048842351718,
+       0.4440524193548387,
+       0.006162200832466181
+      ],
+      "dt_textures_db": [
+       0.3385836693548387,
+       5.800533298647243,
+       2.7903794875130075
+      ],
+      "dt_matsynth_all": [
+       -3.711148868366285,
+       3.518693906087409,
+       -3.0930224050468262
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 21.948980445317737,
+      "bilinear": 28.217620195493147,
+      "matup": 28.32995558500002,
+      "dt_textures_db": 27.17865679440655,
+      "dt_matsynth_all": 27.915340114897326
+     }
+    }
+   }
+  },
+  {
+   "material": "2119_corten_steel",
+   "run": "Sep09_11h52m04s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 18.076906984623722,
+       "ssim": 0.4302167873225902,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 18.283831573313343,
+       "ssim": 0.4053470180945471,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 18.05385976658356,
+       "ssim": 0.4181104081738097,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 17.065047766539422,
+       "ssim": 0.40394735566721435,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 17.49780435253357,
+       "ssim": 0.4464414494462435,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.041819989139579836,
+      "bilinear": 0.029745578742711765,
+      "matup": 0.03263833158884528,
+      "dt_textures_db": 0.08086398726227405,
+      "dt_matsynth_all": 0.0661354142571941,
+      "gt": 0.09999634709473
+     },
+     "grad_vs_gt": {
+      "lr": 0.4182151683997248,
+      "bilinear": 0.29746665360218355,
+      "matup": 0.32639523879733184,
+      "dt_textures_db": 0.8086694125503284,
+      "dt_matsynth_all": 0.6613783020947929
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.003198978928199792,
+       0.002719335327783559,
+       -0.002280339490114464
+      ],
+      "bilinear": [
+       -0.09942036290322581,
+       -0.10056662981269511,
+       -0.10538338969823101
+      ],
+      "matup": [
+       -5.858501073100936,
+       -5.9764933988033295,
+       -5.239171436004162
+      ],
+      "dt_textures_db": [
+       -4.973826905567117,
+       -0.9482066207075962,
+       -6.579295655567117
+      ],
+      "dt_matsynth_all": [
+       -13.43297183922997,
+       -3.6688142234651404,
+       -9.892689906347554
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 18.076907017851784,
+      "bilinear": 18.28387821566521,
+      "matup": 18.194773334528932,
+      "dt_textures_db": 17.146538333234414,
+      "dt_matsynth_all": 17.880978049953193
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 34.22331172554464,
+       "ssim": 0.8402086267482894,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 34.132965570794944,
+       "ssim": 0.8355078966406243,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 33.632199532085295,
+       "ssim": 0.8323168334353502,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.480020880079408,
+       "ssim": 0.783047586325241,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 26.00438832595569,
+       "ssim": 0.7747858704564506,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0011580407824976695,
+      "bilinear": 0.0008638352928967806,
+      "matup": 0.0007700632535622429,
+      "dt_textures_db": 0.0071502787095126235,
+      "dt_matsynth_all": 0.005022656976743886,
+      "gt": 0.007052325856954611
+     },
+     "grad_vs_gt": {
+      "lr": 0.16420693059094454,
+      "bilinear": 0.12248941844411716,
+      "matup": 0.10919280662603663,
+      "dt_textures_db": 1.0138894393913203,
+      "dt_matsynth_all": 0.7121986531281479
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.022185548907388136,
+       0.013523510665972944,
+       0.007816564776274714
+      ],
+      "bilinear": [
+       -0.040196572580645164,
+       -0.0379772047346514,
+       -0.0349204929760666
+      ],
+      "matup": [
+       0.15515657518210196,
+       0.3776746227887617,
+       1.5533420590530698
+      ],
+      "dt_textures_db": [
+       -5.387409761966701,
+       -10.565528258324662,
+       -29.30805719953174
+      ],
+      "dt_matsynth_all": [
+       -17.66733058012487,
+       -6.359358740894901,
+       -5.541074564255983
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 34.22335506681008,
+      "bilinear": 34.13331098619421,
+      "matup": 33.766805750184496,
+      "dt_textures_db": 32.878174828739674,
+      "dt_matsynth_all": 32.72588314627025
+     },
+     "angular_err_deg": {
+      "lr": 2.255680907090593,
+      "bilinear": 2.267914283624258,
+      "matup": 2.3418680113997077,
+      "dt_textures_db": 8.07947065634936,
+      "dt_matsynth_all": 9.462967453349702
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 38.010770253906344,
+       "ssim": 0.9252311202053973,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 37.96624253966876,
+       "ssim": 0.9238074156486789,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 14.881884146956885,
+       "ssim": 0.5716224504063688,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 31.43988046458395,
+       "ssim": 0.9252681299842636,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 37.17095366091678,
+       "ssim": 0.9261849316344329,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.002318847769391441,
+      "bilinear": 0.001793309395602478,
+      "matup": 0.019020693644852257,
+      "dt_textures_db": 0.002389345341042779,
+      "dt_matsynth_all": 0.005551116597160528,
+      "gt": 0.00497558131407793
+     },
+     "grad_vs_gt": {
+      "lr": 0.46604559809533885,
+      "bilinear": 0.3604220858633103,
+      "matup": 3.8228083201122707,
+      "dt_textures_db": 0.48021430868436527,
+      "dt_matsynth_all": 1.1156719681083647
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0007397892819979189
+      ],
+      "bilinear": [
+       -0.056451612903225805
+      ],
+      "matup": [
+       -43.60392007023933
+      ],
+      "dt_textures_db": [
+       5.86591928980229
+      ],
+      "dt_matsynth_all": [
+       1.1648632609261187
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 38.01077048511126,
+      "bilinear": 37.967575286165854,
+      "matup": 26.661018112924488,
+      "dt_textures_db": 37.2434732858465,
+      "dt_matsynth_all": 37.671123763623385
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 10.797464545511275,
+      "dt_matsynth_all": 10.303647582128406
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 19.49783424976245,
+       "ssim": 0.5952953547178282,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 19.735699438725284,
+       "ssim": 0.5664386208828205,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 19.65058785319507,
+       "ssim": 0.5585050918218188,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 18.687291078377395,
+       "ssim": 0.4881689160314136,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 19.628692272891215,
+       "ssim": 0.616785432492454,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.028807732424853044,
+      "bilinear": 0.02092193969572188,
+      "matup": 0.020466367228760392,
+      "dt_textures_db": 0.05526759383739098,
+      "dt_matsynth_all": 0.03911791326301106,
+      "gt": 0.061037776654462035
+     },
+     "grad_vs_gt": {
+      "lr": 0.4719656252870265,
+      "bilinear": 0.3427703439160644,
+      "matup": 0.33530656505759604,
+      "dt_textures_db": 0.9054653833520779,
+      "dt_matsynth_all": 0.6408803761719494
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0007397892819979189
+      ],
+      "bilinear": [
+       -0.07143844302809574
+      ],
+      "matup": [
+       -0.3149510600936524
+      ],
+      "dt_textures_db": [
+       -1.0102025884495318
+      ],
+      "dt_matsynth_all": [
+       -2.88125162591051
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 19.49783433477792,
+      "bilinear": 19.73573151171606,
+      "matup": 19.65119918846322,
+      "dt_textures_db": 18.69244126883163,
+      "dt_matsynth_all": 19.67994017129544
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 8.260539499982844,
+      "dt_matsynth_all": 7.918162934299629
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 35.32666643333335,
+       "ssim": 0.8645383346577105,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 35.69473347378451,
+       "ssim": 0.8716366352056566,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 36.22789779281074,
+       "ssim": 0.882857561753333,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 30.64200316590438,
+       "ssim": 0.8533184203247993,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 34.9770757864823,
+       "ssim": 0.8662649705414375,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.005617527760001858,
+      "bilinear": 0.004236418987165168,
+      "matup": 0.004670356939672279,
+      "dt_textures_db": 0.009609841516029465,
+      "dt_matsynth_all": 0.009573379060600492,
+      "gt": 0.010947332275468286
+     },
+     "grad_vs_gt": {
+      "lr": 0.5131412492694766,
+      "bilinear": 0.38698185827961906,
+      "matup": 0.4266205521264767,
+      "dt_textures_db": 0.8778249599278187,
+      "dt_matsynth_all": 0.8744942438673698
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0018210197710718003
+      ],
+      "bilinear": [
+       0.0012031737773152966
+      ],
+      "matup": [
+       -0.00152429110301769
+      ],
+      "dt_textures_db": [
+       5.702466506243496
+      ],
+      "dt_matsynth_all": [
+       -0.18769917403746098
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 35.326667188425496,
+      "bilinear": 35.6947338325693,
+      "matup": 36.227898443883596,
+      "dt_textures_db": 34.40699057162267,
+      "dt_matsynth_all": 34.98448388252748
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 5.638853212572599,
+      "dt_matsynth_all": 6.421109091035504
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 17.488695518762633,
+       "ssim": 0.2187738972114639,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 21.31136407562736,
+       "ssim": 0.44146650907960217,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.482745735433262,
+       "ssim": 0.46016624370763043,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 20.02222855699983,
+       "ssim": 0.42085957988479433,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 20.807112866633588,
+       "ssim": 0.4753140946109618,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.028251424862248756,
+      "bilinear": 0.01954292717887579,
+      "matup": 0.022447991057006303,
+      "dt_textures_db": 0.05816774688360701,
+      "dt_matsynth_all": 0.04658942966540802,
+      "gt": 0.06753923481123447
+     },
+     "grad_vs_gt": {
+      "lr": 0.41829649005069,
+      "bilinear": 0.28935665666773325,
+      "matup": 0.33236963847378836,
+      "dt_textures_db": 0.8612437947539701,
+      "dt_matsynth_all": 0.68981281466426
+     },
+     "mean_offset_255": {
+      "lr": [
+       1.7508048257023934,
+       1.6042289932362124,
+       1.5748081425598335
+      ],
+      "bilinear": [
+       4.279059085587929,
+       4.28174183792924,
+       4.277591701352757
+      ],
+      "matup": [
+       2.6600505658168574,
+       2.5536143990634756,
+       3.010076580385016
+      ],
+      "dt_textures_db": [
+       0.4178142885015609,
+       3.989789281997919,
+       -0.05539883584807492
+      ],
+      "dt_matsynth_all": [
+       -7.346058792924038,
+       2.0128365634755463,
+       -5.4130097229448495
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 17.498845289559085,
+      "bilinear": 21.480029159358626,
+      "matup": 21.554300692731722,
+      "dt_textures_db": 20.05853123784422,
+      "dt_matsynth_all": 21.047772446288793
+     }
+    }
+   }
+  },
+  {
+   "material": "acg_concrete_026",
+   "run": "Sep09_11h53m13s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 21.32305599625597,
+       "ssim": 0.3798703364001963,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 21.377661128042334,
+       "ssim": 0.33908959827072294,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 20.301918412886103,
+       "ssim": 0.26320904188040717,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 18.932531686528012,
+       "ssim": 0.2761177549413178,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 19.828908816931417,
+       "ssim": 0.34429134709495246,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.025130371945405478,
+      "bilinear": 0.0171368174256757,
+      "matup": 0.012156096991976473,
+      "dt_textures_db": 0.07394269012303006,
+      "dt_matsynth_all": 0.05264710540086685,
+      "gt": 0.07179662836633169
+     },
+     "grad_vs_gt": {
+      "lr": 0.35002161685339134,
+      "bilinear": 0.23868554576459527,
+      "matup": 0.16931292274550533,
+      "dt_textures_db": 1.029890843143057,
+      "dt_matsynth_all": 0.7332810272404823
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0032030437044745057,
+       0.00022356269510926118,
+       0.003889990894901145
+      ],
+      "bilinear": [
+       -0.11076921826222685,
+       -0.10786696800208116,
+       -0.10249333376690947
+      ],
+      "matup": [
+       0.02630723204994797,
+       0.23770405176899065,
+       7.31470717351717
+      ],
+      "dt_textures_db": [
+       -1.0757023933402705,
+       0.7682996227887617,
+       -1.5676785249739855
+      ],
+      "dt_matsynth_all": [
+       -10.584726196670136,
+       -0.4874561004162331,
+       -8.652546988813736
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 21.323056073068308,
+      "bilinear": 21.3777663335713,
+      "matup": 20.431667323960593,
+      "dt_textures_db": 18.9399328822882,
+      "dt_matsynth_all": 20.24913541974817
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 23.928969426114165,
+       "ssim": 0.39762895399620385,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 23.856803528082693,
+       "ssim": 0.362431810358473,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.796671205760433,
+       "ssim": 0.32041906015236826,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 14.364230575018269,
+       "ssim": 0.0887831698707769,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 20.77797913046651,
+       "ssim": 0.302822983205335,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.00802520725843108,
+      "bilinear": 0.005167389226451834,
+      "matup": 0.0038181656952945456,
+      "dt_textures_db": 0.08991273830064764,
+      "dt_matsynth_all": 0.020373320905354313,
+      "gt": 0.032578872699998256
+     },
+     "grad_vs_gt": {
+      "lr": 0.246331643587886,
+      "bilinear": 0.15861166449912525,
+      "matup": 0.11719760012735954,
+      "dt_textures_db": 2.759848050256584,
+      "dt_matsynth_all": 0.6253537712296412
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.002349440686784599,
+       0.00401193418314256,
+       -0.0026990114464099896
+      ],
+      "bilinear": [
+       -0.10405420785639959,
+       -0.10670444198751301,
+       -0.11059849765868887
+      ],
+      "matup": [
+       0.5380097229448492,
+       0.03548143210197711,
+       19.36167566337149
+      ],
+      "dt_textures_db": [
+       -6.889629129812695,
+       -8.984171761186264,
+       -35.90175842221644
+      ],
+      "dt_matsynth_all": [
+       -23.42005398022893,
+       -7.57933223855359,
+       -4.067251723465141
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 23.928969585107804,
+      "bilinear": 23.856989908538566,
+      "matup": 23.289367985144118,
+      "dt_textures_db": 15.395083077162738,
+      "dt_matsynth_all": 22.871284636818974
+     },
+     "angular_err_deg": {
+      "lr": 12.173752435190107,
+      "bilinear": 12.255518781505067,
+      "matup": 12.503466288411927,
+      "dt_textures_db": 39.49554798834999,
+      "dt_matsynth_all": 18.388868384615645
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 27.786531244592453,
+       "ssim": 0.5634807071684711,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 27.79690376418645,
+       "ssim": 0.543200436532062,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 25.413535901776683,
+       "ssim": 0.45285984702101845,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 25.803670605326076,
+       "ssim": 0.4570963860347691,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 26.30463512698484,
+       "ssim": 0.5050368555830365,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.012375942522532001,
+      "bilinear": 0.008422598958024833,
+      "matup": 0.00752692840120444,
+      "dt_textures_db": 0.02951972019916015,
+      "dt_matsynth_all": 0.026649074336380897,
+      "gt": 0.035074359136554566
+     },
+     "grad_vs_gt": {
+      "lr": 0.3528487141945744,
+      "bilinear": 0.24013550540533707,
+      "matup": 0.21459917120366884,
+      "dt_textures_db": 0.8416324895411885,
+      "dt_matsynth_all": 0.7597879189361205
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.00030485822060353796
+      ],
+      "bilinear": [
+       -0.10644836108220604
+      ],
+      "matup": [
+       -4.090437207336108
+      ],
+      "dt_textures_db": [
+       1.2152949401664932
+      ],
+      "dt_matsynth_all": [
+       -3.2578125
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 27.78653124832111,
+      "bilinear": 27.797359481019907,
+      "matup": 25.820726231026136,
+      "dt_textures_db": 25.84136857192614,
+      "dt_matsynth_all": 26.61840682372633
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 5.386839679564446,
+      "dt_matsynth_all": 8.512251624748046
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.0,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.0
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 26.294492015129133,
+       "ssim": 0.6146224662441785,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 26.663724047470204,
+       "ssim": 0.620918533788568,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 27.479971564922785,
+       "ssim": 0.6815176215589908,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 24.31219623956224,
+       "ssim": 0.5373861155504862,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 25.200781956554998,
+       "ssim": 0.5981933638354452,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.020264664259159335,
+      "bilinear": 0.014562326645368905,
+      "matup": 0.01825821021343562,
+      "dt_textures_db": 0.041016597036539815,
+      "dt_matsynth_all": 0.03514504916813464,
+      "gt": 0.03972793992517834
+     },
+     "grad_vs_gt": {
+      "lr": 0.5100859570701328,
+      "bilinear": 0.36655126525047305,
+      "matup": 0.4595810970269851,
+      "dt_textures_db": 1.0324370484296057,
+      "dt_matsynth_all": 0.8846431311144024
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0024388657648283037
+      ],
+      "bilinear": [
+       -0.0013495057232049948
+      ],
+      "matup": [
+       -0.002971351456815817
+      ],
+      "dt_textures_db": [
+       1.37436183012487
+      ],
+      "dt_matsynth_all": [
+       -3.537700799947971
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 26.294492184379244,
+      "bilinear": 26.663724103889265,
+      "matup": 27.47997189499516,
+      "dt_textures_db": 24.346381104362308,
+      "dt_matsynth_all": 25.486836309156132
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 6.008888312052001,
+      "dt_matsynth_all": 8.908532437753305
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 19.58157677129691,
+       "ssim": 0.15830496232091343,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 21.864549873945485,
+       "ssim": 0.32713490048212596,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.14526592402244,
+       "ssim": 0.275109688351229,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 19.591634054815906,
+       "ssim": 0.24312251944016008,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 20.99151112364325,
+       "ssim": 0.33639161026960934,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.01989115749397574,
+      "bilinear": 0.0127289607267085,
+      "matup": 0.009196654033970705,
+      "dt_textures_db": 0.06385426421673765,
+      "dt_matsynth_all": 0.04116286314159573,
+      "gt": 0.0644301213960335
+     },
+     "grad_vs_gt": {
+      "lr": 0.30872450746616614,
+      "bilinear": 0.19756226514718517,
+      "matup": 0.1427384247414576,
+      "dt_textures_db": 0.9910622987072114,
+      "dt_matsynth_all": 0.6388760761225235
+     },
+     "mean_offset_255": {
+      "lr": [
+       2.9636812239854318,
+       2.9511291948491154,
+       2.6667696409989596
+      ],
+      "bilinear": [
+       4.4893584157127995,
+       4.447893632934443,
+       4.808484001040583
+      ],
+      "matup": [
+       4.409558727887617,
+       4.4879723270031215,
+       9.29553768860562
+      ],
+      "dt_textures_db": [
+       0.7558492130593132,
+       3.314447027835588,
+       0.950113000780437
+      ],
+      "dt_matsynth_all": [
+       -5.3115610366805415,
+       4.547566011966701,
+       -4.255024063475546
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 19.63160894391194,
+      "bilinear": 22.085758722560733,
+      "matup": 21.52667133396108,
+      "dt_textures_db": 19.616957051793232,
+      "dt_matsynth_all": 21.18308706294534
+     }
+    }
+   }
+  },
+  {
+   "material": "acg_metal_026",
+   "run": "Sep09_11h54m23s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 28.400200888398125,
+       "ssim": 0.6261454107136245,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 28.655792250488513,
+       "ssim": 0.6267394460974945,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 28.142765507296975,
+       "ssim": 0.6210195126415851,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 25.134818135875737,
+       "ssim": 0.4545890420702943,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 26.990571922031926,
+       "ssim": 0.5856595885591035,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.013697350489399107,
+      "bilinear": 0.009990362800322714,
+      "matup": 0.009908545955946266,
+      "dt_textures_db": 0.036128456385835304,
+      "dt_matsynth_all": 0.0246281187892967,
+      "gt": 0.030909128025520805
+     },
+     "grad_vs_gt": {
+      "lr": 0.44314904251228265,
+      "bilinear": 0.3232172318828907,
+      "matup": 0.32057021950813547,
+      "dt_textures_db": 1.1688604206500115,
+      "dt_matsynth_all": 0.7967911216700111
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0051541363163371485,
+       -0.002690881893860562,
+       0.0006869471904266389
+      ],
+      "bilinear": [
+       -0.1113992585848075,
+       -0.11084238423517169,
+       -0.10883438475546306
+      ],
+      "matup": [
+       -0.743537005723205,
+       -1.4029168834547348,
+       -0.0025242260665972946
+      ],
+      "dt_textures_db": [
+       0.24736602497398544,
+       2.105273640738814,
+       1.429801313735692
+      ],
+      "dt_matsynth_all": [
+       -5.332149128511967,
+       1.4830742715920915,
+       -4.246199434183143
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 28.40020141637701,
+      "bilinear": 28.65638924350926,
+      "matup": 28.179516868965337,
+      "dt_textures_db": 25.182670441495617,
+      "dt_matsynth_all": 27.569251883811575
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 43.25779929129546,
+       "ssim": 0.9541921355340182,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 43.152268237311205,
+       "ssim": 0.9530983248956088,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 42.012789834003506,
+       "ssim": 0.9530529831643504,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.931572996487713,
+       "ssim": 0.9200460371942104,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.18651151009851,
+       "ssim": 0.9068180503409239,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0006460137157460604,
+      "bilinear": 0.0006263239082049413,
+      "matup": 0.0004362643493636799,
+      "dt_textures_db": 0.004684629989600756,
+      "dt_matsynth_all": 0.0028102969352984015,
+      "gt": 0.003286344361797261
+     },
+     "grad_vs_gt": {
+      "lr": 0.19657517430485083,
+      "bilinear": 0.1905837731084312,
+      "matup": 0.1327506497599942,
+      "dt_textures_db": 1.4254835993629074,
+      "dt_matsynth_all": 0.8551437785909585
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.00593863813735692,
+       0.017791525754422475,
+       0.009084774973985433
+      ],
+      "bilinear": [
+       -0.09120138527575443,
+       -0.032176768990634756,
+       -0.030408591311134235
+      ],
+      "matup": [
+       -0.13006064646201873,
+       0.06424378902185224,
+       1.6100863358480748
+      ],
+      "dt_textures_db": [
+       -5.254987480489074,
+       -10.238992585848075,
+       -29.00971075052029
+      ],
+      "dt_matsynth_all": [
+       -16.72370902705515,
+       -6.4899762617065555,
+       -5.495488098335068
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 43.25800403079475,
+      "bilinear": 43.15699912682864,
+      "matup": 43.05279124349396,
+      "dt_textures_db": 40.271616860048184,
+      "dt_matsynth_all": 39.858056486071575
+     },
+     "angular_err_deg": {
+      "lr": 1.0227518791232797,
+      "bilinear": 1.0309672153457823,
+      "matup": 1.038744401018649,
+      "dt_textures_db": 6.891598998116083,
+      "dt_matsynth_all": 8.570791679749002
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 25.070303772925612,
+       "ssim": 0.5345433719194297,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 25.369085472659837,
+       "ssim": 0.5294982643246696,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 23.555823949388277,
+       "ssim": 0.5170603482714533,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.63939212130682,
+       "ssim": 0.4115194075579782,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 24.142129102142462,
+       "ssim": 0.5139023776500259,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.021432912898677256,
+      "bilinear": 0.015755301541010208,
+      "matup": 0.015031109647902071,
+      "dt_textures_db": 0.04923741183425086,
+      "dt_matsynth_all": 0.035921995661461155,
+      "gt": 0.04695063015753059
+     },
+     "grad_vs_gt": {
+      "lr": 0.45649893998791297,
+      "bilinear": 0.3355716736526731,
+      "matup": 0.3201471332220484,
+      "dt_textures_db": 1.0487060912504809,
+      "dt_matsynth_all": 0.7651014595743287
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0005568743496357961
+      ],
+      "bilinear": [
+       -0.10250959287200832
+      ],
+      "matup": [
+       -5.255280144380853
+      ],
+      "dt_textures_db": [
+       -0.3046671761186264
+      ],
+      "dt_matsynth_all": [
+       -4.050285347294485
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 25.070303779582158,
+      "bilinear": 25.369327104185793,
+      "matup": 23.99565305243709,
+      "dt_textures_db": 22.64070294641858,
+      "dt_matsynth_all": 24.436497865968995
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 6.265583405287742,
+      "dt_matsynth_all": 10.181430299623031
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 19.46906246947023,
+       "ssim": 0.4529485710576423,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 19.73366342137676,
+       "ssim": 0.44011550515581677,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 19.591955262153917,
+       "ssim": 0.4391794029293117,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 18.15332912938789,
+       "ssim": 0.4053929394187814,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 18.842034118081042,
+       "ssim": 0.46815287955029145,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.03932150889960865,
+      "bilinear": 0.028883341628384632,
+      "matup": 0.02858663422654683,
+      "dt_textures_db": 0.076126652340408,
+      "dt_matsynth_all": 0.06145322142970892,
+      "gt": 0.08725473641674941
+     },
+     "grad_vs_gt": {
+      "lr": 0.45065185586945966,
+      "bilinear": 0.3310231950095054,
+      "matup": 0.32762272170544704,
+      "dt_textures_db": 0.8724644124395605,
+      "dt_matsynth_all": 0.7042966829467422
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0016665582726326743
+      ],
+      "bilinear": [
+       -0.1170980749219563
+      ],
+      "matup": [
+       3.736594367845994
+      ],
+      "dt_textures_db": [
+       -2.2569263787721123
+      ],
+      "dt_matsynth_all": [
+       -7.630284209157128
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 19.469062513018244,
+      "bilinear": 19.733750277832097,
+      "matup": 19.67772269000951,
+      "dt_textures_db": 18.177950365005245,
+      "dt_matsynth_all": 19.15810860293809
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 9.583488797890247,
+      "dt_matsynth_all": 11.798375289936686
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 24.055704265667153,
+       "ssim": 0.5298501087931046,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 24.3375323242894,
+       "ssim": 0.5245082583188448,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 24.409421853105176,
+       "ssim": 0.5309333479492814,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.159536913776336,
+       "ssim": 0.44238786145422554,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 23.36623871355551,
+       "ssim": 0.5365297945184294,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.02337204955116683,
+      "bilinear": 0.017163515894430426,
+      "matup": 0.01734172689948419,
+      "dt_textures_db": 0.0490016326541679,
+      "dt_matsynth_all": 0.03723184006225901,
+      "gt": 0.05099407071784324
+     },
+     "grad_vs_gt": {
+      "lr": 0.4583287668969867,
+      "bilinear": 0.33657865812279175,
+      "matup": 0.3400733978551781,
+      "dt_textures_db": 0.9609280444642327,
+      "dt_matsynth_all": 0.7301209638325911
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0008698621227887617
+      ],
+      "bilinear": [
+       -0.0010324531737773153
+      ],
+      "matup": [
+       -0.002353505463059313
+      ],
+      "dt_textures_db": [
+       -0.9409550598335068
+      ],
+      "dt_matsynth_all": [
+       -4.357915745317378
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 24.05570427852521,
+      "bilinear": 24.337532343617887,
+      "matup": 24.409421955217127,
+      "dt_textures_db": 22.169463872524982,
+      "dt_matsynth_all": 23.650749411266023
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 7.583585557412036,
+      "dt_matsynth_all": 11.335038588972068
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 25.46119954887309,
+       "ssim": 0.4830752292405605,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 29.642118766352848,
+       "ssim": 0.6730240269533948,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.308020365854816,
+       "ssim": 0.6709128009781143,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 26.58408649491721,
+       "ssim": 0.5502889153326844,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.836214127838254,
+       "ssim": 0.6249708108492386,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.011590479467401198,
+      "bilinear": 0.008446739035719152,
+      "matup": 0.008687824319440957,
+      "dt_textures_db": 0.027165894810586445,
+      "dt_matsynth_all": 0.021039787294159996,
+      "gt": 0.025934438935602457
+     },
+     "grad_vs_gt": {
+      "lr": 0.4469146024782491,
+      "bilinear": 0.3256958462333873,
+      "matup": 0.3349917976252968,
+      "dt_textures_db": 1.0474834207148958,
+      "dt_matsynth_all": 0.8112682655832146
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.4883706750780437,
+       -0.6099074856919875,
+       -0.7242780957336108
+      ],
+      "bilinear": [
+       1.0675687760145682,
+       1.196462831685744,
+       1.2313020291363164
+      ],
+      "matup": [
+       1.000158526274714,
+       0.4605269575962539,
+       1.5872544875130072
+      ],
+      "dt_textures_db": [
+       -0.6757487317898023,
+       3.508966896462019,
+       2.4102172216441207
+      ],
+      "dt_matsynth_all": [
+       -4.628276209677419,
+       2.824897567637877,
+       -3.6107488943808534
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 25.470095055565324,
+      "bilinear": 29.726735913402635,
+      "matup": 29.37944814361062,
+      "dt_textures_db": 26.776699254546617,
+      "dt_matsynth_all": 28.45193893298223
+     }
+    }
+   }
+  },
+  {
+   "material": "acg_plastic_009",
+   "run": "Sep09_11h55m31s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 53.31840807954697,
+       "ssim": 0.9955753406104608,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 53.26016238257576,
+       "ssim": 0.9955729571658835,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 26.213685821792815,
+       "ssim": 0.3541367304897023,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 35.39683776587692,
+       "ssim": 0.9589659645624761,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 43.23167648609292,
+       "ssim": 0.9835088217764242,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0003177876844688196,
+      "bilinear": 0.00025765526288899684,
+      "matup": 0.00011336567857128987,
+      "dt_textures_db": 0.0013686490852142694,
+      "dt_matsynth_all": 0.0013656329992978945,
+      "gt": 0.0008727007979426235
+     },
+     "grad_vs_gt": {
+      "lr": 0.36414276830959524,
+      "bilinear": 0.29523894500430675,
+      "matup": 0.1299021140332946,
+      "dt_textures_db": 1.5682913186751235,
+      "dt_matsynth_all": 1.5648352820546858
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.028055085848074923,
+       -0.0442003772112383,
+       -0.0334531087408949
+      ],
+      "bilinear": [
+       0.00556874349635796,
+       -0.07712912981269511,
+       -0.054724082986472425
+      ],
+      "matup": [
+       -11.035875715400625,
+       -3.1744236147242457,
+       -18.25750357700312
+      ],
+      "dt_textures_db": [
+       4.893157355619147,
+       0.1150738163371488,
+       5.45376316987513
+      ],
+      "dt_matsynth_all": [
+       2.5452653485952133,
+       0.4786477302289282,
+       0.5367577718522373
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 53.336897381148766,
+      "bilinear": 53.302696840382524,
+      "matup": 51.843337842767376,
+      "dt_textures_db": 48.74984344900872,
+      "dt_matsynth_all": 49.33519092371775
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 52.44067923941213,
+       "ssim": 0.9945202990627862,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 52.28053120402491,
+       "ssim": 0.9945694229154816,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 49.27290945607824,
+       "ssim": 0.9945016925872115,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.937509381059392,
+       "ssim": 0.9651860814505836,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.426777566539215,
+       "ssim": 0.970662113428844,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.000455124682444872,
+      "bilinear": 0.0005031782649800263,
+      "matup": 0.0003022423079719183,
+      "dt_textures_db": 0.00428948127322584,
+      "dt_matsynth_all": 0.0018823151635712844,
+      "gt": 0.0009445328968445826
+     },
+     "grad_vs_gt": {
+      "lr": 0.48185159454510784,
+      "bilinear": 0.5327270936364447,
+      "matup": 0.3199912983249439,
+      "dt_textures_db": 4.5413783760796305,
+      "dt_matsynth_all": 1.9928529433538706
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.012747138397502602,
+       -0.0077271396982310095,
+       0.015003089229968783
+      ],
+      "bilinear": [
+       -0.1070580775234131,
+       -0.08838043054110302,
+       0.013454409469302809
+      ],
+      "matup": [
+       0.01859635145681582,
+       -0.05633779916753382,
+       1.0402372203433923
+      ],
+      "dt_textures_db": [
+       -5.35070076742976,
+       -10.307760470863684,
+       -29.113346286420395
+      ],
+      "dt_matsynth_all": [
+       -16.638588547086368,
+       -6.497114008844953,
+       -5.275937337408949
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 52.44242638078393,
+      "bilinear": 52.354376321573916,
+      "matup": 52.03607074355179,
+      "dt_textures_db": 43.6498481329319,
+      "dt_matsynth_all": 45.50734092929579
+     },
+     "angular_err_deg": {
+      "lr": 0.37519917504320227,
+      "bilinear": 0.3883092568344991,
+      "matup": 0.4014133114484991,
+      "dt_textures_db": 6.849290981808511,
+      "dt_matsynth_all": 8.411267102460723
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 38.527221446432975,
+       "ssim": 0.8873789029263105,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 38.704120796706476,
+       "ssim": 0.8918693959007845,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 22.255079970717254,
+       "ssim": 0.8549017324472079,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 33.43944065565175,
+       "ssim": 0.8508340679483078,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 37.40896680129116,
+       "ssim": 0.86359747541048,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.004138336480428377,
+      "bilinear": 0.003129890283857769,
+      "matup": 0.0017235845580730468,
+      "dt_textures_db": 0.008813993489986119,
+      "dt_matsynth_all": 0.008275737708790348,
+      "gt": 0.010490307777818215
+     },
+     "grad_vs_gt": {
+      "lr": 0.39449142656985725,
+      "bilinear": 0.2983601959206508,
+      "matup": 0.16430257286803074,
+      "dt_textures_db": 0.8402035170620382,
+      "dt_matsynth_all": 0.7888936992191419
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.001268210197710718
+      ],
+      "bilinear": [
+       -0.10414363293444329
+      ],
+      "matup": [
+       19.13592611862643
+      ],
+      "dt_textures_db": [
+       4.081653225806452
+      ],
+      "dt_matsynth_all": [
+       -0.2925013007284079
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 38.527222211692276,
+      "bilinear": 38.70949916288994,
+      "matup": 34.972601839120834,
+      "dt_textures_db": 37.06088772198079,
+      "dt_matsynth_all": 37.44054841796077
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.4787384296492974,
+      "dt_matsynth_all": 4.160026246356097
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.0,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.0
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 34.658842123741714,
+       "ssim": 0.8126294007674042,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 34.646182949503014,
+       "ssim": 0.8085850727145283,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 34.686267130521635,
+       "ssim": 0.8101092901253187,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 29.583716447993037,
+       "ssim": 0.7978994149563043,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 33.91353107167407,
+       "ssim": 0.7999472335316372,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0036690725468826,
+      "bilinear": 0.0025079665146933317,
+      "matup": 0.0026409908273915994,
+      "dt_textures_db": 0.006537345321400303,
+      "dt_matsynth_all": 0.007710010427265688,
+      "gt": 0.013757753660712923
+     },
+     "grad_vs_gt": {
+      "lr": 0.2666912518836647,
+      "bilinear": 0.18229476821170015,
+      "matup": 0.19196381128216422,
+      "dt_textures_db": 0.4751753434914708,
+      "dt_matsynth_all": 0.5604120132840172
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0001341376170655567
+      ],
+      "bilinear": [
+       -0.0002967286680541103
+      ],
+      "matup": [
+       -0.00350383714880333
+      ],
+      "dt_textures_db": [
+       6.585965953433923
+      ],
+      "dt_matsynth_all": [
+       0.40165273803329865
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 34.6588421272548,
+      "bilinear": 34.64618296664421,
+      "matup": 34.686269542751056,
+      "dt_textures_db": 33.62964065096264,
+      "dt_matsynth_all": 33.940143743310955
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 10.150025965534724,
+      "dt_matsynth_all": 10.071540194811632
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 35.74327769949693,
+       "ssim": 0.8845434610992391,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 39.68145768866762,
+       "ssim": 0.9224961608925404,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 28.44530867127176,
+       "ssim": 0.9027957636960476,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 34.80110498431624,
+       "ssim": 0.8721120342557755,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 35.670540777256235,
+       "ssim": 0.8732628156035807,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.003646074743574511,
+      "bilinear": 0.0026560197339141564,
+      "matup": 0.0022680610311891047,
+      "dt_textures_db": 0.007303343295261818,
+      "dt_matsynth_all": 0.007454973675380212,
+      "gt": 0.007800670016737417
+     },
+     "grad_vs_gt": {
+      "lr": 0.4674053300231074,
+      "bilinear": 0.3404861028879953,
+      "matup": 0.2907520797986155,
+      "dt_textures_db": 0.9362456403862084,
+      "dt_matsynth_all": 0.955683762982479
+     },
+     "mean_offset_255": {
+      "lr": [
+       -1.3024518730489074,
+       -1.121195369406868,
+       -1.2798273283038502
+      ],
+      "bilinear": [
+       0.025006503642039542,
+       -0.046021396982310094,
+       -0.02322613163371488
+      ],
+      "matup": [
+       6.897913143860562,
+       4.740146982310094,
+       1.924431744276795
+      ],
+      "dt_textures_db": [
+       -1.877670558012487,
+       2.220140153485952,
+       3.1019649128511966
+      ],
+      "dt_matsynth_all": [
+       1.0045078368886577,
+       0.7849530111862643,
+       -2.5340303069719043
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 36.14486690897507,
+      "bilinear": 39.68213689212777,
+      "matup": 29.77835689671856,
+      "dt_textures_db": 36.22728908563235,
+      "dt_matsynth_all": 36.38768682372469
+     }
+    }
+   }
+  },
+  {
+   "material": "acg_roofing_tiles_006",
+   "run": "Sep09_11h56m44s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 42.13825365112681,
+       "ssim": 0.9649005050341132,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 42.9718273635599,
+       "ssim": 0.9733888245492052,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 34.941883872062334,
+       "ssim": 0.9083246177577412,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 38.002443587415456,
+       "ssim": 0.9608676237312123,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 31.56846520064108,
+       "ssim": 0.9511143854648356,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0036400763417737472,
+      "bilinear": 0.003168908064096151,
+      "matup": 0.005800930226473867,
+      "dt_textures_db": 0.004844445248213084,
+      "dt_matsynth_all": 0.005692699617101348,
+      "gt": 0.004507566308141425
+     },
+     "grad_vs_gt": {
+      "lr": 0.8075480409903578,
+      "bilinear": 0.7030197333697717,
+      "matup": 1.2869317564993794,
+      "dt_textures_db": 1.0747363248907063,
+      "dt_matsynth_all": 1.2629208819001447
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0005934573361082206,
+       0.0016137161810613945,
+       -0.00254048517169615
+      ],
+      "bilinear": [
+       -0.10860269250780437,
+       -0.09700588579604578,
+       -0.09368089880332986
+      ],
+      "matup": [
+       -0.7592880137877211,
+       -0.9873341571279917,
+       0.052077913631633714
+      ],
+      "dt_textures_db": [
+       -0.4977968912591051,
+       2.012486992715921,
+       3.4662013852757543
+      ],
+      "dt_matsynth_all": [
+       -9.007280014308012,
+       -1.2652591701352758,
+       -6.228395714099896
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 42.1382570789103,
+      "bilinear": 42.98507904626733,
+      "matup": 35.05120222397218,
+      "dt_textures_db": 41.26222076446301,
+      "dt_matsynth_all": 41.31309736620973
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 28.1256611879445,
+       "ssim": 0.7874384042660373,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 28.390448851336892,
+       "ssim": 0.8384903300149503,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 27.58431494101806,
+       "ssim": 0.8395518573199503,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.848402749665,
+       "ssim": 0.6710205185374271,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 22.6836436312365,
+       "ssim": 0.7735320064091479,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.013256573487154269,
+      "bilinear": 0.011633936485463632,
+      "matup": 0.013664620524837048,
+      "dt_textures_db": 0.022299037908441476,
+      "dt_matsynth_all": 0.016464170170890673,
+      "gt": 0.017768862445317328
+     },
+     "grad_vs_gt": {
+      "lr": 0.7460563965729728,
+      "bilinear": 0.6547372698317867,
+      "matup": 0.7690205586817471,
+      "dt_textures_db": 1.2549502241387431,
+      "dt_matsynth_all": 0.9265742374650165
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0015527445369406868,
+       0.0012763397502601457,
+       0.004060711498439126
+      ],
+      "bilinear": [
+       -0.051358448231009365,
+       -0.1221221383975026,
+       -0.1429459872528616
+      ],
+      "matup": [
+       -0.3768454084287201,
+       -1.1910526144640998,
+       2.834429468002081
+      ],
+      "dt_textures_db": [
+       -0.5848196865244537,
+       -7.345993756503642,
+       -15.425541428199791
+      ],
+      "dt_matsynth_all": [
+       -20.659997723725287,
+       -10.236700052029136,
+       -8.334482310093652
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 28.125661484786853,
+      "bilinear": 28.391032658759492,
+      "matup": 27.70854833274842,
+      "dt_textures_db": 24.358928870840902,
+      "dt_matsynth_all": 26.411441427517907
+     },
+     "angular_err_deg": {
+      "lr": 6.046210981106559,
+      "bilinear": 4.83722460019095,
+      "matup": 5.111929484992633,
+      "dt_textures_db": 9.068235918179234,
+      "dt_matsynth_all": 12.528024396605272
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 30.690474491705363,
+       "ssim": 0.6801435986907062,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 31.137694677853162,
+       "ssim": 0.6932312511058559,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 23.345893989550653,
+       "ssim": 0.48877493519802173,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 29.045459814989155,
+       "ssim": 0.6457744894477968,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 30.263467998722113,
+       "ssim": 0.6666221220613117,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.011496900792072324,
+      "bilinear": 0.009152257550484467,
+      "matup": 0.022540865494657992,
+      "dt_textures_db": 0.018376258862148182,
+      "dt_matsynth_all": 0.017581174197490664,
+      "gt": 0.024973856459545477
+     },
+     "grad_vs_gt": {
+      "lr": 0.46035744662406725,
+      "bilinear": 0.36647353865070775,
+      "matup": 0.9025784836703684,
+      "dt_textures_db": 0.735819831907636,
+      "dt_matsynth_all": 0.7039831523805691
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0033087278876170654
+      ],
+      "bilinear": [
+       -0.10120073491155047
+      ],
+      "matup": [
+       6.908266129032258
+      ],
+      "dt_textures_db": [
+       3.303325799947971
+      ],
+      "dt_matsynth_all": [
+       -1.0332417403746097
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 30.690475348888356,
+      "bilinear": 31.13858364395029,
+      "matup": 24.09576331523732,
+      "dt_textures_db": 29.673794091036406,
+      "dt_matsynth_all": 30.339899183097543
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 6.568347584628782,
+      "dt_matsynth_all": 8.940704417703955
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 49.7011398564789,
+       "ssim": 0.9736197455610733,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.0004726222239171897,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.15424200052029136
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 50.00051617168023,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 28.436886786365353,
+       "ssim": 0.8380699329312925,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 33.85019663479963,
+       "ssim": 0.9673388921434178,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.81976798826318,
+       "ssim": 0.799361684286305,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 31.96289536663641,
+       "ssim": 0.968378861851386,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 37.81124421014704,
+       "ssim": 0.984237609125838,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.026134665848689526,
+      "bilinear": 0.023512499437850127,
+      "matup": 0.033526072077074566,
+      "dt_textures_db": 0.026296444930960835,
+      "dt_matsynth_all": 0.025417722491595247,
+      "gt": 0.0245564012918182
+     },
+     "grad_vs_gt": {
+      "lr": 1.064271003642426,
+      "bilinear": 0.9574896239248263,
+      "matup": 1.3652681302388114,
+      "dt_textures_db": 1.0708590651563585,
+      "dt_matsynth_all": 1.0350752208982683
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.006219107700312175
+      ],
+      "bilinear": [
+       -0.02863228407908429
+      ],
+      "matup": [
+       -0.09984309963579605
+      ],
+      "dt_textures_db": [
+       4.719245902705515
+      ],
+      "dt_matsynth_all": [
+       -0.49417111082206033
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 28.436888588755792,
+      "bilinear": 33.85032950948411,
+      "matup": 21.821494203286814,
+      "dt_textures_db": 35.31970831620238,
+      "dt_matsynth_all": 37.91093155369792
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 5.174874391971205,
+      "dt_matsynth_all": 5.781481627477277
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 18.809152157245695,
+       "ssim": 0.5654007256672245,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 28.59552277752559,
+       "ssim": 0.8596552718812616,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.438272750511757,
+       "ssim": 0.8735624332376147,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 27.49589091590285,
+       "ssim": 0.7758239521583526,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.17477588157115,
+       "ssim": 0.8071932228395508,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.01673103524933464,
+      "bilinear": 0.014048668260531607,
+      "matup": 0.016324291256768233,
+      "dt_textures_db": 0.01989905879598208,
+      "dt_matsynth_all": 0.019548938389465476,
+      "gt": 0.021350882128938292
+     },
+     "grad_vs_gt": {
+      "lr": 0.7836226694660985,
+      "bilinear": 0.6579900622227921,
+      "matup": 0.76457221571388,
+      "dt_textures_db": 0.9320017166415594,
+      "dt_matsynth_all": 0.915603311910447
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.7310622073361083,
+       -0.41687532518210196,
+       -0.23954133064516128
+      ],
+      "bilinear": [
+       2.766905404526535,
+       2.075088612122789,
+       1.7279445239334028
+      ],
+      "matup": [
+       -0.4122699336628512,
+       -0.8047484716441207,
+       -0.058179142819979185
+      ],
+      "dt_textures_db": [
+       -0.389673842351717,
+       2.4394388982830386,
+       3.028067280176899
+      ],
+      "dt_matsynth_all": [
+       -7.082218229708637,
+       0.09979838709677419,
+       -3.835640771331946
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 18.810448065613702,
+      "bilinear": 28.858061207283683,
+      "matup": 29.454362238797497,
+      "dt_textures_db": 27.723990589931738,
+      "dt_matsynth_all": 28.003114154657137
+     }
+    }
+   }
+  },
+  {
+   "material": "acg_wood_floor_060",
+   "run": "Sep09_11h57m57s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 30.996854532399507,
+       "ssim": 0.7377809809512312,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 31.84819548907479,
+       "ssim": 0.7562173328732488,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 32.0796849631473,
+       "ssim": 0.7757929087430188,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 28.13133305739125,
+       "ssim": 0.668431885505231,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 28.319249794076203,
+       "ssim": 0.7398330008862851,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.010535871956895261,
+      "bilinear": 0.007971404289140631,
+      "matup": 0.007993718104655568,
+      "dt_textures_db": 0.021182259140316368,
+      "dt_matsynth_all": 0.016622200516150678,
+      "gt": 0.019329285896466437
+     },
+     "grad_vs_gt": {
+      "lr": 0.5450730054554841,
+      "bilinear": 0.41240035104441564,
+      "matup": 0.4135547555906806,
+      "dt_textures_db": 1.0958635126913132,
+      "dt_matsynth_all": 0.8599490226997657
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0006584937565036421,
+       0.0004268015088449532,
+       -0.002792501300728408
+      ],
+      "bilinear": [
+       -0.11152933142559833,
+       -0.11465920915712799,
+       -0.12001658428720083
+      ],
+      "matup": [
+       -1.033904298907388,
+       -1.558394575962539,
+       -0.7656412591050988
+      ],
+      "dt_textures_db": [
+       -9.579710262747138,
+       -3.054699694328824,
+       -2.3037444719042663
+      ],
+      "dt_matsynth_all": [
+       -9.793159794484911,
+       0.13282062955254942,
+       -8.146872561134234
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 30.996854768046695,
+      "bilinear": 31.849558239810648,
+      "matup": 32.228983224192675,
+      "dt_textures_db": 30.03399124353468,
+      "dt_matsynth_all": 31.934103502215553
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 47.833971666732445,
+       "ssim": 0.9833448959427159,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 47.68980655301306,
+       "ssim": 0.9829365716481866,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 46.224539369890735,
+       "ssim": 0.9827589641891787,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.9423500800838,
+       "ssim": 0.9554693036059935,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 27.37335665503784,
+       "ssim": 0.950575092985245,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.000462254740002557,
+      "bilinear": 0.0005148562267970163,
+      "matup": 0.00029700082202336204,
+      "dt_textures_db": 0.004186935204250565,
+      "dt_matsynth_all": 0.002117614387891595,
+      "gt": 0.0017010730896853223
+     },
+     "grad_vs_gt": {
+      "lr": 0.27174302080580703,
+      "bilinear": 0.3026655526555055,
+      "matup": 0.17459615569975512,
+      "dt_textures_db": 2.4613493856546147,
+      "dt_matsynth_all": 1.2448697241359146
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.004641974505723205,
+       0.0052516909469302805,
+       -0.0019185744016649324
+      ],
+      "bilinear": [
+       -0.08383601066597295,
+       -0.052061654526534856,
+       -0.017844367845993758
+      ],
+      "matup": [
+       -0.05461433402705515,
+       0.022848107440166493,
+       1.1275689386056191
+      ],
+      "dt_textures_db": [
+       -5.329185906607701,
+       -10.257145876690947,
+       -29.08442133844953
+      ],
+      "dt_matsynth_all": [
+       -16.634592872008323,
+       -6.480911810613944,
+       -5.304797248959417
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 47.8340430657612,
+      "bilinear": 47.70298013485743,
+      "matup": 47.615110858296234,
+      "dt_textures_db": 42.74795959832431,
+      "dt_matsynth_all": 43.0055143799123
+     },
+     "angular_err_deg": {
+      "lr": 0.632563615776117,
+      "bilinear": 0.6443674259050949,
+      "matup": 0.647691512488105,
+      "dt_textures_db": 6.833075272984423,
+      "dt_matsynth_all": 8.438991173699478
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 34.742336338242666,
+       "ssim": 0.7873928381452651,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 34.76459842747874,
+       "ssim": 0.7855671521103788,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 33.65455466941573,
+       "ssim": 0.7924351735530715,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 31.290292902896212,
+       "ssim": 0.7611242441814281,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 34.11858433319113,
+       "ssim": 0.7675966164957543,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.004491579502253592,
+      "bilinear": 0.0030737668822117836,
+      "matup": 0.0032847151366134676,
+      "dt_textures_db": 0.009195713086654258,
+      "dt_matsynth_all": 0.009577457149129468,
+      "gt": 0.014294282159005226
+     },
+     "grad_vs_gt": {
+      "lr": 0.3142221100920378,
+      "bilinear": 0.2150347144417705,
+      "matup": 0.22979224140640994,
+      "dt_textures_db": 0.643314087714511,
+      "dt_matsynth_all": 0.6700201550936775
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0010812304890738813
+      ],
+      "bilinear": [
+       -0.10215595733610822
+      ],
+      "matup": [
+       2.3413151990114462
+      ],
+      "dt_textures_db": [
+       4.809626203173777
+      ],
+      "dt_matsynth_all": [
+       -0.4093961368366285
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 34.74233657093076,
+      "bilinear": 34.76668674052082,
+      "matup": 34.599654188394176,
+      "dt_textures_db": 34.120409029470665,
+      "dt_matsynth_all": 34.14757770509239
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.864277724495082,
+      "dt_matsynth_all": 4.577169583758405
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 47.460241358122744,
+       "ssim": 0.9226865621951704,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.0009989337596742185,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.4279843587408949
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 48.8939888174,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 30.805710540003364,
+       "ssim": 0.6795070664920813,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 31.18578596447225,
+       "ssim": 0.6918875996189291,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 31.28517810774382,
+       "ssim": 0.6976655780858518,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 29.38643453654623,
+       "ssim": 0.6551324766578438,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 30.890737011800052,
+       "ssim": 0.7056451380447608,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.01150596655023945,
+      "bilinear": 0.008215530523678554,
+      "matup": 0.008327057938089305,
+      "dt_textures_db": 0.018861993275401792,
+      "dt_matsynth_all": 0.01747959686608892,
+      "gt": 0.02368958480122183
+     },
+     "grad_vs_gt": {
+      "lr": 0.4856972651393202,
+      "bilinear": 0.3467992618956675,
+      "matup": 0.3515071288906601,
+      "dt_textures_db": 0.7962145995243003,
+      "dt_matsynth_all": 0.7378599925984088
+     },
+     "mean_offset_255": {
+      "lr": [
+       4.06477627471384e-06
+      ],
+      "bilinear": [
+       -0.015177874609781478
+      ],
+      "matup": [
+       -0.0026299102497398543
+      ],
+      "dt_textures_db": [
+       2.681488195889698
+      ],
+      "dt_matsynth_all": [
+       -0.9408412460978148
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 30.805710540004693,
+      "bilinear": 31.18580618094939,
+      "matup": 31.285178728761053,
+      "dt_textures_db": 29.824796576414844,
+      "dt_matsynth_all": 30.963929214781658
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 7.089252084942359,
+      "dt_matsynth_all": 9.07739613885667
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 27.14602057100175,
+       "ssim": 0.6640480050624209,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 33.69712782115504,
+       "ssim": 0.804695237528488,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 34.22169098062916,
+       "ssim": 0.8228323004202017,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 30.257426728979432,
+       "ssim": 0.6956351556296254,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 30.515673076660306,
+       "ssim": 0.7769259149524633,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0079416252092877,
+      "bilinear": 0.005969936461908588,
+      "matup": 0.0061148612153815235,
+      "dt_textures_db": 0.01855600430262541,
+      "dt_matsynth_all": 0.01335306511443825,
+      "gt": 0.015289836435238523
+     },
+     "grad_vs_gt": {
+      "lr": 0.5194055046255837,
+      "bilinear": 0.390451296663296,
+      "matup": 0.3999297992023373,
+      "dt_textures_db": 1.213616926591794,
+      "dt_matsynth_all": 0.8733294938108958
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.9606407713319459,
+       -1.3096505918314256,
+       -1.696320564516129
+      ],
+      "bilinear": [
+       0.20953921696149844,
+       0.29691564776274715,
+       0.3006593067117586
+      ],
+      "matup": [
+       -0.27914851066597296,
+       -0.8079759040062435,
+       -0.18313443028095733
+      ],
+      "dt_textures_db": [
+       -6.068357342611862,
+       0.46405924817898025,
+       -1.1758015738813736
+      ],
+      "dt_matsynth_all": [
+       -6.410676541363164,
+       2.909148185483871,
+       -5.0843563020291365
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 27.210137546596425,
+      "bilinear": 33.708745819562154,
+      "matup": 34.26690437080162,
+      "dt_textures_db": 31.275619673859087,
+      "dt_matsynth_all": 32.99756764137066
+     }
+    }
+   }
+  },
+  {
+   "material": "tc_metal_029",
+   "run": "Sep09_11h59m07s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 27.68182642918414,
+       "ssim": 0.6831393757956427,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 28.32050896778379,
+       "ssim": 0.7029890815722486,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 27.19177364073068,
+       "ssim": 0.6849723627127382,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 25.399062797353736,
+       "ssim": 0.5672213205281783,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 26.32706854031116,
+       "ssim": 0.6631995538850942,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.016593742689615682,
+      "bilinear": 0.012604825594199046,
+      "matup": 0.012828222147949361,
+      "dt_textures_db": 0.032554986569897325,
+      "dt_matsynth_all": 0.024947572682002726,
+      "gt": 0.0307498592149287
+     },
+     "grad_vs_gt": {
+      "lr": 0.5396363792637988,
+      "bilinear": 0.4099149041983109,
+      "matup": 0.4171798660372861,
+      "dt_textures_db": 1.0587035973840249,
+      "dt_matsynth_all": 0.8113068911187394
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0025039021852237254,
+       0.011048061914672216,
+       -0.005503707075962539
+      ],
+      "bilinear": [
+       -0.10104220863683663,
+       -0.08757560483870967,
+       -0.10172102627471384
+      ],
+      "matup": [
+       -2.590522567637877,
+       -0.9042257414151925,
+       4.634690426638918
+      ],
+      "dt_textures_db": [
+       -3.172570076742976,
+       2.745597847294485,
+       -0.8527778681061394
+      ],
+      "dt_matsynth_all": [
+       -8.130963026795005,
+       3.687187012226847,
+       -4.408465303069719
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 27.681828499913586,
+      "bilinear": 28.32093584902325,
+      "matup": 27.54396626578933,
+      "dt_textures_db": 25.5429273627456,
+      "dt_matsynth_all": 27.39586140630783
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 42.344270100195686,
+       "ssim": 0.9466451936505003,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 42.35648099954779,
+       "ssim": 0.9469504004815322,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 41.36455386960238,
+       "ssim": 0.9463374402974692,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 22.839853295296926,
+       "ssim": 0.9042203273997053,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 26.923443545310228,
+       "ssim": 0.8823392549165124,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0009919225184250248,
+      "bilinear": 0.0008896141267063384,
+      "matup": 0.0007127710480584186,
+      "dt_textures_db": 0.005411213055217256,
+      "dt_matsynth_all": 0.003664355454873494,
+      "gt": 0.003524643387477684
+     },
+     "grad_vs_gt": {
+      "lr": 0.28142492995152835,
+      "bilinear": 0.25239833620245106,
+      "matup": 0.20222501107225319,
+      "dt_textures_db": 1.535251218447278,
+      "dt_matsynth_all": 1.0396386391577024
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.003711140738813736,
+       0.0010893600416233091,
+       0.010682232049947971
+      ],
+      "bilinear": [
+       -0.08981529656607701,
+       -0.061658591311134235,
+       -0.021177484391259105
+      ],
+      "matup": [
+       -0.07285704994797086,
+       -0.0852058402705515,
+       0.910070889698231
+      ],
+      "dt_textures_db": [
+       -5.344794647502601,
+       -10.372394478407909,
+       -29.216445271852237
+      ],
+      "dt_matsynth_all": [
+       -17.12599993496358,
+       -6.520128772112383,
+       -5.648364334027055
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 42.34431939887693,
+      "bilinear": 42.361764146146086,
+      "matup": 41.62871596559334,
+      "dt_textures_db": 39.23988138489994,
+      "dt_matsynth_all": 38.613714029572456
+     },
+     "angular_err_deg": {
+      "lr": 1.1632873345228374,
+      "bilinear": 1.1623713796590793,
+      "matup": 1.1860434999854907,
+      "dt_textures_db": 6.996159281024192,
+      "dt_matsynth_all": 8.746689104995365
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 37.081764811738964,
+       "ssim": 0.8769223863420096,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 37.8204104428261,
+       "ssim": 0.8969852426974639,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 36.42477144597225,
+       "ssim": 0.8899823259989366,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 31.91804033865189,
+       "ssim": 0.866159693625949,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 36.77159712791665,
+       "ssim": 0.8715929762847804,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.006603411506979078,
+      "bilinear": 0.005126344465622229,
+      "matup": 0.005262647061973776,
+      "dt_textures_db": 0.010253615763059684,
+      "dt_matsynth_all": 0.010515685999496316,
+      "gt": 0.011137035459366357
+     },
+     "grad_vs_gt": {
+      "lr": 0.5929236313444206,
+      "bilinear": 0.46029704083512835,
+      "matup": 0.47253571932805843,
+      "dt_textures_db": 0.9206773023638253,
+      "dt_matsynth_all": 0.9442087203424067
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0028616024973985433
+      ],
+      "bilinear": [
+       -0.11250894250780437
+      ],
+      "matup": [
+       0.5822263592611863
+      ],
+      "dt_textures_db": [
+       5.2729903746097815
+      ],
+      "dt_matsynth_all": [
+       -0.16589571409989595
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 37.08176760492064,
+      "bilinear": 37.82553168268451,
+      "matup": 36.52532157412301,
+      "dt_textures_db": 36.667909596403966,
+      "dt_matsynth_all": 36.78034638917991
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 4.180410543068547,
+      "dt_matsynth_all": 5.200952224428761
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 19.13174573888367,
+       "ssim": 0.7012629476794616,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 19.629586796289132,
+       "ssim": 0.7040979556516735,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 18.568995284864236,
+       "ssim": 0.6988902876060115,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 19.301139775968913,
+       "ssim": 0.7227384997440629,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 19.649125533174555,
+       "ssim": 0.7293650162751034,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.03003048952097877,
+      "bilinear": 0.02297901060044668,
+      "matup": 0.02250448780236713,
+      "dt_textures_db": 0.04049819679641126,
+      "dt_matsynth_all": 0.039059043819991084,
+      "gt": 0.055132142205502326
+     },
+     "grad_vs_gt": {
+      "lr": 0.5447002115216494,
+      "bilinear": 0.41679879796423575,
+      "matup": 0.4081917897999096,
+      "dt_textures_db": 0.7345659931996881,
+      "dt_matsynth_all": 0.7084622918224442
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.017311882154006242
+      ],
+      "bilinear": [
+       -0.029124122008324663
+      ],
+      "matup": [
+       7.83329946019771
+      ],
+      "dt_textures_db": [
+       -1.0291728993236213
+      ],
+      "dt_matsynth_all": [
+       -4.968335392819979
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 19.131747487699347,
+      "bilinear": 19.629596357201024,
+      "matup": 18.874252838519144,
+      "dt_textures_db": 19.31872035162385,
+      "dt_matsynth_all": 19.879923055186527
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 12.936710679140404,
+      "dt_matsynth_all": 12.803062853785319
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 44.48751355628344,
+       "ssim": 0.9690913061530438,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 44.72665298035567,
+       "ssim": 0.9710774479969093,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 44.556463453219635,
+       "ssim": 0.970688441794291,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 33.36788887883972,
+       "ssim": 0.9597945212607738,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 43.89909369172645,
+       "ssim": 0.9657594625317786,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0018885776652351213,
+      "bilinear": 0.0014630169244295452,
+      "matup": 0.002196681703366513,
+      "dt_textures_db": 0.0036477715841410643,
+      "dt_matsynth_all": 0.003318109504156401,
+      "gt": 0.003720879741579298
+     },
+     "grad_vs_gt": {
+      "lr": 0.507562134871236,
+      "bilinear": 0.39319113382809284,
+      "matup": 0.5903662187249697,
+      "dt_textures_db": 0.9803519160747712,
+      "dt_matsynth_all": 0.8917540298542559
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.01208864464099896
+      ],
+      "bilinear": [
+       0.013824304110301769
+      ],
+      "matup": [
+       -0.003926573881373569
+      ],
+      "dt_textures_db": [
+       5.195385665972945
+      ],
+      "dt_matsynth_all": [
+       0.14644575962539022
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 44.487787855295466,
+      "bilinear": 44.727032011378796,
+      "matup": 44.55649285538479,
+      "dt_textures_db": 43.43154831191167,
+      "dt_matsynth_all": 43.934390102665226
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.889533397761511,
+      "dt_matsynth_all": 3.6955870094041643
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 25.78497232309704,
+       "ssim": 0.49547239255456327,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 30.069563931130368,
+       "ssim": 0.6620488269908558,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.53680189759991,
+       "ssim": 0.6636380453991876,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 27.900914557830678,
+       "ssim": 0.5841002483328467,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 28.691109012899002,
+       "ssim": 0.6300790912963617,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.009329941581929395,
+      "bilinear": 0.006979818864078601,
+      "matup": 0.0071788708447465465,
+      "dt_textures_db": 0.019620200081401036,
+      "dt_matsynth_all": 0.016269775467009716,
+      "gt": 0.022998745330704257
+     },
+     "grad_vs_gt": {
+      "lr": 0.4056717637319782,
+      "bilinear": 0.30348694086195477,
+      "matup": 0.3121418469364267,
+      "dt_textures_db": 0.8530987147028092,
+      "dt_matsynth_all": 0.7074201324056103
+     },
+     "mean_offset_255": {
+      "lr": [
+       -1.725741415192508,
+       -1.3969660509885535,
+       -1.1528274583766909
+      ],
+      "bilinear": [
+       1.2692263917793964,
+       1.5767876886056191,
+       1.8642852497398543
+      ],
+      "matup": [
+       -0.2832092221644121,
+       0.6503804630593132,
+       3.8263527575442247
+      ],
+      "dt_textures_db": [
+       -0.28120122268470343,
+       5.377316922476587,
+       3.308792924037461
+      ],
+      "dt_matsynth_all": [
+       -4.433130365504683,
+       4.191515998959417,
+       -2.507836888657648
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 25.838087387833973,
+      "bilinear": 30.244348418059115,
+      "matup": 29.850940147452487,
+      "dt_textures_db": 28.48741249179273,
+      "dt_matsynth_all": 29.474327537239663
+     }
+    }
+   }
+  },
+  {
+   "material": "th_brick_wall_005",
+   "run": "Sep09_12h00m21s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 25.31797832924412,
+       "ssim": 0.6149965621907604,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 26.16965143041471,
+       "ssim": 0.6532371718259161,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 25.34511103581731,
+       "ssim": 0.6410385110422953,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 23.516715773001984,
+       "ssim": 0.49826167445612585,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 24.850665737142528,
+       "ssim": 0.6257970410919008,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.023738621939362388,
+      "bilinear": 0.018974824948716888,
+      "matup": 0.018755775590256898,
+      "dt_textures_db": 0.0492967699872492,
+      "dt_matsynth_all": 0.03616698809651875,
+      "gt": 0.039969091844859216
+     },
+     "grad_vs_gt": {
+      "lr": 0.5939244762303907,
+      "bilinear": 0.47473745519082666,
+      "matup": 0.4692569864498747,
+      "dt_textures_db": 1.2333722812265924,
+      "dt_matsynth_all": 0.9048739019866049
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0020974245577523414,
+       0.0006300403225806451,
+       7.723074921956295e-05
+      ],
+      "bilinear": [
+       -0.09946507544224766,
+       -0.09322564386056191,
+       -0.09508324661810615
+      ],
+      "matup": [
+       -3.753211173257024,
+       -4.992707791363164,
+       -2.411249674817898
+      ],
+      "dt_textures_db": [
+       -0.09699775624349635,
+       1.3043094758064515,
+       -0.24109407518210196
+      ],
+      "dt_matsynth_all": [
+       -8.66234716441207,
+       0.4012259365244537,
+       -5.700974733350677
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 25.31797836561989,
+      "bilinear": 26.169906034369923,
+      "matup": 25.701000110281555,
+      "dt_textures_db": 23.525586083979192,
+      "dt_matsynth_all": 25.653005817251202
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 23.057459102143408,
+       "ssim": 0.5546162441248056,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 23.27268016982407,
+       "ssim": 0.5422953197604019,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 22.73614684323921,
+       "ssim": 0.535632659778539,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 13.357837219363695,
+       "ssim": 0.11361429461612858,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 20.39334999424605,
+       "ssim": 0.49730021317660905,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.01382226680097822,
+      "bilinear": 0.01039880058463764,
+      "matup": 0.009770076391589985,
+      "dt_textures_db": 0.09539755044588102,
+      "dt_matsynth_all": 0.022758248708885202,
+      "gt": 0.02995982116333879
+     },
+     "grad_vs_gt": {
+      "lr": 0.4613601238011473,
+      "bilinear": 0.34709154396964276,
+      "matup": 0.32610596499639405,
+      "dt_textures_db": 3.1841829070267287,
+      "dt_matsynth_all": 0.7596256527970867
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.002816889958376691,
+       4.06477627471384e-05,
+       -0.008015738813735691
+      ],
+      "bilinear": [
+       -0.11515104708636836,
+       -0.12463823491155047,
+       -0.11332596253902186
+      ],
+      "matup": [
+       1.000028453433923,
+       -0.10890755072840791,
+       10.583766909469302
+      ],
+      "dt_textures_db": [
+       -7.85675321930281,
+       -11.300114626690947,
+       -45.75575572320499
+      ],
+      "dt_matsynth_all": [
+       -24.54183874219563,
+       -10.017811849635796,
+       -8.616882641779396
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 23.057459427078925,
+      "bilinear": 23.272877113644512,
+      "matup": 23.23635889213066,
+      "dt_textures_db": 14.792162324753548,
+      "dt_matsynth_all": 22.925169170355794
+     },
+     "angular_err_deg": {
+      "lr": 11.261130878368107,
+      "bilinear": 10.86913246653863,
+      "matup": 11.05109659313741,
+      "dt_textures_db": 41.26078627757127,
+      "dt_matsynth_all": 17.501297035919794
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 42.32256385635864,
+       "ssim": 0.9509140216732095,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 43.02829036232478,
+       "ssim": 0.9603869635498438,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 20.051394572425863,
+       "ssim": 0.4723707184823927,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 29.706630802537738,
+       "ssim": 0.9280046660998752,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 40.42248216896775,
+       "ssim": 0.9407061064783275,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.0033268422567286336,
+      "bilinear": 0.0028095968617460007,
+      "matup": 0.032142655925086014,
+      "dt_textures_db": 0.006685766046286006,
+      "dt_matsynth_all": 0.006095851494536623,
+      "gt": 0.005726017254761262
+     },
+     "grad_vs_gt": {
+      "lr": 0.5810045811444802,
+      "bilinear": 0.49067209139298035,
+      "matup": 5.613440284057641,
+      "dt_textures_db": 1.1676119279463748,
+      "dt_matsynth_all": 1.0645883907296714
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0006869471904266389
+      ],
+      "bilinear": [
+       -0.08957547476586888
+      ],
+      "matup": [
+       -13.682719823100937
+      ],
+      "dt_textures_db": [
+       7.9474871553069715
+      ],
+      "dt_matsynth_all": [
+       0.9542387486992716
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 42.32256439438935,
+      "bilinear": 43.03906617177472,
+      "matup": 21.772229593891296,
+      "dt_textures_db": 40.06446556988523,
+      "dt_matsynth_all": 41.150530588456476
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 7.687158097617157,
+      "dt_matsynth_all": 8.088387545951718
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 52.81396093382255,
+       "ssim": 0.9861323016450977,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.00030408911899012874,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       0.07893389047866806
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 52.973876699079796,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 29.82344786924554,
+       "ssim": 0.8274056944084355,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 31.697155174307742,
+       "ssim": 0.893849477254791,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 29.392573783301422,
+       "ssim": 0.9004210359600917,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 30.0083893901537,
+       "ssim": 0.8883888139513663,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 33.135361801313465,
+       "ssim": 0.9112058556707391,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.016365449470369373,
+      "bilinear": 0.013794583156180424,
+      "matup": 0.026108283233839482,
+      "dt_textures_db": 0.02290740045508734,
+      "dt_matsynth_all": 0.021603352516411756,
+      "gt": 0.019024808815103798
+     },
+     "grad_vs_gt": {
+      "lr": 0.8602162381456806,
+      "bilinear": 0.7250839306847017,
+      "matup": 1.372328283956899,
+      "dt_textures_db": 1.204080455037275,
+      "dt_matsynth_all": 1.1355358535461788
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0027152705515088448
+      ],
+      "bilinear": [
+       -0.0027274648803329864
+      ],
+      "matup": [
+       0.009487187825182103
+      ],
+      "dt_textures_db": [
+       4.385194458896982
+      ],
+      "dt_matsynth_all": [
+       -1.0019836108220603
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 29.823448342042834,
+      "bilinear": 31.697155908716486,
+      "matup": 29.392620295942407,
+      "dt_textures_db": 31.53536390471272,
+      "dt_matsynth_all": 33.27562891025839
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 5.233028566295133,
+      "dt_matsynth_all": 6.049260653003648
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 17.39522492687336,
+       "ssim": 0.24179833279815446,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 21.716539929327563,
+       "ssim": 0.5468205417692884,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 22.09616304565168,
+       "ssim": 0.5627575705838365,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 21.0629931637411,
+       "ssim": 0.46043450314285367,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 22.031774515258725,
+       "ssim": 0.5467990215475892,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.02476257938969591,
+      "bilinear": 0.01827845663033422,
+      "matup": 0.018522579871557254,
+      "dt_textures_db": 0.04921299101376103,
+      "dt_matsynth_all": 0.03872611915516898,
+      "gt": 0.05090021516332825
+     },
+     "grad_vs_gt": {
+      "lr": 0.48649262700045415,
+      "bilinear": 0.35910372032185794,
+      "matup": 0.36389983445300045,
+      "dt_textures_db": 0.9668523179292412,
+      "dt_matsynth_all": 0.7608242721745847
+     },
+     "mean_offset_255": {
+      "lr": [
+       3.7677386836628513,
+       3.5224700832466183,
+       3.0009552224245577
+      ],
+      "bilinear": [
+       6.148136706555671,
+       6.116919224765869,
+       5.5666013592611865
+      ],
+      "matup": [
+       3.899758552289282,
+       2.519449954474506,
+       4.02855098855359
+      ],
+      "dt_textures_db": [
+       0.877727464880333,
+       4.709132739334027,
+       2.5408794549947973
+      ],
+      "dt_matsynth_all": [
+       -5.022551378772112,
+       4.57734049817898,
+       -2.737939808792924
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 17.44488562952595,
+      "bilinear": 22.082848533414303,
+      "matup": 22.23491620791969,
+      "dt_textures_db": 21.15062457109427,
+      "dt_matsynth_all": 22.22828292041523
+     }
+    }
+   }
+  },
+  {
+   "material": "th_brown_mud_leaves_001",
+   "run": "Sep09_12h01m35s",
+   "border": 8,
+   "size": 496,
+   "maps": {
+    "baseColor": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 23.146392666202292,
+       "ssim": 0.45113994986552947,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 23.180832398797005,
+       "ssim": 0.41860578649911107,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 21.917159003854675,
+       "ssim": 0.34097332556922005,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 18.681858640494454,
+       "ssim": 0.19380983444779418,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 21.51572754168702,
+       "ssim": 0.37303857394066303,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.018128552387091164,
+      "bilinear": 0.012122675786143426,
+      "matup": 0.007199373252867565,
+      "dt_textures_db": 0.0831184486612971,
+      "dt_matsynth_all": 0.041363420253980744,
+      "gt": 0.0532095495828243
+     },
+     "grad_vs_gt": {
+      "lr": 0.3407011058959038,
+      "bilinear": 0.22782894952481514,
+      "matup": 0.1353022776797095,
+      "dt_textures_db": 1.5620964528541545,
+      "dt_matsynth_all": 0.7773683592189736
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0006544289802289282,
+       -0.0004268015088449532,
+       -0.00022356269510926118
+      ],
+      "bilinear": [
+       -0.10645242585848075,
+       -0.1064361667533819,
+       -0.11020014958376691
+      ],
+      "matup": [
+       -7.761771592091571,
+       -4.3537371553069715,
+       3.183492130593132
+      ],
+      "dt_textures_db": [
+       0.025795070239334028,
+       -0.2515649388657648,
+       -0.10444849115504683
+      ],
+      "dt_matsynth_all": [
+       -10.83300679630593,
+       -0.6381576808012487,
+       -5.330132999479709
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 23.14639266923647,
+      "bilinear": 23.18099357976334,
+      "matup": 22.237978875897106,
+      "dt_textures_db": 18.681983932268025,
+      "dt_matsynth_all": 22.003454306240595
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "normal": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 20.84737628397412,
+       "ssim": 0.38240380734195517,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 20.767402485177936,
+       "ssim": 0.33747089730347374,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 19.948685944343772,
+       "ssim": 0.28457523848987737,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 12.86816104770351,
+       "ssim": 0.07164614230096639,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 18.592221868743195,
+       "ssim": 0.2780124104062961,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.013010361061359233,
+      "bilinear": 0.008343310969165062,
+      "matup": 0.0056956204529480785,
+      "dt_textures_db": 0.10666866124971919,
+      "dt_matsynth_all": 0.025189316001838036,
+      "gt": 0.04792958869980506
+     },
+     "grad_vs_gt": {
+      "lr": 0.27144737550005615,
+      "bilinear": 0.17407432852014013,
+      "matup": 0.11883307592354206,
+      "dt_textures_db": 2.2255284083035125,
+      "dt_matsynth_all": 0.5255483446687804
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0014470603537981269,
+       0.0032518210197710717,
+       0.0016177809573361083
+      ],
+      "bilinear": [
+       -0.11210246488033299,
+       -0.10914737252861602,
+       -0.10914330775234131
+      ],
+      "matup": [
+       -3.9297362773152966,
+       -2.0018657323100935,
+       13.57967774453694
+      ],
+      "dt_textures_db": [
+       -2.6141226586888657,
+       -7.3647364399063475,
+       -38.190674590270554
+      ],
+      "dt_matsynth_all": [
+       -25.788351164151926,
+       -8.632893795525494,
+       -7.4208222229448495
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 20.847376325336082,
+      "bilinear": 20.767499165514952,
+      "matup": 20.422092486716963,
+      "dt_textures_db": 13.676710963065313,
+      "dt_matsynth_all": 20.121981215246375
+     },
+     "angular_err_deg": {
+      "lr": 16.708923190092094,
+      "bilinear": 16.87337337381027,
+      "matup": 17.620170395816707,
+      "dt_textures_db": 43.92571506468384,
+      "dt_matsynth_all": 22.04691464243372
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     }
+    },
+    "roughness": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 16.704777591773723,
+       "ssim": 0.2791306665584803,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 16.656850505236893,
+       "ssim": 0.2193734618881066,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 15.18652343249201,
+       "ssim": 0.11797601868397341,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 15.436313654383568,
+       "ssim": 0.2412735104541374,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 15.55033194575794,
+       "ssim": 0.2704942826571144,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.03781573596970312,
+      "bilinear": 0.02462865186183045,
+      "matup": 0.013465634654883598,
+      "dt_textures_db": 0.08836889062001042,
+      "dt_matsynth_all": 0.07272909921024215,
+      "gt": 0.13201658796186752
+     },
+     "grad_vs_gt": {
+      "lr": 0.28644685151706883,
+      "bilinear": 0.18655725194885614,
+      "matup": 0.10199956583314435,
+      "dt_textures_db": 0.6693771743709619,
+      "dt_matsynth_all": 0.5509087936074342
+     },
+     "mean_offset_255": {
+      "lr": [
+       -0.0006097164412070759
+      ],
+      "bilinear": [
+       -0.11044403616024974
+      ],
+      "matup": [
+       -16.060227790062434
+      ],
+      "dt_textures_db": [
+       -2.579588319458897
+      ],
+      "dt_matsynth_all": [
+       -13.520466148543184
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 16.704777592936342,
+      "bilinear": 16.656888234248353,
+      "matup": 15.796030411732822,
+      "dt_textures_db": 15.455466468895299,
+      "dt_matsynth_all": 16.0183095521332
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 11.407135082529365,
+      "dt_matsynth_all": 14.669418583612368
+     }
+    },
+    "metallic": {
+     "vs_gt": {
+      "lr": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "bilinear": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      },
+      "matup": {
+       "psnr": 36.86367058052474,
+       "ssim": 0.4617902099050211,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 43.47332340564136,
+       "ssim": 0.7049435620733815,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": null,
+       "ssim": 1.0,
+       "bits": 8,
+       "identical": true
+      }
+     },
+     "grad": {
+      "lr": 0.0,
+      "bilinear": 0.0,
+      "matup": 0.0023700711265286977,
+      "dt_textures_db": 0.0010791937719296823,
+      "dt_matsynth_all": 0.0,
+      "gt": 0.0
+     },
+     "grad_vs_gt": {
+      "lr": null,
+      "bilinear": null,
+      "matup": null,
+      "dt_textures_db": null,
+      "dt_matsynth_all": null
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0
+      ],
+      "bilinear": [
+       0.0
+      ],
+      "matup": [
+       3.128650169094693
+      ],
+      "dt_textures_db": [
+       1.6408160444849116
+      ],
+      "dt_matsynth_all": [
+       0.0
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": null,
+      "bilinear": null,
+      "matup": 44.9557113055753,
+      "dt_textures_db": 58.956791905863106,
+      "dt_matsynth_all": null
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 3.1263054735867613,
+      "dt_matsynth_all": 0.5694938402057592
+     }
+    },
+    "height": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 30.156381035827884,
+       "ssim": 0.7330519953040624,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 31.083643920962018,
+       "ssim": 0.7721471354316122,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 32.371061910921725,
+       "ssim": 0.8403762396053976,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 28.8841857034734,
+       "ssim": 0.7013749290884892,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 29.747746089636827,
+       "ssim": 0.7342818337128234,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.015701096266904194,
+      "bilinear": 0.01189987572280864,
+      "matup": 0.01772093045411671,
+      "dt_textures_db": 0.025146065465456148,
+      "dt_matsynth_all": 0.024254057640897813,
+      "gt": 0.02477556203122529
+     },
+     "grad_vs_gt": {
+      "lr": 0.6337332023836912,
+      "bilinear": 0.48030699395682386,
+      "matup": 0.7152584644409905,
+      "dt_textures_db": 1.0149543906920822,
+      "dt_matsynth_all": 0.9789508552956251
+     },
+     "mean_offset_255": {
+      "lr": [
+       0.0009267689906347554
+      ],
+      "bilinear": [
+       0.0017885015608740894
+      ],
+      "matup": [
+       -0.0022965985952133196
+      ],
+      "dt_textures_db": [
+       2.2724822775754423
+      ],
+      "dt_matsynth_all": [
+       -1.855212669094693
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 30.15638109529612,
+      "bilinear": 31.083644195149105,
+      "matup": 32.37106251902922,
+      "dt_textures_db": 29.159491991232667,
+      "dt_matsynth_all": 29.970253160677057
+     },
+     "channel_spread_mean_255": {
+      "dt_textures_db": 5.574163871132143,
+      "dt_matsynth_all": 8.11333868336404
+     }
+    },
+    "render": {
+     "vs_gt": {
+      "lr": {
+       "psnr": 18.997298544812267,
+       "ssim": 0.14040825510358457,
+       "bits": 8
+      },
+      "bilinear": {
+       "psnr": 20.787217566263692,
+       "ssim": 0.2949236041679257,
+       "bits": 8
+      },
+      "matup": {
+       "psnr": 20.495446693627198,
+       "ssim": 0.25165833844628205,
+       "bits": 8
+      },
+      "dt_textures_db": {
+       "psnr": 18.03776661353146,
+       "ssim": 0.18220213171539393,
+       "bits": 8
+      },
+      "dt_matsynth_all": {
+       "psnr": 20.19036937956004,
+       "ssim": 0.30200998198887835,
+       "bits": 8
+      }
+     },
+     "grad": {
+      "lr": 0.02004023178627632,
+      "bilinear": 0.012480993006461834,
+      "matup": 0.008563250631921655,
+      "dt_textures_db": 0.0793935356047183,
+      "dt_matsynth_all": 0.04489655034854009,
+      "gt": 0.06910442492152584
+     },
+     "grad_vs_gt": {
+      "lr": 0.28999925560532147,
+      "bilinear": 0.18061061966198402,
+      "matup": 0.12391754423318016,
+      "dt_textures_db": 1.1488922119658278,
+      "dt_matsynth_all": 0.6496913967452024
+     },
+     "mean_offset_255": {
+      "lr": [
+       5.465498178980229,
+       5.758934378251821,
+       5.617427321800208
+      ],
+      "bilinear": [
+       7.226680378511967,
+       8.075901567377732,
+       7.216607862903226
+      ],
+      "matup": [
+       1.656859716441207,
+       4.559752211238293,
+       10.988695857180021
+      ],
+      "dt_textures_db": [
+       5.959214034859522,
+       7.124544745057232,
+       5.577604708636836
+      ],
+      "dt_matsynth_all": [
+       -4.584474180541103,
+       6.163891779396462,
+       -1.3472904201352758
+      ]
+     },
+     "psnr_offset_removed": {
+      "lr": 19.167775288366432,
+      "bilinear": 21.264973186110385,
+      "matup": 20.871296590344834,
+      "dt_textures_db": 18.208748686066073,
+      "dt_matsynth_all": 20.334235306153715
+     }
+    }
+   }
+  }
+ ]
+}
