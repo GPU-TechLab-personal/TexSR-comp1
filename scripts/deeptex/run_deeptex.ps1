@@ -32,10 +32,18 @@
     scripts\deeptex\run_deeptex.ps1 -Stage pretrain
     scripts\deeptex\run_deeptex.ps1 -Stage train
     scripts\deeptex\run_deeptex.ps1 -Stage eval
+
+.EXAMPLE
+    # The MatSynth arm (docs/DEEPTEX-DEVIATIONS.md 0.9): same upstream trainer,
+    # MatSynth data, its own working directory so its checkpoints/esrgan_40k
+    # cannot collide with the textures_db one.
+    scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth
+    scripts\deeptex\run_deeptex.ps1 -Stage paper     -PaperConfig configs/deeptex/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all
+    scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet("preflight","prep","smoke","paper","pretrain","train","eval","all")]
+    [ValidateSet("preflight","prep","prep-matsynth","smoke","paper","pretrain","train","eval","eval-arms","all")]
     [string]   $Stage         = "all",
     [string]   $Dataset       = "textures_db",
     [string]   $SourceDir     = "external/DeepTextures/data/textures_db",
@@ -44,6 +52,9 @@ param(
     [string]   $EvalTag       = "",
     [string]   $CkptDir       = "",
     [string]   $PaperConfig   = "configs/deeptex/esrgan_paper.yaml",
+    # Working directory of the upstream trainer, relative to the repo. Its
+    # ./checkpoints/<sub_name> lands here, so each arm needs its own.
+    [string]   $PaperRoot     = "runs/deeptex/paper",
     [int]      $MaxSteps      = 0,
     [int]      $CropSize      = 480,
     [int]      $Step          = 240,
@@ -61,6 +72,9 @@ $stamp   = Get-Date -Format "yyyyMMdd-HHmmss"
 $logDir  = Join-Path $repo "runs\_logs\$stamp"
 $DS      = "/workspace/runs/deeptex/datasets/$Dataset"
 $TFREC   = "$DS/${Dataset}_lrx4.tfrecord"
+# Read before the default below fills it in: eval-arms names its output after
+# -PaperRoot unless a tag was given explicitly.
+$EvalTagGiven = $PSBoundParameters.ContainsKey("EvalTag")
 if (-not $EvalTag) { $EvalTag = $Dataset }
 
 . (Join-Path (Split-Path -Parent $PSScriptRoot) "common\preflight.ps1")
@@ -263,8 +277,11 @@ function Stage-Train {
 # gradients, optimizer or RNG - so the baseline is the released code, not a
 # re-implementation claiming equivalence. See docs/DEEPTEX-DEVIATIONS.md 0.4.
 function Stage-Paper {
-    $paperRoot = "/workspace/runs/deeptex/paper"
-    $hostRoot  = Join-Path $repo "runs\deeptex\paper"
+    # $ctrRoot, not $paperRoot: PowerShell names are case-insensitive, so a local
+    # $paperRoot IS the -PaperRoot parameter, and assigning it rewrote the
+    # parameter to "/workspace/..." before $hostRoot was derived from it.
+    $ctrRoot   = "/workspace/$PaperRoot"
+    $hostRoot  = Join-Path $repo ($PaperRoot -replace '/', '\')
     New-Item -ItemType Directory -Force -Path $hostRoot | Out-Null
 
     $cfgPath = "/workspace/$PaperConfig"
@@ -281,7 +298,7 @@ function Stage-Paper {
         (Get-Content (Join-Path $repo $PaperConfig)) `
             -replace "^niter:\s*\d+", "niter: $MaxSteps" `
             -replace "^save_steps:\s*\d+", "save_steps: $half" | Set-Content $tmpHost -Encoding utf8
-        $cfgPath = "$paperRoot/esrgan_paper_maxsteps.yaml"
+        $cfgPath = "$ctrRoot/esrgan_paper_maxsteps.yaml"
         $niter   = $MaxSteps
         Say "  -MaxSteps $MaxSteps -> scratch config $cfgPath" "DarkGray"
     }
@@ -299,7 +316,7 @@ function Stage-Paper {
 
     $r = Invoke-Step "paper arm: upstream train_esrgan.py VERBATIM ($niter steps)" deeptex `
         @("python","/workspace/scripts/deeptex/run_upstream_train.py",
-          "--cfg_path",$cfgPath,"--gpu","0","--log-every","100") "train-paper" $paperRoot
+          "--cfg_path",$cfgPath,"--gpu","0","--log-every","100") "train-paper" $ctrRoot
     $kind = Get-FailureKind $r.Text $r.Code
     switch ($kind) {
         "cpu-fallback" { throw "TF fell back to CPU - the run would take weeks. (see $($r.Log))" }
@@ -327,7 +344,7 @@ function Stage-Paper {
           "sys.exit(0 if s >= $niter else 2)" + "`n"
 
     $v = Invoke-Step "verify the paper checkpoint reached step $niter" deeptex `
-        @("python", "-c", $py) "verify-paper-ckpt" $paperRoot
+        @("python", "-c", $py) "verify-paper-ckpt" $ctrRoot
     if ($v.Code -ne 0) {
         throw "the paper run printed [metrics] but its checkpoint does not reach step " +
               "$niter (exit $($v.Code), see $($v.Log)). Check save_steps in " +
@@ -339,8 +356,12 @@ function Stage-Paper {
     }
 
     Say "  paper training OK -> $ckpt" "Green"
-    Say "  evaluate it with:  -Stage eval -EvalTag paper -Config $PaperConfig ``" "DarkGray"
-    Say "                     -CkptDir $paperRoot/checkpoints/$subName" "DarkGray"
+    if ($PaperRoot -eq "runs/deeptex/paper") {
+        Say "  evaluate it with:  -Stage eval -EvalTag paper -Config $PaperConfig ``" "DarkGray"
+        Say "                     -CkptDir $ctrRoot/checkpoints/$subName" "DarkGray"
+    } else {
+        Say "  evaluate it with:  -Stage eval-arms -PaperConfig $PaperConfig -PaperRoot $PaperRoot" "DarkGray"
+    }
 }
 
 function Stage-Eval {
@@ -353,7 +374,7 @@ function Stage-Eval {
               # key for deeptex_compare.py to derive from, so point at where
               # Stage-Paper put it.
               $sn = (Select-String -Path (Join-Path $repo $PaperConfig) -Pattern "^sub_name:\s*'(.+)'").Matches.Groups[1].Value
-              @("--ckpt-dir", "/workspace/runs/deeptex/paper/checkpoints/$sn")
+              @("--ckpt-dir", "/workspace/$PaperRoot/checkpoints/$sn")
           } else { @() }
     $r = Invoke-Step "super-resolve baseColor + render for every material" deeptex `
         (@("python","/workspace/scripts/deeptex/deeptex_compare.py","--cfg","/workspace/$Config",
@@ -369,6 +390,78 @@ function Stage-Eval {
     if ($r.Code -ne 0) { throw "montage failed (see $($r.Log))" }
 }
 
+# ---------------------------------------------------------------- MatSynth arm
+
+# Pairs from MatSynth's train split -> one TFRecord over all five maps -> verify.
+# The degradation check runs first and is a hard gate: it rebuilds the 12
+# evaluation materials and requires pixel identity with runs/matsynth, i.e. that
+# the network will be trained on exactly the degradation it is scored on.
+function Stage-PrepMatsynth {
+    $ms  = "/workspace/runs/deeptex/datasets/matsynth"
+    $rec = "$ms/matsynth_all_lrx4.tfrecord"
+    $forceArg = if ($Force) { @("--force") } else { @() }
+
+    $r = Invoke-Step "degradation identity vs the 12 eval materials" dataprep `
+        @("python","scripts/deeptex/matsynth_make_pairs.py","--check-eval") "prepms-check"
+    if ($r.Code -ne 0) { throw "degradation check FAILED - do not build the training set (see $($r.Log))" }
+
+    $r = Invoke-Step "pairs from the MatSynth train shards" dataprep `
+        (@("python","scripts/deeptex/matsynth_make_pairs.py","--out",$ms,"--jobs","4") + $forceArg) "prepms-pairs"
+    if ($r.Code -ne 0) { throw "pair generation failed (see $($r.Log)); rerunning resumes" }
+
+    # ONE record, one seeded shuffle across all five maps: upstream reads with
+    # shuffle=False, so the record order is the curriculum.
+    $io = @()
+    foreach ($m in "baseColor","normal","roughness","metallic","height") {
+        $io += @("--hr","$ms/$m/HR","--lr","$ms/$m/LRx4")
+    }
+    $r = Invoke-Step "build one TFRecord over all five maps" deeptex `
+        (@("python","/workspace/scripts/deeptex/texsr_build_tfrecord.py") + $io +
+         @("--out",$rec,"--pairs-manifest","$ms/pairs_manifest.json","--overwrite")) "prepms-tfrecord"
+    if ($r.Code -ne 0) { throw "TFRecord build failed (see $($r.Log))" }
+
+    # LR here is area-decimated from the 4K source, not imresize_np(HR), so the
+    # alignment probe reports a nonzero max as a warning by design; a small
+    # sample is enough to catch a gross misalignment.
+    $r = Invoke-Step "verify TFRecord" deeptex `
+        @("python","/workspace/scripts/deeptex/texsr_verify_tfrecord.py","--tfrecord",$rec,
+          "--align-sample","16") "prepms-verify"
+    if ($r.Code -ne 0) { throw "VERIFY FAILED - do not train on this dataset (see $($r.Log))" }
+}
+
+# Evaluation for a non-default arm. Deliberately NOT Stage-Eval: that one runs
+# matup_postprocess + matup_montage --collect, which rewrite compare/<stamp>/ and
+# the committed runs/montages/. This writes only under runs/deeptex/eval/ and
+# runs/deeptex/report_<tag>/.
+function Stage-EvalArms {
+    $tag = if ($script:EvalTagGiven) { $EvalTag } else { Split-Path -Leaf $PaperRoot }
+    $sn  = (Select-String -Path (Join-Path $repo $PaperConfig) -Pattern "^sub_name:\s*'(.+)'").Matches.Groups[1].Value
+    $armOut = "/workspace/runs/deeptex/eval/$tag"
+    $r = Invoke-Step "super-resolve all maps + render with $PaperRoot" deeptex `
+        @("python","/workspace/scripts/deeptex/deeptex_compare.py","--cfg","/workspace/$PaperConfig",
+          "--ckpt-dir","/workspace/$PaperRoot/checkpoints/$sn","--root","/workspace/runs/matsynth",
+          "--out",$armOut,"--maps","all","--scalar-collapse","mean") "evalarms-sr-$tag"
+    if ($r.Code -ne 0) { throw "SR failed for $tag (see $($r.Log))" }
+
+    # The baseline: the textures_db checkpoint on the same six inputs. Its
+    # existing eval/paper holds baseColor and render only.
+    $baseCfg = "configs/deeptex/esrgan_paper.yaml"
+    $baseSn  = (Select-String -Path (Join-Path $repo $baseCfg) -Pattern "^sub_name:\s*'(.+)'").Matches.Groups[1].Value
+    $baseOut = "/workspace/runs/deeptex/eval/paper_allmaps"
+    $r = Invoke-Step "super-resolve all maps + render with the textures_db checkpoint" deeptex `
+        @("python","/workspace/scripts/deeptex/deeptex_compare.py","--cfg","/workspace/$baseCfg",
+          "--ckpt-dir","/workspace/runs/deeptex/paper/checkpoints/$baseSn","--root","/workspace/runs/matsynth",
+          "--out",$baseOut,"--maps","all","--scalar-collapse","mean") "evalarms-sr-paper_allmaps"
+    if ($r.Code -ne 0) { throw "SR failed for the textures_db baseline (see $($r.Log))" }
+
+    $r = Invoke-Step "arms report" dataprep `
+        @("python","scripts/deeptex/deeptex_arms_report.py",
+          "--arm","textures_db=$baseOut","--arm","$tag=$armOut",
+          "--out","/workspace/runs/deeptex/report_$tag") "evalarms-report"
+    if ($r.Code -ne 0) { throw "report failed (see $($r.Log))" }
+    Say "  report -> runs\deeptex\report_$tag\summary.md" "Green"
+}
+
 # ---------------------------------------------------------------- main
 
 Say "TexSR / DeepTextures   stage=$Stage dataset=$Dataset   logs -> runs\_logs\$stamp" "White"
@@ -377,6 +470,8 @@ if (-not $SkipPreflight) { Invoke-DeeptexPreflight } else { Say "preflight SKIPP
 switch ($Stage) {
     "preflight" { }
     "prep"      { Stage-Prep }
+    "prep-matsynth" { Stage-PrepMatsynth }
+    "eval-arms" { Stage-EvalArms }
     "smoke"     { Stage-Smoke }
     "paper"     { Stage-Paper }
     "pretrain"  { Stage-Train "psnr" }

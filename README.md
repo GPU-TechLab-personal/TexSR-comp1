@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **MatUp** (EGSR 2024) | 재질 1개당 test-time 최적화. 학습 불필요. LR 재질을 100개 조명으로 렌더 → SwinIR로 렌더를 ×4 업샘플 → HR 맵을 역최적화 |
-| **DeepTextures** (Sci. Rep. 2026) | TF2 ESRGAN (3채널 RGB, ×4). **사전학습 가중치가 배포된 적 없어 직접 학습해야 함.** 학습은 서브모듈에 동봉된 논문 원본 300장(`data/textures_db`)으로, 평가는 이미 추출해 둔 MatSynth 12개 재질로 한다 → `docs/RUNBOOK.md` §2.5 |
+| **DeepTextures** (Sci. Rep. 2026) | TF2 ESRGAN (3채널 RGB, ×4). **사전학습 가중치가 배포된 적 없어 직접 학습해야 함.** 논문 코드를 무수정으로 두 데이터에 돌린다: 서브모듈에 동봉된 논문 원본 300장(`data/textures_db`, 사실상 컬러 전용) → `docs/RUNBOOK.md` §2.5, 그리고 MatSynth train split 다섯 맵을 섞은 것(논문의 멀티채널 학습 방식) → §2.6. 평가는 둘 다 이미 추출해 둔 MatSynth 12개 재질(test split)로 한다 |
 
 ## 머신 역할
 

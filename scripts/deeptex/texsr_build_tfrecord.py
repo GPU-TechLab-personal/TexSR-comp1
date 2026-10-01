@@ -26,6 +26,13 @@ about that script is replaced, for five reasons:
                                         .repeat() turns that into a short silent
                                         cycle. A recorded count and hash is the
                                         only way to notice.
+
+--hr/--lr may be given several times, paired in order. The MatSynth arm packs its
+five per-map folders (scripts/deeptex/matsynth_make_pairs.py) into ONE record this
+way, because the paper trains one network on all five channel types. They must go
+through the single seeded shuffle below rather than be concatenated: upstream
+reads with shuffle=False (train_esrgan.py:37), so five back-to-back blocks would
+train on one map at a time.
 """
 
 import argparse
@@ -64,8 +71,10 @@ def sha256(path, chunk=1 << 20):
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--hr", required=True, help="HR tile directory")
-    ap.add_argument("--lr", required=True, help="LRx4 tile directory")
+    ap.add_argument("--hr", required=True, action="append",
+                    help="HR tile directory; repeat to pack several")
+    ap.add_argument("--lr", required=True, action="append",
+                    help="LRx4 tile directory, paired with the --hr in the same position")
     ap.add_argument("--out", required=True, help="output .tfrecord path")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--sample", type=int, default=32,
@@ -76,7 +85,10 @@ def main():
     ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
 
-    for d in (args.hr, args.lr):
+    if len(args.hr) != len(args.lr):
+        raise SystemExit("%d --hr but %d --lr; they pair up in order"
+                         % (len(args.hr), len(args.lr)))
+    for d in args.hr + args.lr:
         if not os.path.isdir(d):
             raise SystemExit("no such directory: %s" % d)
 
@@ -84,35 +96,44 @@ def main():
         # Plain sys.exit, NOT absl's app.run wrapped in except SystemExit.
         sys.exit("%s already exists (use --overwrite)" % args.out)
 
-    hr_names = sorted(f for f in os.listdir(args.hr) if f.lower().endswith(".png"))
-    if not hr_names:
-        raise SystemExit("no PNGs under %s" % args.hr)
+    # (name, hr_dir, lr_dir) for every pair across every directory pair.
+    pairs = []
+    for hr_dir, lr_dir in zip(args.hr, args.lr):
+        hr_names = sorted(f for f in os.listdir(hr_dir) if f.lower().endswith(".png"))
+        if not hr_names:
+            raise SystemExit("no PNGs under %s" % hr_dir)
 
-    # Validate the COMPLETE pairing before the writer is opened. Upstream discovers
-    # a missing partner mid-write and leaves a truncated file behind.
-    missing = [n for n in hr_names if not os.path.isfile(os.path.join(args.lr, n))]
-    if missing:
-        for n in missing[:20]:
-            print("[missing LR] %s" % n)
-        raise SystemExit("%d HR tile(s) have no LR partner" % len(missing))
-    extra = sorted(set(f for f in os.listdir(args.lr) if f.lower().endswith(".png"))
-                   - set(hr_names))
-    if extra:
-        print("[warn] %d LR tile(s) with no HR partner will be ignored: %s"
-              % (len(extra), ", ".join(extra[:5])))
+        # Validate the COMPLETE pairing before the writer is opened. Upstream
+        # discovers a missing partner mid-write and leaves a truncated file behind.
+        missing = [n for n in hr_names if not os.path.isfile(os.path.join(lr_dir, n))]
+        if missing:
+            for n in missing[:20]:
+                print("[missing LR] %s" % os.path.join(lr_dir, n))
+            raise SystemExit("%d HR tile(s) in %s have no LR partner" % (len(missing), hr_dir))
+        extra = sorted(set(f for f in os.listdir(lr_dir) if f.lower().endswith(".png"))
+                       - set(hr_names))
+        if extra:
+            print("[warn] %d LR tile(s) in %s with no HR partner will be ignored: %s"
+                  % (len(extra), lr_dir, ", ".join(extra[:5])))
+        pairs += [(n, hr_dir, lr_dir) for n in hr_names]
 
-    order = hr_names[:]
+    # img_name is the file stem; texsr_verify_tfrecord.py fails on duplicates.
+    stems = [os.path.splitext(n)[0] for n, _, _ in pairs]
+    if len(stems) != len(set(stems)):
+        raise SystemExit("the same file name appears in more than one --hr directory")
+
+    order = pairs[:]
     random.Random(args.seed).shuffle(order)
 
     tmp = args.out + ".partial"
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     n = 0
     with tf.io.TFRecordWriter(tmp) as w:
-        for name in order:
+        for name, hr_dir, lr_dir in order:
             stem = os.path.splitext(name)[0]
-            with open(os.path.join(args.hr, name), "rb") as f:
+            with open(os.path.join(hr_dir, name), "rb") as f:
                 hr_b = f.read()
-            with open(os.path.join(args.lr, name), "rb") as f:
+            with open(os.path.join(lr_dir, name), "rb") as f:
                 lr_b = f.read()
             w.write(make_example(stem.encode(), hr_b, lr_b).SerializeToString())
             n += 1
@@ -144,8 +165,12 @@ def main():
         "scale": args.scale,
         "sha256": sha256(args.out),
         "bytes": os.path.getsize(args.out),
-        "hr_dir": os.path.abspath(args.hr),
-        "lr_dir": os.path.abspath(args.lr),
+        # A single directory stays a string, so meta written before --hr could
+        # repeat keeps its shape.
+        "hr_dir": [os.path.abspath(d) for d in args.hr] if len(args.hr) > 1
+                  else os.path.abspath(args.hr[0]),
+        "lr_dir": [os.path.abspath(d) for d in args.lr] if len(args.lr) > 1
+                  else os.path.abspath(args.lr[0]),
         "pairs_manifest": os.path.abspath(args.pairs_manifest) if args.pairs_manifest else "",
         "schema": ["image/img_name", "image/hr_encoded", "image/lr_encoded"],
     }

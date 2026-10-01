@@ -76,6 +76,8 @@ import numpy as np
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                os.pardir, "common"))
 SUBMODULE = os.environ.get("DEEPTEX_ROOT", "/workspace/external/DeepTextures")
 sys.path.insert(0, SUBMODULE)
 
@@ -85,6 +87,7 @@ from modules.models import RRDB_Model  # noqa: E402
 from modules.utils import load_yaml, set_memory_growth  # noqa: E402
 
 import deeptex_sr  # noqa: E402
+import map_encode  # noqa: E402
 
 # name -> (source, kind). "svbrdf" sources come from the material's LR set, "run"
 # sources from the MatUp output folder. kind decides how the map is squeezed into
@@ -109,30 +112,22 @@ def load_as_rgb01(path):
 
     cv2 hands back BGR, and the network was trained on RGB (modules/dataset.py:12-13
     decodes with tf.image.decode_png) - that mismatch is exactly test.py's bug
-    (:57,:68,:70), so the channel reversal below is explicit and load-bearing. For
-    the grey maps it is a no-op because all three channels are equal.
+    (:57,:68,:70), so the channel reversal is explicit and load-bearing. For the
+    grey maps it is a no-op because all three channels are equal.
+
+    The encoding itself is map_encode.to_rgb8, which matsynth_make_pairs.py also
+    uses to build the MatSynth training pairs - so train and eval cannot drift.
     """
     arr = cv2.imread(path, cv2.IMREAD_UNCHANGED)
     if arr is None:
         raise RuntimeError("cv2.imread returned None: %s" % path)
     src = {"dtype": str(arr.dtype),
            "channels": 1 if arr.ndim == 2 else int(arr.shape[2])}
-
-    if arr.dtype == np.uint16:
-        # Round, do not shift: a >> 8 biases every value low by up to 1 LSB.
-        arr = np.rint(arr / 257.0).clip(0, 255).astype(np.uint8)
-    elif arr.dtype != np.uint8:
-        raise RuntimeError("unexpected dtype %s in %s" % (arr.dtype, path))
-
-    if arr.ndim == 2:
-        rgb = np.repeat(arr[:, :, None], 3, axis=2)
-    elif arr.shape[2] == 3:
-        rgb = arr[:, :, ::-1]
-    elif arr.shape[2] == 4:
-        rgb = arr[:, :, 2::-1]
-    else:
-        raise RuntimeError("unsupported channel count %d in %s" % (arr.shape[2], path))
-    return np.ascontiguousarray(rgb).astype(np.float32) / 255.0, src
+    try:
+        rgb = map_encode.to_rgb8(arr)
+    except ValueError as e:
+        raise RuntimeError("%s in %s" % (e, path))
+    return rgb.astype(np.float32) / 255.0, src
 
 
 # Collapsing a scalar map's 3 output channels back to 1. The network saw three

@@ -138,7 +138,7 @@ powershell -ExecutionPolicy Bypass -File scripts\matup\run_matup.ps1 -PostProces
 MatUp과 달리 **학습이 필요하다**. 사전학습 가중치가 배포된 적이 없다.
 
 학습 소스는 서브모듈 안의 `external/DeepTextures/data/textures_db` 300장이고, 평가 대상은
-이미 추출해 둔 `runs/matsynth/` 12개 재질이다. **`/data`(DAS)를 전혀 쓰지 않는다.**
+이미 추출해 둔 `runs/matsynth/` 12개 재질이다. **`/data`(DAS)를 전혀 쓰지 않는다** (§2.6 MatSynth arm만 예외).
 
 ### 2.5.1 한 줄씩
 
@@ -232,6 +232,35 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 
 **6열 중 2열만 채워진다.** DeepTextures는 3채널 RGB 전용이라 normal(단위 벡터장)·roughness·metallic(1채널)·
 height(uint16)를 처리할 수 없다. 나머지 4칸은 placeholder로 남고, 그게 정직한 표현이다.
+
+## 2.6 DeepTextures MatSynth arm
+
+같은 upstream 트레이너를 **MatSynth 다섯 맵을 섞은 데이터**로 돌린다. 논문이 실제로 한 방식(모델 하나 ×
+다섯 채널 종류)이다. 근거와 한계는 `docs/DEEPTEX-DEVIATIONS.md` §0.9.
+
+**이 arm만 `/data`를 쓴다.** `docker/.env`에 `DAS_ROOT=D:/experimentdata`가 있어야 컨테이너 안에서
+`/data/MatSynth/data/*.parquet`이 보인다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth   # 게이트 -> 쌍 -> tfrecord -> 검증 (처음 약 20분, 재실행 약 5분)
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper     -PaperConfig configs/deeptex/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all   # 40k (약 2.6시간)
+powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all   # SR 2회 + 리포트 (약 10분)
+```
+
+| 단계 | 스크립트 | 컨테이너 | 막는 것 |
+|---|---|---|---|
+| 게이트 | `matsynth_make_pairs.py --check-eval` | dataprep | 평가 12개를 다시 만들어 `runs/matsynth`와 **픽셀 비교**. 다르면 학습 데이터를 만들지 않는다 |
+| 쌍 | `matsynth_make_pairs.py --jobs 4` | dataprep | train shard만, LFS 스텁 건너뜀, 평가 재질 블렌드 제외. **재실행하면 이어서 한다**(`_meta/<소재>.json`이 완료 표시) |
+| tfrecord | `texsr_build_tfrecord.py --hr ×5 --lr ×5` | deeptex | 다섯 맵을 **한 번에 섞는다** — upstream `shuffle=False` |
+| 검증 | `texsr_verify_tfrecord.py --align-sample 16` | deeptex | `alignment` 경고는 정상이다. LR이 `imresize_np(HR)`이 아니라 원본에서 area로 만든 것이라서 |
+| 평가 | `deeptex_compare.py --maps all` ×2 → `deeptex_arms_report.py` | deeptex → dataprep | textures_db·MatSynth 체크포인트를 같은 6개 입력에. 결과는 `runs\deeptex\report_matsynth_all\summary.md` |
+
+⚠️ **`-Stage eval`을 이 arm에 쓰지 말 것.** 그 stage는 `runs/montages/`(커밋됨)를 다시 쓴다.
+`eval-arms`는 `runs/deeptex/eval/`와 `runs/deeptex/report_<tag>/`에만 쓴다. tag는 `-PaperRoot`의 마지막 폴더명이다.
+
+⚠️ **`--jobs`를 올리지 말 것.** shard 하나가 ~1 GB row group 하나다. 워커 6개로 시작했다가 16 GB VM에서
+ENOMEM으로 두 번 죽었다. 지금은 열 하나씩 읽고 shard마다 새 프로세스(`maxtasksperchild=1`)를 쓴다.
+4개에서 약 6 GB를 쓴다.
 
 ---
 

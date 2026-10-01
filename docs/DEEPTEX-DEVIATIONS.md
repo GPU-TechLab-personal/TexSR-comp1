@@ -314,6 +314,79 @@ donor를 명시적으로 크레딧하는 문장은 없다.
 
 ---
 
+### 0.9 MatSynth arm — 논문의 멀티채널 학습을 공개 데이터로 재현 (2026-10-01)
+
+§0.6의 한계(논문의 1,500장이 공개되지 않아 체크포인트가 컬러 모델)는 **재학습으로 해소할 수
+없다**고 적었다. 논문 데이터로는 그렇다. 그러나 MatSynth에는 다섯 맵이 전부 있으므로, **논문이
+한 방식 — 3→3 네트워크 하나에 다섯 채널 종류를 섞어 학습 — 을 다른 공개 데이터로** 할 수 있다.
+이 절은 2026-09-16의 "학습은 textures_db만" 결정을 뒤집는다. textures_db arm은 지우지 않고
+기준선으로 남긴다.
+
+| | textures_db arm (§0.4) | MatSynth arm |
+|---|---|---|
+| 실행 코드 | `train_esrgan.py` 무수정 | **동일** |
+| config | `esrgan_paper.yaml` | `esrgan_matsynth.yaml` — upstream과 tfrecord 경로 **한 줄만** 다름 |
+| 작업 디렉터리 | `runs/deeptex/paper/` | `runs/deeptex/matsynth_all/` (`-PaperRoot`). 둘 다 `checkpoints/esrgan_40k` |
+| 학습 데이터 | 300장 → 2,965 타일 (컬러 262 / 준회색 26 / 노멀류 11) | MatSynth **train split** 2,904 소재 × 5맵 = 14,520쌍 (2,905개 중 1개 제외, 3.5 GB) |
+| 쌍 | 480² 타일, LR = bicubic `imresize_np` | 소재 전체를 512²(HR)와 128²(LR)로, **원본에서 각각** `INTER_AREA` |
+| 평가 입력과의 관계 | 열화 커널이 다름 (bicubic vs area) | **픽셀 동일** — 아래 게이트 |
+
+**열화를 평가와 같게 만든 방법.** `scripts/deeptex/matsynth_make_pairs.py`는
+`matsynth_extract.py`(평가 12개를 만든 스크립트)의 함수를 **import해서** 같은 순서로 부르고,
+`scripts/common/map_encode.to_rgb8`로 8-bit RGB를 만든다. `deeptex_compare.load_as_rgb01`도 같은
+함수를 부르도록 바꿨다(132개 입력에서 리팩터 전후 배열 동일 확인). `--check-eval`이 test-00000에서
+평가 12개를 다시 만들어 `runs/matsynth`와 **120개 파일 전부 픽셀 동일**임을 확인한다 — 학습 전 게이트.
+
+**누수 차단.**
+- test split은 읽지 않는다. 평가 12개는 전부 `test-00000`에 있다.
+- MatSynth 블렌드 중 평가 재질로 만든 것 제외: `ms_concrete_026__moss_001` (`acg_concrete_026`). 로컬 train shard 216개에서 유일한 히트.
+- 남긴 것(이름만 겹침, 출처가 다름): `tc_concrete_026`, `tc_plastic_009` (TextureCan). 평가 쪽은 ambientCG다.
+- 내려받지 않은 train shard 215개(LFS 스텁)는 확인하지 않았다 — 쓰지도 않는다.
+
+**하나의 레코드, 한 번의 셔플.** upstream은 `shuffle=False`(`train_esrgan.py:37`)라 레코드 순서가 곧
+커리큘럼이다. 맵별 폴더 다섯 개를 `texsr_build_tfrecord.py --hr ... --hr ...`로 묶어 **seed 0으로
+한 번** 섞는다. 이어 붙이면 한 번에 한 맵만 학습하는 블록이 생긴다.
+
+**보고서에 적을 한계 (고치지 않는다 — paper arm의 원칙):**
+
+| 한계 | 왜 |
+|---|---|
+| normal의 flip/rot90 증강이 벡터 성분을 보정하지 않는다 | upstream `dataset.py:59-81`. LR·HR이 같이 뒤집히므로 쌍의 대응은 유지되고, 입력 분포가 "뒤집힌 노멀"까지 넓어지는 것이다 |
+| height 16 → 8 bit | upstream `decode_png`가 uint8만 읽는다. 평가 쪽도 같은 `rint(/257)` |
+| 회색 맵은 3채널 복제 | 3채널 네트워크가 회색 맵을 보는 유일한 방법. 출력의 세 채널 차이는 `channel_spread`로 잰다 |
+| 상수 맵을 거르지 않는다 (상수 맵: metallic 2,439 · roughness 122 · baseColor 47 · height 22 · normal 0, 2,904개 중. 합 2,630 = 전체 14,520쌍의 18%) | 논문은 "텍스처 × 5채널"을 큐레이션 없이 썼다 |
+| 맵 라벨이 이상한 원본도 그대로 | 예: `0325_marble_wall_01`은 roughness가 상수 0이고 metallic이 텍스처다. MatSynth 인덱스 통계도 같다(roughness_mean 0, metallic_mean 0.48) — 우리 코드가 아니라 데이터다 |
+| 소재 약 2,900개 vs 논문 210 | 로컬에 받은 train shard 절반(216/431)만 쓴다. 더 받을 이유가 없다 |
+
+**평가는 `-Stage eval-arms`로만 한다.** `-Stage eval`은 `matup_postprocess` + `matup_montage --collect`로
+커밋된 `runs/montages/`를 다시 쓴다. `eval-arms`는 `runs/deeptex/eval/{paper_allmaps,matsynth_all}`와
+`runs/deeptex/report_<tag>/`(본학습이면 `report_matsynth_all`)에만 쓴다. 리포트(`deeptex_arms_report.py`)는 `matup_postprocess`의 열 생성
+코드를 import하므로 크롭·테두리·DirectX→OpenGL 뒤집기가 같다 — 기존 textures_db 출력으로 돌려
+`runs/montages/*.json`의 PSNR/SSIM **240개 항목과 전부 일치**함을 확인했다.
+
+**실측 (2026-10-01).**
+
+| 항목 | 값 |
+|---|---|
+| 쌍 생성 | 216 shard, 966초, 워커 4개 |
+| 재실행 | 이미 만든 재질은 건너뛰어 15초 |
+| TFRecord | 14,520 레코드, 3.6 GB, verify PASS |
+| verify의 alignment 경고 | `max \|lr - imresize_np(hr)\| = 11`. LR이 HR에서 유도된 게 아니라서 정상이다 |
+| 학습 처리량 | 400스텝 프로브 4.2–4.5 st/s. textures_db arm의 4.30과 같아서, 512² PNG 디코딩은 병목이 아니다. 40k ≈ 2.6시간 |
+| 판별자 포화 | `loss_D`는 100스텝 안에 0.0000이 된다 — §2.6의 결함 #8. 그대로 둔다 |
+
+⚠️ **GPU 추론은 비트 단위로 재현되지 않는다.** 같은 체크포인트, 같은 코드로 `deeptex_compare.py`를 두 번
+돌리면 출력이 **최대 1 LSB, 픽셀의 약 3.5%** 에서 다르다. cuDNN 알고리즘 선택 같은 부동소수 차이가 반올림
+경계를 넘기 때문이다. 그래서 `eval/paper_allmaps`의 baseColor·render는 커밋된 `eval/paper`와 바이트가 다르고,
+리포트의 `dt_textures_db` 수치도 `runs/montages/*.json`과 소수점 아래에서 어긋날 수 있다. 입력 인코딩은 배열
+단위로 동일함을 따로 확인했다(§0.9 위).
+
+⚠️ **TFRecord의 sha256은 재현성 검사가 아니다.** 같은 입력·같은 코드로 다시 만들어도 해시가 달라진다
+(`tf.train.Example`의 feature가 protobuf map이라 직렬화 순서가 프로세스마다 다르다). `.meta.json`의
+sha256은 **절단 검사**로만 쓴다. 빌더 수정 전후는 레코드 단위 내용·순서 비교로 확인했다(2,965개 동일).
+
+---
+
 ## 1. 결함 → 대응 대조표
 
 | # | upstream 위치 | 증상 | 우리 대응 | 서브모듈 수정 |
