@@ -38,6 +38,11 @@
 
 ## 다시 만들기
 
+> **2026-10-02: 보존 체크포인트를 지웠다.** 두 ablation 모델의 `checkpoints_all/`을 디스크 정리로 삭제했다.
+> - 그래서 **5k–25k(ckpt-1~5)의 시트와 표는 이 폴더가 유일한 기록이다.**
+> - 30k·35k·40k(ckpt-6~8)는 각 모델의 `checkpoints/esrgan_40k/`에 남아 있어서 다시 잴 수 있다. 아래 명령의 `checkpoints_all`을 `checkpoints`로 바꾸면 된다.
+> - 전 구간을 다시 보려면 `-KeepAllCheckpoints`로 재학습해야 한다.
+
 ```powershell
 docker compose -f docker/compose.yaml run --rm deeptex python /workspace/scripts/deeptex/deeptex_drift.py --cfg /workspace/configs/deeptex/esrgan_matsynth_chratio.yaml --ckpt-dir /workspace/runs/deeptex/matsynth_chratio/checkpoints_all/esrgan_40k --pairs /workspace/runs/deeptex/datasets/matsynth/baseColor --out /workspace/runs/deeptex/drift/matsynth_chratio --sheet-material 0844_syntetic_foam
 ```

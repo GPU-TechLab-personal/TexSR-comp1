@@ -7,8 +7,8 @@ MatUp·GT와 나란히 놓은 결과다. 평가 재질은 상위 폴더의 12개
 |---|---|---|
 | DeepTextures (textures_db) | 논문 동봉 300장 (사실상 컬러 모델) | `runs/deeptex/paper/checkpoints/esrgan_40k/ckpt-8` |
 | DeepTextures (matsynth_all) | MatSynth 5맵 1:1 — **논문과 같은 비율** | `runs/deeptex/matsynth_all/checkpoints/esrgan_40k/ckpt-8` |
-| DeepTextures (matsynth_chratio) | MatSynth, 맵의 실제 채널 수에 비례 3:3:1:1:1 — **ablation** | `runs/deeptex/matsynth_chratio/checkpoints_all/esrgan_40k/ckpt-8` |
-| DeepTextures (matsynth_basecolor) | MatSynth baseColor만 — **대조군** | `runs/deeptex/matsynth_basecolor/checkpoints_all/esrgan_40k/ckpt-8` |
+| DeepTextures (matsynth_chratio) | MatSynth, 맵의 실제 채널 수에 비례 3:3:1:1:1 — **ablation** | `runs/deeptex/matsynth_chratio/checkpoints/esrgan_40k/ckpt-8` |
+| DeepTextures (matsynth_basecolor) | MatSynth baseColor만 — **대조군** | `runs/deeptex/matsynth_basecolor/checkpoints/esrgan_40k/ckpt-8` |
 
 - 네 모델 모두 40k 스텝이고 config가 같다. 데이터 경로 한 줄만 다르다.
 - 설계와 결과는 `docs/DEEPTEX-DEVIATIONS.md` §0.9·§0.10에 있다.

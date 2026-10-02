@@ -528,6 +528,10 @@ arm마다 학습이 한 번이고 시드가 없으므로, 차이가 작으면 �
 | basecolor | `runs/_logs/20261002-023233` | step 40000, `[ckpt]` 확인, NaN 없음 |
 
 - `-KeepAllCheckpoints`로 **체크포인트 8개를 모두 보존**했다(`checkpoints_all/`). 16개 파일 모두 374,821,028 바이트로 온전하다.
+  - **2026-10-02 삭제:** 측정이 끝난 뒤 디스크 정리로 `checkpoints_all/`과 MatSynth 학습 레코드 3개(12.5 GB)를 지웠다.
+  - ckpt-6~8은 `checkpoints/`에 남아 있다.
+  - 5k–25k의 결과는 `runs/montages/deeptex_checkpoints/`의 시트와 표로만 남는다.
+  - 레코드는 학습 쌍 PNG가 남아 있어 `-Stage prep-matsynth -Recipe …`로 다시 만들 수 있다.
 - 평가는 `-Stage eval-arms` 두 번이고, 네 arm 비교는 `runs/deeptex/report_matsynth_basecolor/`에 있다.
 - 색 이동은 `runs/deeptex/drift/<arm>/drift.md`, 체크포인트별 시트(`0844_syntetic_foam`)는 같은 폴더에 있다.
 
