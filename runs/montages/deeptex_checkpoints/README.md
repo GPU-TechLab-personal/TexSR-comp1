@@ -8,13 +8,13 @@
 | 폴더 | 모델 | 시트 | 색 이동 표 |
 |---|---|---|---|
 | `matsynth_all/` | MatSynth 5맵 1:1 (논문 비율) | 30k·35k·40k (3개) | `drift.md` (baseColor), `drift_normal.md` |
-| `matsynth_chratio/` | 채널 수 비례 3:3:1:1:1 (ablation) | 5k–40k (8개) | `drift.md`, `drift_normal.md` |
+| `matsynth_chratio/` | 채널 수 비례 3:3:1:1:1 (비율 비교 실험) | 5k–40k (8개) | `drift.md`, `drift_normal.md` |
 | `matsynth_basecolor/` | baseColor 전용 (대조군) | 5k–40k (8개) | `drift.md` |
 | `textures_db/` | 논문 동봉 300장 | 없음 | `drift.md` (자기 학습 쌍 기준) |
 
 **체크포인트 개수가 다른 이유.**
 - upstream 학습 코드는 최근 3개만 남긴다(`train_esrgan.py:64`, `max_to_keep=3`). 그래서 `matsynth_all`과 `textures_db`는 30k–40k만 있다.
-- 두 ablation 모델은 `run_deeptex.ps1 -KeepAllCheckpoints`로 8개를 모두 보존했다.
+- 비율 비교 실험의 두 모델은 `run_deeptex.ps1 -KeepAllCheckpoints`로 8개를 모두 보존했다.
 
 ## 색 이동 표 (`drift*.md`) 읽는 법
 
@@ -38,7 +38,7 @@
 
 ## 다시 만들기
 
-> **2026-10-02: 보존 체크포인트를 지웠다.** 두 ablation 모델의 `checkpoints_all/`을 디스크 정리로 삭제했다.
+> **2026-10-02: 보존 체크포인트를 지웠다.** 비율 비교 실험 두 모델의 `checkpoints_all/`을 디스크 정리로 삭제했다.
 > - 그래서 **5k–25k(ckpt-1~5)의 시트와 표는 이 폴더가 유일한 기록이다.**
 > - 30k·35k·40k(ckpt-6~8)는 각 모델의 `checkpoints/esrgan_40k/`에 남아 있어서 다시 잴 수 있다. 아래 명령의 `checkpoints_all`을 `checkpoints`로 바꾸면 된다.
 > - 전 구간을 다시 보려면 `-KeepAllCheckpoints`로 재학습해야 한다.
