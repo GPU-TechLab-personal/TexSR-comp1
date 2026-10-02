@@ -2,7 +2,7 @@
 
 **2026-10-02.** 학습 중에 5,000 스텝마다 저장된 체크포인트 각각의 출력이다.
 - 시트 하나 = **체크포인트 하나의 출력만**이다. 재질은 `0844_syntetic_foam`이고, 다섯 맵 + render가 한 줄로 들어 있다.
-- LR / bilinear / MatUp / GT 같은 비교 열은 넣지 않았다. 비교는 `../deeptex_ablation/`과 `../deeptex_matsynth/`에 있다.
+- LR / bilinear / MatUp / GT 같은 비교 열은 넣지 않았다. 비교는 `../deeptex_data_ratio/`와 `../deeptex_matsynth/`에 있다.
 - 배경은 `docs/DEEPTEX-DEVIATIONS.md` §0.9·§0.10에 있다.
 
 | 폴더 | 모델 | 시트 | 색 이동 표 |
