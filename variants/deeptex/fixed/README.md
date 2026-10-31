@@ -41,3 +41,14 @@ L1 (`variants/tests/l1_trainer.py`): `fixed_psnr`, `fixed_esrgan_corrected_shuff
 `fail_pretrain_missing` (9), `fail_dead_lr` (8), `fail_no_tfrecord` (5),
 `fail_nonfinite_fixed` (4): identical stdout and bit-identical checkpoints
 against the old trainer.
+
+## run.ps1
+
+Stages `pretrain` and `train`, plus `preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+The trainer call is `paper_loop/main.py --experiment fixed` followed by the old
+`deeptex_train.py` flags, unchanged.
+
+Kept as it was: `-Config` still defaults to `variants/deeptex/paper/esrgan_paper.yaml`
+(the old default was `configs/deeptex/esrgan_paper.yaml`), so `-Stage train` without
+`-Config` runs this trainer on upstream's config; pass
+`-Config variants/deeptex/fixed/esrgan_scaled.yaml` for the scaled recipe.

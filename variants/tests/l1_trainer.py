@@ -264,18 +264,25 @@ def compare(name, old, new, expect, ckpt, base):
 
 def gpu_case(base):
     """L1 GPU: the real r1 config (full RRDB, batch 2, real grouped record) for one
-    step on the GPU, old vs new, without the determinism wrapper - cuDNN is not
-    bit-deterministic, so: [init] identical, step-1 [terms] within 1e-6 relative."""
+    step on the GPU, without the determinism wrapper. cuDNN is not bit-deterministic,
+    so the OLD trainer runs twice: [init] (the seeded weights) must be identical on
+    all three runs, and the step-1 [terms]/[render] numbers new-vs-old may differ by
+    at most max(1e-6, NONDET_FACTOR x the largest old-vs-old difference) - the rule
+    the CPU render cases use. Measured 2026-10-31: old vs new up to 2.8e-3 (the GAN
+    term, the smallest number logged), see the report for old vs old."""
     busy = subprocess.run(["docker", "ps", "--format", "{{.Image}}"],
                           stdout=subprocess.PIPE).stdout.decode().split()
     if any(i.startswith("texsr/") for i in busy):
         sys.exit("L1 GPU: another texsr container is running (%s) - one GPU job at a time" % busy)
     outs = {}
-    for side, script, pre in (("old", OLD, []), ("new", NEW, ["--experiment", "render"])):
+    sides = (("old", OLD, [], W + "/configs/deeptex/esrgan_matsynth_render_r1.yaml"),
+             ("old2", OLD, [], W + "/configs/deeptex/esrgan_matsynth_render_r1.yaml"),
+             ("new", NEW, ["--experiment", "render"], W + "/variants/deeptex/render_loss/r1.yaml"))
+    for side, script, pre, cfg in sides:
         root = base + "/L1_gpu/" + side
         os.makedirs(host(root), exist_ok=True)
         argv = ["python", script] + pre + [
-            "--cfg_path", W + "/configs/deeptex/esrgan_matsynth_render_r1.yaml", "--stage", "esrgan",
+            "--cfg_path", cfg, "--stage", "esrgan",
             "--losses", "upstream", "--shuffle", "off", "--allow-dead-lr-schedule",
             "--pretrain-dir", "none", "--no-val", "--log-every", "1", "--render-monitor-every", "1",
             "--max-steps", "1", "--save-steps", "1",
@@ -289,35 +296,49 @@ def gpu_case(base):
             f.write(out)
         outs[side] = (p.returncode, out)
     problems = []
-    (oc, ot), (nc, nt) = outs["old"], outs["new"]
-    if oc or nc:
-        problems.append("exit codes old=%d new=%d" % (oc, nc))
+    codes = {k: c for k, (c, _) in outs.items()}
+    if any(codes.values()):
+        problems.append("exit codes %s" % codes)
     pick = lambda t, pre: [l for l in t.splitlines() if l.startswith(pre)]
-    if pick(ot, "[init]") != pick(nt, "[init]") or not pick(ot, "[init]"):
-        problems.append("[init] differs: %s vs %s" % (pick(ot, "[init]"), pick(nt, "[init]")))
-    worst = 0.0
-    for pre in ("[terms]", "[render]"):
-        a, b = pick(ot, pre), pick(nt, pre)
-        if len(a) != len(b) or not a:
-            problems.append("%s lines: %d vs %d" % (pre, len(a), len(b)))
-            continue
-        for x, y in zip(a, b):
-            kx = re.findall(r"(\w+)=(\S+)", x)
-            ky = re.findall(r"(\w+)=(\S+)", y)
-            if [k for k, _ in kx] != [k for k, _ in ky]:
-                problems.append("%s keys differ" % pre)
+    inits = {k: pick(t, "[init]") for k, (_, t) in outs.items()}
+    if not inits["old"] or any(v != inits["old"] for v in inits.values()):
+        problems.append("[init] differs: %s" % inits)
+
+    def numbers(a, b):
+        """[(name, u, v, rel)] over the [terms]/[render] lines of two runs."""
+        res = []
+        for pre in ("[terms]", "[render]"):
+            x, y = pick(a, pre), pick(b, pre)
+            if len(x) != len(y) or not x:
+                problems.append("%s lines: %d vs %d" % (pre, len(x), len(y)))
                 continue
-            for (k, u), (_, v) in zip(kx, ky):
-                u, v = float(u), float(v)
-                rel = abs(u - v) / max(abs(u), abs(v), 1e-30)
-                worst = max(worst, rel)
-                if rel > 1e-6:
-                    problems.append("%s %s: %r vs %r (rel %.2g)" % (pre, k, u, v, rel))
+            for lx, ly in zip(x, y):
+                kx, ky = re.findall(r"(\w+)=(\S+)", lx), re.findall(r"(\w+)=(\S+)", ly)
+                if [k for k, _ in kx] != [k for k, _ in ky]:
+                    problems.append("%s keys differ" % pre)
+                    continue
+                for (k, u), (_, v) in zip(kx, ky):
+                    u, v = float(u), float(v)
+                    res.append(("%s %s" % (pre, k), u, v, abs(u - v) / max(abs(u), abs(v), 1e-30)))
+        return res
+    no = numbers(outs["old"][1], outs["new"][1])
+    oo = numbers(outs["old"][1], outs["old2"][1])
+    worst = max([r for *_, r in no] or [0.0])
+    spread = max([r for *_, r in oo] or [0.0])
+    tol = max(1e-6, NONDET_FACTOR * spread)
+    if worst > tol:
+        for name, u, v, rel in no:
+            if rel > tol:
+                problems.append("%s: %r vs %r (rel %.2g > tol %.2g)" % (name, u, v, rel, tol))
     v = "PASS" if not problems else "FAIL"
-    print("%s L1_gpu_r1_step1  max rel diff of [terms]/[render] = %.3g" % (v, worst))
+    note = "max rel new-vs-old %.3g, old-vs-old %.3g (tol %.3g)" % (worst, spread, tol)
+    print("%s L1_gpu_r1_step1  %s; [init] identical on all three: %s"
+          % (v, note, inits["old"] == inits["new"] == inits["old2"]))
+    for name, u, w, rel in no:
+        print("       %-24s old %-12r new %-12r rel %.2g" % (name, u, w, rel))
     for p in problems:
         print("       - " + p)
-    return ("L1_gpu_r1_step1", v, problems, 0, "max rel %.3g" % worst)
+    return ("L1_gpu_r1_step1", v, problems, 0, note)
 
 
 def main():

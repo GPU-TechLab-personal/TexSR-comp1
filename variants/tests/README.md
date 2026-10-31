@@ -17,10 +17,10 @@ is modified. This is the only folder in `variants/` that imports the old code.
 | L0 static | `l0_static.py` + `moves/*.json` | host Python | moved code is AST-identical (imports/docstrings aside); split functions: every old line is verbatim, a listed rename rule, a listed rewrite, or a listed drop with its reason |
 | L0 skeleton | `l0_skeleton.py` | host Python | `paper_loop/loop.py` = `train_esrgan.py` + hook calls only (and `psnr_loop.py` = donor `train_psnr.py`); every replaced upstream line is kept in `paper_loop/hooks.py`; the committed `.diff`s are current |
 | L1 trainer | `l1_fixtures.py`, `l1_trainer.py` | deeptex image, CPU | old `deeptex_train.py` vs `main.py --experiment ...`, and `train_esrgan.py` vs `--experiment paper`: same exit code, same stdout line for line, bit-identical checkpoint |
-| L1 GPU | `l1_trainer.py --gpu` | GPU | full-size r1, one step: `[init]` identical, `[terms]`/`[render]` within 1e-6 |
-| L2 / L3 | `l2_*.py`, `l3_*.py` (see `README_deeptex_eval.md`) | images, `runs/` | data records, reports, inference |
-| L4 gates | `l4_gates.py` | GPU, deeptex + matup images | render gate / parity / calibration JSONs, old vs new; w* = 10 (unrounded 9.54) |
-| L5 orchestrators | `l5_deeptex.ps1`, `l5_matup.ps1` | PowerShell | every `-Stage` of the old ps1 vs the arm `run.ps1`, docker intercepted: same docker argv after the path map |
+| L1 GPU | `l1_trainer.py --gpu` | GPU | full-size r1, one step, old twice + new: `[init]` identical on all three, `[terms]`/`[render]` new-vs-old within max(1e-6, 10x old-vs-old) |
+| L2 / L3 | `run_deeptex_eval.ps1` (`l2_*.py`, `l3_*.py`; see `README_deeptex_eval.md`) | images, `runs/` | data records, reports, inference |
+| L4 gates | `l4_gates.py` | GPU, deeptex + matup images | gate JSONs exact; `parity_tf.npz` array by array; calibration: old twice, median/p90/max relative difference new-vs-old within 10x old-vs-old, w* = 10 everywhere |
+| L5 orchestrators | `l5_deeptex.ps1`, `l5_matup.ps1` | PowerShell | every `-Stage` of the old ps1 (48 deeptex scenarios over all 15 stages, 13 matup) vs the arm `run.ps1`, docker intercepted: same docker argv, transcript and created files after the mapping |
 | L6 experiments | `l6_*.py` (see `variants/experiments/README.md`) | exp image | exp1-5 arms, configs, state_dict keys, gates |
 
 ## L1: how determinism is obtained (and where it is not)
@@ -59,5 +59,25 @@ GB and the progress bar's step/sec. Nothing else.
 |---|---|
 | L0 (both) | < 5 s |
 | L1 CPU, 16 cases | ~25 min (render cases dominate; single-threaded on purpose) |
-| L1 GPU | ~2 min |
-| L4 | ~10 min (calibration ~3.5 min per side) |
+| L1 GPU | ~3 min (three one-step runs) |
+| L2 + L3 | 81 min (`run_deeptex_eval.ps1`, see `README_deeptex_eval.md`) |
+| L4 | ~25 min (parity twice, calibration three times at ~4 min) |
+| L5 (deeptex + matup) | ~1 min |
+| L6 | ~21 min (GPU ~17) |
+
+## GPU runs are not bit-reproducible: measured spreads
+
+The GPU layers compare against the old code run twice, not against one old run.
+Measured 2026-10-31 on the RTX 3080 Ti:
+
+| what | old vs old | new vs old |
+|---|---|---|
+| L1 GPU, r1 step 1, max relative difference over `[terms]`/`[render]` | 1.85e-3 | 7.0e-4 |
+| L4 calibration, relative difference over 1,765 numbers: median / p90 / max | 0.00127 / 0.0166 / 1.31 | 0.00123 / 0.0166 / 1.31 |
+| L4 calibration, unrounded w* | 9.553 / 9.565 (committed 9.541) | 9.565 |
+
+The max of 1.31 is a per-batch cosine near zero (`states[0]/per_batch/cos_offrm_feature[12]`:
+0.0344 in the first old run, -0.1099 in the second old run and in the new one).
+w* rounds to 10 on every run.
+`parity_tf.npz` changes sha256 on every export only because its manifest records
+the time; its 63 arrays are identical.

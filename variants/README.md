@@ -5,8 +5,23 @@ matup_egsr `c74ec99`), one folder per experiment. The old code in `scripts/` and
 `experiments/` stays as it is; this tree reimplements it and the tests in
 `variants/tests/` prove the two behave the same.
 
-> Work in progress on branch `refactor/variants`. The experiment → folder →
-> change table is filled in as each part lands (plan step 7).
+## Experiment → folder → what changed
+
+| experiment | folder | run it with | what changed against the old code |
+|---|---|---|---|
+| DeepTextures paper arm (textures_db, upstream `train_esrgan.py` as released) | `deeptex/paper/`, `deeptex/upstream_runner/`, `deeptex/paper_loop/` | `deeptex/paper/run.ps1 -Stage prep\|smoke\|paper\|eval\|all` | `paper_loop/loop.py` is `train_esrgan.py` plus hook calls only (`upstream.diff`); the paper stage still execs the submodule's own trainer through `run_upstream_train.py`. The fifth comparison column moved out of `matup_postprocess` into `paper/deeptex_postprocess.py` / `deeptex_montage.py` |
+| DeepTextures on MatSynth (all / chratio / basecolor) | `deeptex/matsynth/` | `deeptex/matsynth/run.ps1 -Stage prep-matsynth\|eval-arms`; training: `paper/run.ps1 -Stage paper -PaperConfig variants/deeptex/matsynth/<cfg>.yaml -PaperRoot runs/deeptex/<arm>` | the recipe table and `--repeat` became `recipes.py --recipe`; `deeptex_compare --maps all --scalar-collapse` became `eval_arms.py` |
+| DeepTextures fixed arm (defects #2-#5, #8 corrected) | `deeptex/fixed/` | `deeptex/fixed/run.ps1 -Stage pretrain\|train` | `deeptex_train.py`'s fixed branches became `fixed/hooks.py` on the paper loop (`paper_loop/main.py --experiment fixed`, same flags) |
+| Render loss (R0a / R0b / R1) | `deeptex/render_loss/` | `deeptex/render_loss/run.ps1 -Stage prep-grouped\|gate-render\|render-train\|eval-render\|eval-perceptual` | the grouped/render branches became `render_loss/hooks.py` + `terms.py` (`--experiment render`); gates, record builder and render eval moved |
+| Tiling study | `deeptex/tiling/` | `python variants/deeptex/tiling/deeptex_tiling_report.py` | moved |
+| MatUp baseline | `matup/baseline/` | `matup/baseline/run.ps1` | moved; the shared comparison/montage code is `compare/` |
+| Experiments 1-5 | `experiments/exp*/`, `experiments/matup_driver/`, `experiments/gates/` | see `experiments/README.md` §5 | exp2 split into `core/` + one module per arm, exp3 arms on the exp2 trainer, `matup_driver` out of `common/` |
+
+Each folder's README lists its files against the old ones, the odd behaviour it
+keeps, and the defects found but not fixed. The orchestrators: every stage of
+`scripts/deeptex/run_deeptex.ps1` now lives in exactly one arm `run.ps1`, with
+the same stage name and parameters; the helpers they share are
+`common/lib.ps1` (L5 compares their docker argv stage by stage).
 
 ## Rules every file here follows
 
@@ -46,7 +61,7 @@ matup_egsr `c74ec99`), one folder per experiment. The old code in `scripts/` and
 8. **One GPU job at a time.** Before any GPU step, check that no other `texsr*`
    container is running (`docker ps`); docs/RUNBOOK.md's concurrency warning applies.
 
-## Layout (owner while the work is split across sessions)
+## Layout
 
 | folder | contents |
 |---|---|

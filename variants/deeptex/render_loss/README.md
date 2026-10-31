@@ -63,3 +63,13 @@ hooks_common, as in the old trainer: the render arm prints the
   checkpoints `runs/deeptex/matsynth_{all,chratio}/checkpoints/esrgan_40k`;
 * every DT evaluation renders against MatUp's `render_lr.png` / `render_gt.png`
   in `runs/matsynth/<material>/` (matup/baseline).
+
+## run.ps1
+
+Stages `prep-grouped`, `gate-render` (`-Gate parity|calibrate|overfit|smoke|premise`),
+`render-train` (`-Arm r0a|r0b|r1`), `eval-render`, `eval-perceptual`, plus
+`preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+The trainer calls are `paper_loop/main.py --experiment render` + the old flags;
+every `deeptex_compare --maps all --scalar-collapse mean` is `matsynth/eval_arms.py`.
+The README `eval-render` writes into `runs/montages/deeptex_render_loss/` now names
+`variants/deeptex/render_loss/run.ps1` in its regenerate commands.

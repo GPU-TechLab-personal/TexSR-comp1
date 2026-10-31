@@ -74,3 +74,19 @@ the MatSynth and render-loss reports use it too, so it stays in
   same record gives another file hash (committed `8b08886c...`; two rebuilds in L2
   gave `8116ad85...` and `25d46f63...` with every record identical).
 - Docstrings of moved files cite line numbers of the OLD files (`scripts/...`).
+
+## run.ps1
+
+Stages `prep`, `smoke`, `paper`, `eval`, `all` (the default, as before:
+prep → smoke → paper → eval), plus `preflight`. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+Kept as they were:
+
+- `smoke` trains through the **fixed** trainer (`paper_loop/main.py --experiment fixed
+  --stage psnr`), exactly as the old smoke stage ran `deeptex_train.py --stage psnr`.
+- The MatSynth arms train through `-Stage paper` with `-PaperConfig
+  variants/deeptex/matsynth/<cfg>.yaml -PaperRoot runs/deeptex/<arm>`; their
+  evaluation is `matsynth/run.ps1 -Stage eval-arms`.
+
+Changed: `-KeepAllCheckpoints` calls `Start-CheckpointKeeper` / `Stop-CheckpointKeeper`
+from `lib.ps1` instead of its inlined copy of the same `Start-Job` loop (L5
+`paper-keepall`: same console lines, same files).

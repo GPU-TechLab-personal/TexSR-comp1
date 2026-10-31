@@ -70,3 +70,19 @@ The three configs differ from `paper/esrgan_paper.yaml` only in their header com
 - `deeptex_drift.py` hard-codes scale 4, whole-image inference (`super_resolve(..., 4, 0, 16)`)
   and the `"mean"` collapse for its sheet, whatever the config says.
 - Docstrings of moved files cite line numbers of the OLD files (`scripts/...`).
+
+## run.ps1
+
+Stages `prep-matsynth` (`-Recipe all|chratio|basecolor`) and `eval-arms`, plus
+`preflight`; `-Stage` is mandatory (the old default `all` is the paper arm's).
+Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+Changed: the record build is one `recipes.py --recipe <R> --root <ms>` call
+instead of the per-map `--hr/--lr[/--repeat k]` list, and the `recipe <R> : ...`
+console line is printed by `recipes.py` (L5 rule R checks that the old list is
+exactly the recipe table). `eval-arms` calls `eval_arms.py` without `--maps all
+--scalar-collapse mean`, its defaults.
+
+Kept as it was: `-PaperConfig` / `-PaperRoot` still default to the paper arm's
+(`variants/deeptex/paper/esrgan_paper.yaml`, `runs/deeptex/paper`), so
+`-Stage eval-arms` without them evaluates the textures_db checkpoint under the tag
+`paper`.
