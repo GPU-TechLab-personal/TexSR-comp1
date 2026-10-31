@@ -283,7 +283,7 @@ def write_report(stamp_dir, l0_md=None):
                 continue
             with open(md, encoding="utf-8") as f:
                 text = f.read()
-            n = text.count("\n| ") - 1
+            n = text.count("\n| ")          # rows below the header line
             n_fail = text.count("| FAIL |")
             head.append("| %s | %d | %d | - | %s |" % (title, n, n_fail, "PASS" if not n_fail else "FAIL"))
             body += ["", "## %s" % title, "", text.strip()]
