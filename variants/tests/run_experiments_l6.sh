@@ -14,7 +14,10 @@
 #   /data                          D:/experimentdata                     ro
 #   /expdata                       D:/experimentdata/texsr_exp           ro  (materials, caches)
 #   /vv                            D:/experimentdata/texsr_exp/variants_verify  rw  (test outputs)
-# The experiment code writes under $EXPDATA; tests that run it set EXPDATA=/vv/...
+#   /vvx                           .../variants_verify/expdata           rw  an EXPDATA for runs of the
+#     /vvx/materials, /vvx/cache   texsr_exp/materials, texsr_exp/cache  ro  experiment code itself
+# The experiment code writes under $EXPDATA (runs/, _gate_train/); the tests that
+# run it set EXPDATA=/vvx, so nothing lands in texsr_exp/runs.
 set -euo pipefail
 mode=$1; shift
 HERE=$(cd "$(dirname "$0")/../.." && pwd -W)
@@ -22,13 +25,19 @@ MAIN=${MAIN:-C:/Users/admin/Desktop/Vsc_Workspace/TexSR-comp1}
 EXPD=${EXPD:-D:/experimentdata}
 gpu=()
 if [ "$mode" = gpu ]; then
-  if docker ps --format '{{.Image}} {{.Names}}' | grep -i texsr; then
-    echo "another texsr container is running - wait for it (variants/README.md rule 8)" >&2
-    exit 3
-  fi
+  # another texsr container holding the GPU? (CPU-only ones do not count)
+  for id in $(docker ps -q); do
+    info=$(docker inspect --format '{{.Config.Image}} {{json .HostConfig.DeviceRequests}}' "$id" 2>/dev/null || true)
+    case "$info" in
+      *texsr*null*|"") ;;
+      *texsr*) echo "a texsr GPU container is running ($info) - wait for it (variants/README.md rule 8)" >&2
+               exit 3 ;;
+    esac
+  done
   gpu=(--gpus all)
 fi
-mkdir -p "$MAIN/runs/variants_verify" "$EXPD/texsr_exp/variants_verify"
+VVX="$EXPD/texsr_exp/variants_verify/expdata"
+mkdir -p "$MAIN/runs/variants_verify" "$VVX/materials" "$VVX/cache"
 MSYS_NO_PATHCONV=1 docker run --rm "${gpu[@]}" --shm-size 8g \
   -v "$HERE:/workspace" \
   -v "$MAIN/external:/workspace/external:ro" \
@@ -37,5 +46,8 @@ MSYS_NO_PATHCONV=1 docker run --rm "${gpu[@]}" --shm-size 8g \
   -v "$EXPD:/data:ro" \
   -v "$EXPD/texsr_exp:/expdata:ro" \
   -v "$EXPD/texsr_exp/variants_verify:/vv" \
+  -v "$VVX:/vvx" \
+  -v "$EXPD/texsr_exp/materials:/vvx/materials:ro" \
+  -v "$EXPD/texsr_exp/cache:/vvx/cache:ro" \
   -w /workspace -e PYTHONDONTWRITEBYTECODE=1 \
   texsr/exp:torch2.0.0-cu117 "$@"

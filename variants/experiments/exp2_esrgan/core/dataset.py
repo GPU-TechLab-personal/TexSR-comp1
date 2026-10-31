@@ -86,6 +86,9 @@ class TrainSet(torch.utils.data.Dataset):
         return len(self.names) * self.ppm
 
     def __getitem__(self, i):
+        # KEPT: unseeded - patch positions and augmentation do not follow
+        # train.seed, so two runs of one config never see the same batches
+        # (variants/experiments/README.md, kept behaviour 6). `self.seed` is unused.
         rng = np.random.default_rng()
         mat = load_material(os.path.join(self.root, self.names[i % len(self.names)], "HR"))
         size = mat["basecolor"].shape[0]
