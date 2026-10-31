@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """L0: is the moved code the old code?
 
-Reads variants/tests/moves.json and checks three kinds of entry. Pure `ast`, no
+Reads every variants/tests/moves/*.json (one file per area, so parallel work
+never edits the same table) and checks three kinds of entry. Pure `ast`, no
 imports of the code under test, so it runs on the host (any Python 3.8+).
 
   "moves"   a whole file copied. Every top-level def/class of the old file must
@@ -27,6 +28,7 @@ Exit 0 = every entry PASS. --report writes the per-entry table as markdown.
 
 import argparse
 import ast
+import glob
 import io
 import json
 import os
@@ -53,8 +55,20 @@ def strip_docstrings(tree):
     return tree
 
 
+class _Imports(ast.NodeTransformer):
+    """`import grouped_dataset` and `from variants.deeptex.render_loss import
+    grouped_dataset` bind the same name; only the bound names are compared."""
+
+    def _canon(self, node):
+        names = sorted(a.asname or a.name.split(".")[0] for a in node.names)
+        return ast.copy_location(ast.Expr(ast.Constant("import:" + ",".join(names))), node)
+
+    visit_Import = _canon
+    visit_ImportFrom = _canon
+
+
 def parse(rel):
-    return strip_docstrings(ast.parse(read(rel), filename=rel))
+    return _Imports().visit(strip_docstrings(ast.parse(read(rel), filename=rel)))
 
 
 def dump(node):
@@ -68,6 +82,9 @@ def defs(tree):
 
 def is_import_or_path(stmt):
     if isinstance(stmt, (ast.Import, ast.ImportFrom)):
+        return True
+    if (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant)
+            and str(stmt.value.value).startswith("import:")):
         return True
     # sys.path.insert(...) / sys.path.append(...), bare or under an `if`.
     src = dump(stmt)
@@ -239,14 +256,22 @@ def check_decomposed(old_ref, spec):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--moves", default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                    "moves.json"))
+    ap.add_argument("--moves", nargs="*", default=sorted(glob.glob(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "moves", "*.json"))))
     ap.add_argument("--report", default="")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
-    with open(args.moves, encoding="utf-8") as f:
-        spec = json.load(f)
+    spec = {"moves": [], "functions": {}, "decomposed": {}}
+    for path in args.moves:
+        with open(path, encoding="utf-8") as f:
+            part = json.load(f)
+        spec["moves"] += part.get("moves", [])
+        for k in ("functions", "decomposed"):
+            clash = set(spec[k]) & set(part.get(k, {}))
+            if clash:
+                sys.exit("L0: %s listed twice (%s): %s" % (k, path, sorted(clash)))
+            spec[k].update(part.get(k, {}))
     rows, n_fail = [], 0
     for e in spec.get("moves", []):
         probs, detail = check_move(e)

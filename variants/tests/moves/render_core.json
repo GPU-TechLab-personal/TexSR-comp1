@@ -1,0 +1,16 @@
+{
+  "_doc": "render_loss modules shared by the trainer hooks, the gates and the grouped-record builders.",
+  "moves": [
+    {
+      "old": "scripts/deeptex/grouped_dataset.py",
+      "new": "variants/deeptex/render_loss/grouped_dataset.py"
+    },
+    {
+      "old": "scripts/deeptex/render_tf.py",
+      "new": "variants/deeptex/render_loss/render_tf.py",
+      "module_allow": [
+        "_COMMON"
+      ]
+    }
+  ]
+}
