@@ -1,0 +1,8 @@
+# 3-2: + joint discriminator: one D over the 15-channel concatenation of all
+# maps (sees cross-map consistency) instead of one D per map.
+base: 3-1_render.yaml
+name: 3-2_render_jointD
+disc:
+  mode: joint
+loss:
+  joint_gan: 0.005

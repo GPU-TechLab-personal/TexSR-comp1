@@ -1,0 +1,287 @@
+{
+  "_doc": "experiments/ (experiment list 1-5) -> variants/experiments/. moves = whole files copied (imports / path constants only); functions = one def moved on its own (matup_driver split by concern, exp2 model/losses/train split into core + arms); decomposed = the functions that carried the arm branches (MultiMapSR, Discriminators, Criterion, train.main ...) and the entry points whose bodies named old paths.",
+  "moves": [
+    {
+      "old": "experiments/common/cli.py",
+      "new": "variants/experiments/common/cli.py"
+    },
+    {
+      "old": "experiments/common/protocol.py",
+      "new": "variants/experiments/common/protocol.py"
+    },
+    {
+      "old": "experiments/common/shards.py",
+      "new": "variants/experiments/common/shards.py"
+    },
+    {
+      "old": "experiments/common/render.py",
+      "new": "variants/experiments/common/render.py"
+    },
+    {
+      "old": "experiments/common/upscalers.py",
+      "new": "variants/experiments/common/upscalers.py"
+    },
+    {
+      "old": "experiments/common/sr_cache.py",
+      "new": "variants/experiments/common/sr_cache.py"
+    },
+    {
+      "old": "experiments/common/metrics.py",
+      "new": "variants/experiments/common/metrics.py"
+    },
+    {
+      "old": "experiments/common/matup_runs.py",
+      "new": "variants/experiments/common/matup_runs.py"
+    },
+    {
+      "old": "experiments/exp1_inconsistency/analyze.py",
+      "new": "variants/experiments/exp1_inconsistency/analyze.py"
+    },
+    {
+      "old": "experiments/exp1_inconsistency/run_C.py",
+      "new": "variants/experiments/exp1_inconsistency/run_C.py"
+    },
+    {
+      "old": "experiments/exp1_inconsistency/run_residuals.py",
+      "new": "variants/experiments/exp1_inconsistency/run_residuals.py"
+    },
+    {
+      "old": "experiments/exp2_esrgan/data.py",
+      "new": "variants/experiments/exp2_esrgan/core/dataset.py"
+    },
+    {
+      "old": "experiments/exp4_grf_stats/analyze.py",
+      "new": "variants/experiments/exp4_grf_stats/analyze.py"
+    },
+    {
+      "old": "experiments/exp4_grf_stats/grf_stats.py",
+      "new": "variants/experiments/exp4_grf_stats/grf_stats.py"
+    },
+    {
+      "old": "experiments/exp4_grf_stats/run.py",
+      "new": "variants/experiments/exp4_grf_stats/run.py"
+    },
+    {
+      "old": "experiments/exp5_benchmark/bench_infer.py",
+      "new": "variants/experiments/exp5_benchmark/bench_infer.py"
+    },
+    {
+      "old": "experiments/exp5_benchmark/gpu_hours.py",
+      "new": "variants/experiments/exp5_benchmark/gpu_hours.py"
+    },
+    {
+      "old": "experiments/exp5_benchmark/texel_cost.py",
+      "new": "variants/experiments/exp5_benchmark/texel_cost.py"
+    },
+    {
+      "old": "experiments/gates/gate_protocol.py",
+      "new": "variants/experiments/gates/gate_protocol.py"
+    },
+    {
+      "old": "experiments/gates/gate_matup_driver.py",
+      "new": "variants/experiments/gates/gate_matup_driver.py"
+    },
+    {
+      "old": "experiments/gates/gate_configs.py",
+      "new": "variants/experiments/gates/gate_configs.py",
+      "module_allow": [
+        "C2",
+        "C3",
+        "_HERE"
+      ]
+    }
+  ],
+  "functions": {
+    "experiments/common/matup_driver.py:matup_args": "variants/experiments/matup_driver/args.py:matup_args",
+    "experiments/common/matup_driver.py:optimise": "variants/experiments/matup_driver/optimise.py:optimise",
+    "experiments/common/matup_driver.py:init_maps": "variants/experiments/matup_driver/reference.py:init_maps",
+    "experiments/common/matup_driver.py:write_outputs": "variants/experiments/matup_driver/outputs.py:write_outputs",
+    "experiments/common/matup_driver.py:to_canonical": "variants/experiments/matup_driver/outputs.py:to_canonical",
+    "experiments/common/matup_driver.py:save_json": "variants/experiments/matup_driver/outputs.py:save_json",
+    "experiments/common/matup_driver.py:per_light_residuals": "variants/experiments/matup_driver/residuals.py:per_light_residuals",
+    "experiments/exp2_esrgan/model.py:_init": "variants/experiments/exp2_esrgan/core/model.py:_init",
+    "experiments/exp2_esrgan/model.py:ResidualDenseBlock": "variants/experiments/exp2_esrgan/core/model.py:ResidualDenseBlock",
+    "experiments/exp2_esrgan/model.py:RRDB": "variants/experiments/exp2_esrgan/core/model.py:RRDB",
+    "experiments/exp2_esrgan/model.py:RRDBNet": "variants/experiments/exp2_esrgan/core/model.py:RRDBNet",
+    "experiments/exp2_esrgan/model.py:VGGStyleDiscriminator": "variants/experiments/exp2_esrgan/core/model.py:VGGStyleDiscriminator",
+    "experiments/exp2_esrgan/model.py:VGGPerceptual": "variants/experiments/exp2_esrgan/core/model.py:VGGPerceptual",
+    "experiments/exp2_esrgan/model.py:count_params": "variants/experiments/exp2_esrgan/core/model.py:count_params",
+    "experiments/exp2_esrgan/model.py:_read_state": "variants/experiments/exp2_esrgan/arms/pretrained.py:_read_state",
+    "experiments/exp2_esrgan/model.py:ensure_pretrained": "variants/experiments/exp2_esrgan/arms/pretrained.py:ensure_pretrained",
+    "experiments/exp2_esrgan/model.py:load_pretrained": "variants/experiments/exp2_esrgan/arms/pretrained.py:load_pretrained",
+    "experiments/exp2_esrgan/losses.py:angular": "variants/experiments/exp2_esrgan/arms/mapaware_loss.py:angular",
+    "experiments/exp2_esrgan/losses.py:ragan_g": "variants/experiments/exp2_esrgan/arms/base.py:ragan_g",
+    "experiments/exp2_esrgan/losses.py:ragan_d": "variants/experiments/exp2_esrgan/arms/base.py:ragan_d",
+    "experiments/exp2_esrgan/losses.py:srgb_to_linear_t": "variants/experiments/exp3_render_loss/arms/render_loss.py:srgb_to_linear_t",
+    "experiments/exp2_esrgan/losses.py:render_tensors": "variants/experiments/exp3_render_loss/arms/render_loss.py:render_tensors",
+    "experiments/exp2_esrgan/losses.py:RenderLoss": "variants/experiments/exp3_render_loss/arms/render_loss.py:RenderLoss",
+    "experiments/exp2_esrgan/losses.py:cat": "variants/experiments/exp3_render_loss/arms/joint_d.py:cat",
+    "experiments/exp2_esrgan/losses.py:Discriminators.active": "variants/experiments/exp2_esrgan/arms/base.py:Discriminators.active",
+    "experiments/exp2_esrgan/train.py:load_config": "variants/experiments/exp2_esrgan/core/config.py:load_config",
+    "experiments/exp2_esrgan/train.py:deep_merge": "variants/experiments/exp2_esrgan/core/config.py:deep_merge",
+    "experiments/exp2_esrgan/train.py:infinite": "variants/experiments/exp2_esrgan/core/train.py:infinite",
+    "experiments/exp2_esrgan/train.py:quick_eval": "variants/experiments/exp2_esrgan/core/train.py:quick_eval",
+    "experiments/exp2_esrgan/evaluate.py:infer": "variants/experiments/exp2_esrgan/core/evaluate.py:infer",
+    "experiments/exp5_benchmark/bench_train.py:bench_matup": "variants/experiments/exp5_benchmark/bench_train.py:bench_matup",
+    "experiments/exp5_benchmark/bench_train.py:run": "variants/experiments/exp5_benchmark/bench_train.py:run",
+    "experiments/exp5_benchmark/bench_train.py:main": "variants/experiments/exp5_benchmark/bench_train.py:main",
+    "experiments/gates/gate_exp4.py:check": "variants/experiments/gates/gate_exp4.py:check",
+    "experiments/gates/gate_exp4.py:synthetic": "variants/experiments/gates/gate_exp4.py:synthetic",
+    "experiments/gates/gate_exp4.py:main": "variants/experiments/gates/gate_exp4.py:main"
+  },
+  "decomposed": {
+    "experiments/common/paths.py:add_matup": {
+      "into": [
+        "variants/experiments/common/paths.py"
+      ],
+      "rewritten": {
+        "if MATUP not in sys.path:": "_root.use_matup()",
+        "sys.path.insert(0, MATUP)": "_root.use_matup()"
+      },
+      "dropped": {}
+    },
+    "experiments/common/paths.py:add_swinir": {
+      "into": [
+        "variants/experiments/common/paths.py"
+      ],
+      "rewritten": {
+        "add_matup()": "_root.use_swinir()",
+        "p = os.path.join(MATUP, \"sr_modules\", \"SwinIR\")": "_root.use_swinir()",
+        "if p not in sys.path:": "_root.use_swinir()",
+        "sys.path.insert(0, p)": "_root.use_swinir()"
+      },
+      "dropped": {}
+    },
+    "experiments/exp2_esrgan/model.py:MultiMapSR": {
+      "into": [
+        "variants/experiments/exp2_esrgan/arms/base.py",
+        "variants/experiments/exp2_esrgan/arms/separate.py",
+        "variants/experiments/exp2_esrgan/arms/concat.py",
+        "variants/experiments/exp2_esrgan/core/assemble.py"
+      ],
+      "rewritten": {
+        "def __init__(self, arch=\"shared\", input=\"independent\", num_block=23, num_feat=64, num_grow_ch=32):": "def generator(arch=\"shared\", input=\"independent\", num_block=23, num_feat=64, num_grow_ch=32):",
+        "self.arch, self.input = arch, input": "arch, input = \"shared\", \"independent\"",
+        "else:": "return separate.SeparateSR(num_block, num_feat, num_grow_ch)",
+        "self.nets = nn.ModuleDict({m: mk(3, 3) for m in MAPS})": "self.nets = nn.ModuleDict({",
+        "return list(self.nets.values()) if self.arch == \"separate\" else [self.net]": "return list(self.nets.values())"
+      },
+      "dropped": {
+        "if self.input == \"concat\":": "forward dispatch: each generator class (ConcatSR, SharedSR, SeparateSR) has only its own forward",
+        "if self.arch == \"shared\":": "forward dispatch: each generator class (ConcatSR, SharedSR, SeparateSR) has only its own forward"
+      }
+    },
+    "experiments/exp2_esrgan/losses.py:Discriminators": {
+      "into": [
+        "variants/experiments/exp2_esrgan/arms/base.py",
+        "variants/experiments/exp2_esrgan/arms/separate.py",
+        "variants/experiments/exp3_render_loss/arms/joint_d.py",
+        "variants/experiments/exp2_esrgan/core/assemble.py"
+      ],
+      "rewritten": {
+        "if mode == \"per_map\" and self.gan_maps:": "if mode == \"per_map\" and gan_maps:",
+        "if separate:": "if separate_g:",
+        "else:": "return base.SharedD(mode, gan_maps, separate_g, make)",
+        "return self.ds[m] if self.separate else self.shared": "return self.ds[m]"
+      },
+      "dropped": {
+        "if self.mode == \"joint\":": "loss dispatch: JointD.loss (exp3 arms/joint_d.py) overrides Discriminators.loss"
+      }
+    },
+    "experiments/exp2_esrgan/losses.py:Criterion": {
+      "into": [
+        "variants/experiments/exp2_esrgan/arms/base.py",
+        "variants/experiments/exp2_esrgan/arms/mapaware_loss.py",
+        "variants/experiments/exp3_render_loss/arms/render_loss.py",
+        "variants/experiments/exp3_render_loss/arms/joint_d.py",
+        "variants/experiments/exp2_esrgan/core/assemble.py"
+      ],
+      "rewritten": {
+        "def __init__(self, cfg, device, vgg=None):": "def criterion(loss_cfg, vgg=None, render=None):",
+        "self.per_map = cfg[\"per_map\"]": "per_map = loss_cfg[\"per_map\"]",
+        "self.extra_l1 = cfg.get(\"extra_l1\", {}) or {}": "extra_l1 = loss_cfg.get(\"extra_l1\", {}) or {}",
+        "self.joint_gan = float(cfg.get(\"joint_gan\", 0.0))": "joint_gan = float(loss_cfg.get(\"joint_gan\", 0.0))",
+        "self.vgg = vgg": "self.per_map, self.vgg = per_map, vgg",
+        "self.render = None": "self.render = render",
+        "if \"l1\" in spec:": "if \"l1\" not in spec:",
+        "total, logs[\"l1\"] = total + w * v, v": "total, logs[term.key] = total + w * v, v",
+        "if \"angular\" in spec:": "if \"angular\" not in spec:",
+        "total, logs[\"angular\"] = total + w * v, v": "total, logs[term.key] = total + w * v, v",
+        "total, logs[\"%s/extra_l1\" % m] = total + self.extra_l1[m] * v, v": "total, logs[\"%s/%s\" % (m, term.key)] = total + w * v, v",
+        "if psnr_stage:": "if psnr_stage and not term.in_psnr_stage:",
+        "total, logs[\"%s/vgg\" % m] = total + spec[\"vgg\"] * v, v": "total, logs[\"%s/%s\" % (m, term.key)] = total + w * v, v",
+        "total, logs[\"%s/gan_g\" % m] = total + spec[\"gan\"] * v, v": "total, logs[\"%s/%s\" % (m, term.key)] = total + w * v, v",
+        "if not psnr_stage and discs.mode == \"joint\" and self.joint_gan > 0:": "if discs.mode == \"joint\" and self.joint_gan > 0:",
+        "total, logs[\"joint/gan_g\"] = total + self.joint_gan * v, v": "total, logs[term.key] = total + w * v, v",
+        "if self.render is not None and self.render.w > 0:": "if self.render.w > 0:",
+        "total, logs[\"render\"] = total + self.render.w * v, v": "total, logs[term.key] = total + w * v, v"
+      },
+      "dropped": {}
+    },
+    "experiments/exp2_esrgan/train.py:main": {
+      "into": [
+        "variants/experiments/exp2_esrgan/core/train.py",
+        "variants/experiments/exp2_esrgan/core/assemble.py",
+        "variants/experiments/exp2_esrgan/arms/pretrained.py",
+        "variants/experiments/exp2_esrgan/arms/separate.py",
+        "variants/experiments/exp3_render_loss/arms/render_loss.py"
+      ],
+      "rewritten": {
+        "G = MultiMapSR(mc[\"arch\"], mc[\"input\"], mc.get(\"num_block\", 23), mc.get(\"num_feat\", 64),": "G = generator(mc[\"arch\"], mc[\"input\"], mc.get(\"num_block\", 23), mc.get(\"num_feat\", 64),",
+        "path = ensure_pretrained(cfg[\"init\"][\"weights\"], paths.PRETRAINED)": "path = ensure_pretrained(weights, cache_dir)",
+        "init_report.update(load_pretrained(G, path))": "init_report.update(pretrained.load(G, cfg[\"init\"][\"weights\"], pretrained_dir))",
+        "discs = L.Discriminators(dmode, gan_maps, mc[\"arch\"] == \"separate\",": "discs = discriminators(dmode, gan_maps, separate.owns_discriminators(mc),",
+        "crit = L.Criterion(cfg[\"loss\"], dev, VGGPerceptual().to(dev) if need_vgg else None)": "crit = criterion(cfg[\"loss\"], vgg, render)",
+        "if cfg[\"loss\"].get(\"render\", {}).get(\"weight\", 0) > 0:": "if render_loss.applies(cfg[\"loss\"]):",
+        "crit.render = L.RenderLoss(cfg[\"loss\"][\"render\"], dev, cfg[\"data\"][\"hr_patch\"])": "render = render_loss.RenderLoss(cfg[\"loss\"][\"render\"], dev, cfg[\"data\"][\"hr_patch\"])"
+      },
+      "dropped": {}
+    },
+    "experiments/exp2_esrgan/evaluate.py:main": {
+      "into": [
+        "variants/experiments/exp2_esrgan/core/evaluate.py",
+        "variants/experiments/exp2_esrgan/core/assemble.py"
+      ],
+      "rewritten": {
+        "G = MultiMapSR(mc[\"arch\"], mc[\"input\"], mc.get(\"num_block\", 23), mc.get(\"num_feat\", 64),": "G = assemble.generator(mc[\"arch\"], mc[\"input\"], mc.get(\"num_block\", 23), mc.get(\"num_feat\", 64),"
+      },
+      "dropped": {}
+    },
+    "experiments/exp5_benchmark/bench_train.py:bench_esrgan": {
+      "into": [
+        "variants/experiments/exp5_benchmark/bench_train.py",
+        "variants/experiments/exp2_esrgan/core/assemble.py",
+        "variants/experiments/exp2_esrgan/arms/separate.py",
+        "variants/experiments/exp3_render_loss/arms/render_loss.py"
+      ],
+      "rewritten": {
+        "G = MultiMapSR(mc[\"arch\"], mc[\"input\"], mc.get(\"num_block\", 23)).to(dev)": "G = assemble.generator(mc[\"arch\"], mc[\"input\"], mc.get(\"num_block\", 23)).to(dev)",
+        "discs = L.Discriminators(cfg[\"disc\"][\"mode\"], gan_maps, mc[\"arch\"] == \"separate\",": "discs = assemble.discriminators(cfg[\"disc\"][\"mode\"], gan_maps, separate.owns_discriminators(mc),",
+        "crit = L.Criterion(cfg[\"loss\"], dev, VGGPerceptual().to(dev) if need_vgg else None)": "crit = assemble.criterion(cfg[\"loss\"], vgg, render)",
+        "if cfg[\"loss\"].get(\"render\", {}).get(\"weight\", 0) > 0:": "if render_loss.applies(cfg[\"loss\"]):",
+        "crit.render = L.RenderLoss(cfg[\"loss\"][\"render\"], dev, cfg[\"data\"][\"hr_patch\"])": "render = render_loss.RenderLoss(cfg[\"loss\"][\"render\"], dev, cfg[\"data\"][\"hr_patch\"])"
+      },
+      "dropped": {}
+    },
+    "experiments/gates/gate_exp4.py:real": {
+      "into": [
+        "variants/experiments/gates/gate_exp4.py"
+      ],
+      "rewritten": {
+        "from experiments.common import matup_driver as D, paths": "from variants.experiments import matup_driver as D",
+        "from experiments.common.sr_cache import ensure_sr_renders": "from variants.experiments.common.sr_cache import ensure_sr_renders",
+        "from experiments.common.upscalers import get": "from variants.experiments.common.upscalers import get"
+      },
+      "dropped": {}
+    },
+    "experiments/gates/gate_train_smoke.py:main": {
+      "into": [
+        "variants/experiments/gates/gate_train_smoke.py"
+      ],
+      "rewritten": {
+        "p = subprocess.run([sys.executable, \"/workspace/experiments/exp2_esrgan/train.py\", \"--config\", cfg,": "p = subprocess.run([sys.executable, TRAIN, \"--config\", cfg,"
+      },
+      "dropped": {}
+    }
+  }
+}
