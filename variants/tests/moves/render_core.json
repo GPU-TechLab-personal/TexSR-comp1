@@ -11,6 +11,56 @@
       "module_allow": [
         "_COMMON"
       ]
+    },
+    {
+      "old": "scripts/deeptex/render_gate.py",
+      "new": "variants/deeptex/render_loss/gates/render_gate.py",
+      "module_allow": [
+        "HERE",
+        "EXTERNAL",
+        "DEFAULT_CFG"
+      ]
+    },
+    {
+      "old": "scripts/matup/render_parity_torch.py",
+      "new": "variants/deeptex/render_loss/gates/render_parity_torch.py",
+      "module_allow": [
+        "REPO",
+        "EXTERNAL"
+      ]
     }
-  ]
+  ],
+  "functions": {
+    "scripts/deeptex/render_calibrate.py:die": "variants/deeptex/render_loss/gates/render_calibrate.py:die",
+    "scripts/deeptex/render_calibrate.py:refuse_external": "variants/deeptex/render_loss/gates/render_calibrate.py:refuse_external",
+    "scripts/deeptex/render_calibrate.py:_clean": "variants/deeptex/render_loss/gates/render_calibrate.py:_clean",
+    "scripts/deeptex/render_calibrate.py:_finite_or_none": "variants/deeptex/render_loss/gates/render_calibrate.py:_finite_or_none",
+    "scripts/deeptex/render_calibrate.py:summary": "variants/deeptex/render_loss/gates/render_calibrate.py:summary",
+    "scripts/deeptex/render_calibrate.py:round_sig1": "variants/deeptex/render_loss/gates/render_calibrate.py:round_sig1",
+    "scripts/deeptex/render_calibrate.py:state_label": "variants/deeptex/render_loss/gates/render_calibrate.py:state_label",
+    "scripts/deeptex/render_calibrate.py:_m": "variants/deeptex/render_loss/gates/render_calibrate.py:_m",
+    "scripts/deeptex/render_calibrate.py:check_grouped_record": "variants/deeptex/render_loss/gates/render_calibrate.py:check_grouped_record",
+    "scripts/deeptex/render_calibrate.py:snapshot": "variants/deeptex/render_loss/gates/render_calibrate.py:snapshot",
+    "scripts/deeptex/render_calibrate.py:changed_fraction": "variants/deeptex/render_loss/gates/render_calibrate.py:changed_fraction"
+  },
+  "decomposed": {
+    "scripts/deeptex/render_calibrate.py:main": {
+      "into": [
+        "variants/deeptex/render_loss/gates/render_calibrate.py",
+        "variants/deeptex/render_loss/terms.py"
+      ],
+      "rewritten": {
+        "value = weights[\"w_pixel\"] * pixel_loss_fn(hr, sr)": "return weights[\"w_pixel\"] * pixel_loss_fn(hr, sr)",
+        "value = weights[\"w_feature\"] * fea_loss_fn(hr, sr)": "return weights[\"w_feature\"] * fea_loss_fn(hr, sr)",
+        "value = weights[\"w_gan\"] * gen_loss_fn(hr_output, sr_output)": "return weights[\"w_gan\"] * gen_loss_fn(hr_output, sr_output)",
+        "elif term == \"feature\":": "if term == \"feature\":",
+        "elif term == \"gan\":": "if term == \"gan\":",
+        "sr5 = sr5 - tf.stop_gradient(": "return sr5 - tf.stop_gradient(tf.reduce_mean(sr5 - hr5, axis=[2, 3], keepdims=True))",
+        "tf.reduce_mean(sr5 - hr5, axis=[2, 3], keepdims=True))": "return sr5 - tf.stop_gradient(tf.reduce_mean(sr5 - hr5, axis=[2, 3], keepdims=True))",
+        "value = render_loss.loss(sr5, pos, gt_disp, valid)": "return render_loss.loss(sr5, pos, gt_display, valid)",
+        "(\"script\", \"scripts/deeptex/render_calibrate.py\"),": "(\"script\", \"variants/deeptex/render_loss/gates/render_calibrate.py\"),"
+      },
+      "dropped": {}
+    }
+  }
 }

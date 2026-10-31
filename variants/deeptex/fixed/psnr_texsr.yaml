@@ -1,0 +1,68 @@
+# Stage 1 of 2: PSNR pre-training (generator only, pixel loss only).
+#
+# Restores the stage upstream DELETED. external/esrgan-tf2 @ 90e8eec is pinned as
+# the donor for train_psnr.py + configs/psnr.yaml precisely so this is possible
+# (docs/OPEN-ITEMS.md #6).
+#
+# WHY niter IS 40000 AND NOT THE DONOR'S 1000000
+# ----------------------------------------------
+# configs/psnr.yaml:27 in the donor says niter: 1000000. Measured against this
+# card's throughput that is 70-180 HOURS, which is not a choice anyone is going to
+# make for a comparison study. So "restore the pre-train stage" necessarily means
+# "restore a TRUNCATED pre-train stage", and lr_steps has to be scaled with it or
+# it inherits exactly the dead-schedule bug we are fixing in the GAN stage:
+#
+#   donor:  niter 1000000, lr_steps [200000, 400000, 600000, 800000]   (1/5 spacing)
+#   here:   niter   40000, lr_steps [  8000,  16000,  24000,  32000]   (same shape)
+#
+# This is a deviation from the published recipe and has to be stated as one. It is
+# NOT the same class of thing as upstream's never-firing schedule: that one is a
+# config defect nobody chose, this is a budget decision made on the record.
+
+# general setting
+batch_size: 16          # donor's PSNR batch; G only, so no D/VGG activations to hold
+input_size: 32
+gt_size: 128
+ch_size: 3
+scale: 4
+sub_name: 'psnr_texsr'
+
+# No pre-train for the pre-train stage. Trainer treats null as "from scratch".
+pretrain_dir: null
+
+# Absolute, and OUTSIDE the submodule. Upstream's './checkpoints/' + sub_name is
+# relative to CWD and would land inside external/DeepTextures, making
+# `git submodule status` report dirty and breaking the "is this still upstream?"
+# check docs/RUNBOOK.md 4 depends on.
+checkpoint_root: '/workspace/runs/deeptex/checkpoints'
+log_root: '/workspace/runs/deeptex/logs'
+
+# generator setting
+network_G:
+    nf: 64
+    nb: 23
+
+# dataset setting
+train_dataset:
+    path: '/workspace/runs/deeptex/datasets/textures_db/textures_db_lrx4.tfrecord'
+    using_bin: True
+    using_flip: True
+    using_rot: True
+val_dataset:
+    hr_dir: '/workspace/runs/deeptex/datasets/textures_db/HR_val'
+    lr_dir: '/workspace/runs/deeptex/datasets/textures_db/LRx4_val'
+
+# training setting
+niter: 40000
+
+lr_G: !!float 2e-4      # donor psnr.yaml:28
+lr_steps: [8000, 16000, 24000, 32000]
+lr_rate: 0.5
+
+adam_beta1_G: 0.9
+adam_beta2_G: 0.99
+
+w_pixel: 1.0            # donor psnr.yaml:36 - pixel loss is the whole objective here
+pixel_criterion: l1
+
+save_steps: 5000

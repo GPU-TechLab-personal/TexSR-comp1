@@ -1,0 +1,145 @@
+--- a/external/DeepTextures/train_esrgan.py
++++ b/variants/deeptex/paper_loop/loop.py
+@@ -10,4 +10,5 @@
+ from modules.utils import (load_yaml, load_dataset, ProgressBar,
+                            set_memory_growth)
++from variants.deeptex.paper_loop.hooks import Hooks  # hooks: every default is the line it replaced
+ 
+ 
+@@ -16,5 +17,6 @@
+ 
+ 
+-def main(_):
++def main(_, hooks=None):
++    hooks = hooks or Hooks()
+     # init
+     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+@@ -22,18 +24,17 @@
+ 
+     logger = tf.get_logger()
+-    logger.disabled = True
+-    logger.setLevel(logging.FATAL)
+-    set_memory_growth()
++    hooks.on_start(logger)
+ 
+-    cfg = load_yaml(FLAGS.cfg_path)
++    cfg = hooks.load_cfg(FLAGS.cfg_path)
++    hooks.pre_build(cfg)
+ 
+     # define network
+     generator = RRDB_Model(cfg['input_size'], cfg['ch_size'], cfg['network_G'])
+-    generator.summary(line_length=80)
++    hooks.summary(generator)
+     discriminator = DiscriminatorVGG128(cfg['gt_size'], cfg['ch_size'])
+-    discriminator.summary(line_length=80)
++    hooks.summary(discriminator)
+ 
+     # load dataset
+-    train_dataset = load_dataset(cfg, 'train_dataset', shuffle=False)
++    train_dataset = hooks.build_dataset(cfg)
+ 
+     # define optimizer
+@@ -50,9 +51,8 @@
+     pixel_loss_fn = PixelLoss(criterion=cfg['pixel_criterion'])
+     fea_loss_fn = ContentLoss(criterion=cfg['feature_criterion'])
+-    gen_loss_fn = GeneratorLoss(gan_type=cfg['gan_type'])
+-    dis_loss_fn = DiscriminatorLoss(gan_type=cfg['gan_type'])
++    gen_loss_fn, dis_loss_fn = hooks.build_losses(cfg)
+ 
+     # load checkpoint
+-    checkpoint_dir = './checkpoints/' + cfg['sub_name']
++    checkpoint_dir = hooks.checkpoint_dir(cfg)
+     checkpoint = tf.train.Checkpoint(step=tf.Variable(0, name='step'),
+                                      optimizer_G=optimizer_G,
+@@ -62,26 +62,11 @@
+     manager = tf.train.CheckpointManager(checkpoint=checkpoint,
+                                          directory=checkpoint_dir,
+-                                         max_to_keep=3)
+-    if manager.latest_checkpoint:
+-        checkpoint.restore(manager.latest_checkpoint)
+-        print('[*] load ckpt from {} at step {}.'.format(
+-            manager.latest_checkpoint, checkpoint.step.numpy()))
+-    else:
+-        if cfg['pretrain_name'] is not None:
+-            pretrain_dir = cfg['pretrain_name']
+-            if tf.train.latest_checkpoint(pretrain_dir):
+-                checkpoint.restore(tf.train.latest_checkpoint(pretrain_dir))
+-                checkpoint.step.assign(0)
+-                print("[*] training from pretrain model {}.".format(
+-                    pretrain_dir))
+-            else:
+-                print("[*] cannot find pretrain model {}.".format(
+-                    pretrain_dir))
+-        else:
+-            print("[*] training from scratch.")
++                                         max_to_keep=hooks.max_to_keep)
++    hooks.restore(checkpoint, manager, generator, cfg)
+ 
+     # define training step function
+-    @tf.function
+-    def train_step(lr, hr):
++    @hooks.step_function
++    def train_step(lr, hr, *extras):  # hooks: extras = what hooks.batches yields beyond (lr, hr)
++        lr, hr, extras = hooks.pre_tape(lr, hr, extras)
+         with tf.GradientTape(persistent=True) as tape:
+             sr = generator(lr, training=True)
+@@ -97,4 +82,5 @@
+             losses_G['gan'] = cfg['w_gan'] * gen_loss_fn(hr_output, sr_output)
+             losses_D['gan'] = dis_loss_fn(hr_output, sr_output)
++            losses_G.update(hooks.extra_loss(sr, hr, extras))
+             total_loss_G = tf.add_n([l for l in losses_G.values()])
+             total_loss_D = tf.add_n([l for l in losses_D.values()])
+@@ -104,27 +90,26 @@
+         grads_D = tape.gradient(
+             total_loss_D, discriminator.trainable_variables)
+-        optimizer_G.apply_gradients(
+-            zip(grads_G, generator.trainable_variables))
+-        optimizer_D.apply_gradients(
+-            zip(grads_D, discriminator.trainable_variables))
++        with tf.control_dependencies(hooks.pre_apply(grads_G, grads_D)):
++            optimizer_G.apply_gradients(
++                zip(grads_G, generator.trainable_variables))
++            optimizer_D.apply_gradients(
++                zip(grads_D, discriminator.trainable_variables))
+ 
+-        return total_loss_G, total_loss_D, losses_G, losses_D
++        return (total_loss_G, total_loss_D, losses_G, losses_D) + hooks.step_outputs(sr, hr, extras)
+ 
+     # training loop
+     summary_writer = tf.summary.create_file_writer(
+-        './logs/' + cfg['sub_name'])
++        hooks.log_dir(cfg))
+     prog_bar = ProgressBar(cfg['niter'], checkpoint.step.numpy())
+     remain_steps = max(cfg['niter'] - checkpoint.step.numpy(), 0)
++    train_dataset = hooks.before_loop(train_dataset, checkpoint, cfg)
+ 
+-    for lr, hr in train_dataset.take(remain_steps):
++    for lr, hr, *extras in hooks.batches(train_dataset, remain_steps):
+         checkpoint.step.assign_add(1)
+         steps = checkpoint.step.numpy()
+ 
+-        total_loss_G, total_loss_D, losses_G, losses_D = train_step(lr, hr)
++        total_loss_G, total_loss_D, losses_G, losses_D, *outs = hooks.call_step(train_step, steps, lr, hr, *extras)
+ 
+-        prog_bar.update(
+-            "loss_G={:.4f}, loss_D={:.4f}, lr_G={:.1e}, lr_D={:.1e}".format(
+-                total_loss_G.numpy(), total_loss_D.numpy(),
+-                optimizer_G.lr(steps).numpy(), optimizer_D.lr(steps).numpy()))
++        hooks.after_step(prog_bar, steps, total_loss_G, total_loss_D, losses_G, losses_D, outs, optimizer_G, optimizer_D)
+ 
+         if steps % 10 == 0:
+@@ -143,11 +128,11 @@
+                 tf.summary.scalar(
+                     'learning_rate_D', optimizer_D.lr(steps), step=steps)
++                hooks.write_summaries(steps, outs)
+ 
+         if steps % cfg['save_steps'] == 0:
+             manager.save()
+-            print("\n[*] save ckpt file at {}".format(
+-                manager.latest_checkpoint))
++            hooks.saved(manager)
+ 
+-    print("\n [*] training done!")
++    hooks.on_end(checkpoint, manager, remain_steps)
+ 
+ 

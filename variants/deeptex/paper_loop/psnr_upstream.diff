@@ -1,0 +1,112 @@
+--- a/external/esrgan-tf2/train_psnr.py
++++ b/variants/deeptex/paper_loop/psnr_loop.py
+@@ -9,4 +9,5 @@
+ from modules.utils import (load_yaml, load_dataset, ProgressBar,
+                            set_memory_growth)
++from variants.deeptex.paper_loop.hooks import PsnrHooks  # hooks: every default is the line it replaced
+ 
+ 
+@@ -15,5 +16,6 @@
+ 
+ 
+-def main(_):
++def main(_, hooks=None):
++    hooks = hooks or PsnrHooks()
+     # init
+     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+@@ -21,19 +23,18 @@
+ 
+     logger = tf.get_logger()
+-    logger.disabled = True
+-    logger.setLevel(logging.FATAL)
+-    set_memory_growth()
++    hooks.on_start(logger)
+ 
+-    cfg = load_yaml(FLAGS.cfg_path)
++    cfg = hooks.load_cfg(FLAGS.cfg_path)
++    hooks.pre_build(cfg)
+ 
+     # define network
+     model = RRDB_Model(cfg['input_size'], cfg['ch_size'], cfg['network_G'])
+-    model.summary(line_length=80)
++    hooks.summary(model)
+ 
+     # load dataset
+-    train_dataset = load_dataset(cfg, 'train_dataset', shuffle=True)
++    train_dataset = hooks.build_dataset(cfg)
+ 
+     # define optimizer
+-    learning_rate = MultiStepLR(cfg['lr'], cfg['lr_steps'], cfg['lr_rate'])
++    learning_rate = MultiStepLR(cfg[hooks.lr_key], cfg['lr_steps'], cfg['lr_rate'])
+     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate,
+                                          beta_1=cfg['adam_beta1_G'],
+@@ -44,5 +45,5 @@
+ 
+     # load checkpoint
+-    checkpoint_dir = './checkpoints/' + cfg['sub_name']
++    checkpoint_dir = hooks.checkpoint_dir(cfg)
+     checkpoint = tf.train.Checkpoint(step=tf.Variable(0, name='step'),
+                                      optimizer=optimizer,
+@@ -50,15 +51,11 @@
+     manager = tf.train.CheckpointManager(checkpoint=checkpoint,
+                                          directory=checkpoint_dir,
+-                                         max_to_keep=3)
+-    if manager.latest_checkpoint:
+-        checkpoint.restore(manager.latest_checkpoint)
+-        print('[*] load ckpt from {} at step {}.'.format(
+-            manager.latest_checkpoint, checkpoint.step.numpy()))
+-    else:
+-        print("[*] training from scratch.")
++                                         max_to_keep=hooks.max_to_keep)
++    hooks.restore(checkpoint, manager, model, cfg)
+ 
+     # define training step function
+-    @tf.function
+-    def train_step(lr, hr):
++    @hooks.step_function
++    def train_step(lr, hr, *extras):  # hooks: extras = what hooks.batches yields beyond (lr, hr)
++        lr, hr, extras = hooks.pre_tape(lr, hr, extras)
+         with tf.GradientTape() as tape:
+             sr = model(lr, training=True)
+@@ -72,20 +69,20 @@
+         optimizer.apply_gradients(zip(grads, model.trainable_variables))
+ 
+-        return total_loss, losses
++        return (total_loss, losses) + hooks.step_outputs(sr, hr, extras)
+ 
+     # training loop
+     summary_writer = tf.summary.create_file_writer(
+-        './logs/' + cfg['sub_name'])
++        hooks.log_dir(cfg))
+     prog_bar = ProgressBar(cfg['niter'], checkpoint.step.numpy())
+     remain_steps = max(cfg['niter'] - checkpoint.step.numpy(), 0)
++    train_dataset = hooks.before_loop(train_dataset, checkpoint, cfg)
+ 
+-    for lr, hr in train_dataset.take(remain_steps):
++    for lr, hr, *extras in hooks.batches(train_dataset, remain_steps):
+         checkpoint.step.assign_add(1)
+         steps = checkpoint.step.numpy()
+ 
+-        total_loss, losses = train_step(lr, hr)
++        total_loss, losses, *outs = hooks.call_step(train_step, steps, lr, hr, *extras)
+ 
+-        prog_bar.update("loss={:.4f}, lr={:.1e}".format(
+-            total_loss.numpy(), optimizer.lr(steps).numpy()))
++        hooks.after_step(prog_bar, steps, total_loss, losses, outs, optimizer)
+ 
+         if steps % 10 == 0:
+@@ -97,11 +94,11 @@
+                 tf.summary.scalar(
+                     'learning_rate', optimizer.lr(steps), step=steps)
++                hooks.write_summaries(steps, outs)
+ 
+         if steps % cfg['save_steps'] == 0:
+             manager.save()
+-            print("\n[*] save ckpt file at {}".format(
+-                manager.latest_checkpoint))
++            hooks.saved(manager)
+ 
+-    print("\n[*] training done!")
++    hooks.on_end(checkpoint, manager, remain_steps)
+ 
+ 

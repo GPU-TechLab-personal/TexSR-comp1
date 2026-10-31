@@ -32,6 +32,7 @@ import glob
 import io
 import json
 import os
+import re
 import sys
 import tokenize
 
@@ -88,6 +89,10 @@ def is_import_or_path(stmt):
         return True
     # sys.path.insert(...) / sys.path.append(...), bare or under an `if`.
     src = dump(stmt)
+    # paths.use_deeptex() / use_matup() / use_swinir(): the new tree's sys.path edit.
+    if (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
+            and "id='paths'" in src and "attr='use_" in src):
+        return True
     return "attr='path'" in src and "id='sys'" in src and (
         "attr='insert'" in src or "attr='append'" in src)
 
@@ -232,13 +237,22 @@ def check_decomposed(old_ref, spec):
     for rel in spec["into"]:
         pool.update(code_lines(read(rel)))
     rewritten = {norm(k): norm(v) for k, v in spec.get("rewritten", {}).items()}
+    subs = [(re.compile(p), r) for p, r in spec.get("subs", [])]
+
+    def by_rule(ln):
+        cands = {ln}
+        for rx, rep in subs:                  # cumulative: every prefix of the rule list
+            cands |= {rx.sub(rep, c) for c in cands}
+        return any(c in pool for c in cands)
     dropped = {norm(k): why for k, why in spec.get("dropped", {}).items()}
     problems = []
-    n_verbatim = n_rew = n_drop = 0
+    n_verbatim = n_rew = n_drop = n_rule = 0
     lines = code_lines(src)
     for ln in lines[1:]:                       # [0] is the def line itself
         if ln in pool:
             n_verbatim += 1
+        elif subs and by_rule(ln):
+            n_rule += 1
         elif ln in rewritten:
             if rewritten[ln] not in pool:
                 problems.append("rewritten target not found: %r -> %r" % (ln, rewritten[ln]))
@@ -250,8 +264,8 @@ def check_decomposed(old_ref, spec):
     unused = [k for k in list(rewritten) + list(dropped) if k not in lines]
     if unused:
         problems += ["stale table entry (not in the old function): %r" % k for k in unused]
-    return problems, "%d lines: %d verbatim, %d rewritten, %d dropped" % (
-        len(lines) - 1, n_verbatim, n_rew, n_drop)
+    return problems, "%d lines: %d verbatim, %d by rename rule, %d rewritten, %d dropped" % (
+        len(lines) - 1, n_verbatim, n_rule, n_rew, n_drop)
 
 
 def main():
