@@ -46,12 +46,14 @@ $py = (Get-Command python -ErrorAction SilentlyContinue).Source
 if (-not $py) { throw "host python not found (L0, L1, L4 drivers run on the host)" }
 $gitBash = "C:\Program Files\Git\bin\bash.exe"   # not WSL's bash.exe: L6 needs Git Bash paths
 $ps = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File")
+# Piped Python buffers its stdout until a step ends; unbuffered, each line shows as it is printed.
+$env:PYTHONUNBUFFERED = "1"
 
 # Each block runs its commands and leaves the worst exit code in $script:rc.
 $layers = [ordered]@{
     "L0"    = { & $py (Join-Path $here "l0_static.py"); $script:rc = $LASTEXITCODE
                 & $py (Join-Path $here "l0_skeleton.py"); $script:rc = [math]::Max($script:rc, $LASTEXITCODE) }
-    "L1"    = { & docker run --rm -v "${repo}:/workspace" -w /workspace -e TF_CPP_MIN_LOG_LEVEL=2 `
+    "L1"    = { & docker run --rm -v "${repo}:/workspace" -w /workspace -e TF_CPP_MIN_LOG_LEVEL=2 -e PYTHONUNBUFFERED=1 `
                     texsr/deeptex:tf2.10.1 python variants/tests/l1_fixtures.py; $script:rc = $LASTEXITCODE
                 if ($script:rc -eq 0) { & $py (Join-Path $here "l1_trainer.py"); $script:rc = $LASTEXITCODE } }
     "L1gpu" = { & $py (Join-Path $here "l1_trainer.py") --gpu; $script:rc = $LASTEXITCODE }
@@ -71,13 +73,16 @@ foreach ($name in $layers.Keys) {
     $t0 = Get-Date
     $script:rc = -1
     # Native stderr (TF, docker) arrives as ErrorRecords in PowerShell 5.1.
+    # Tee-Object would write UTF-16 there; the log is UTF-8 and flushed line by line.
     $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
+    $w = New-Object System.IO.StreamWriter($log, $false, (New-Object System.Text.UTF8Encoding $false))
+    $w.AutoFlush = $true
     try {
-        & $layers[$name] 2>&1 | ForEach-Object { "$_" } | Tee-Object -FilePath $log | Out-Host
+        & $layers[$name] 2>&1 | ForEach-Object { $line = "$_"; $w.WriteLine($line); $line } | Out-Host
     } catch {
-        "run_all: $name threw: $($_.Exception.Message)" | Tee-Object -FilePath $log -Append | Out-Host
+        $line = "run_all: $name threw: $($_.Exception.Message)"; $w.WriteLine($line); $line | Out-Host
         $script:rc = 1
-    } finally { $ErrorActionPreference = $prev }
+    } finally { $w.Close(); $ErrorActionPreference = $prev }
     $mins = [math]::Round(((Get-Date) - $t0).TotalMinutes, 1)
     $rows += [pscustomobject]@{ Layer = $name; Verdict = $(if ($script:rc -eq 0) { "PASS" } else { "FAIL (exit $script:rc)" })
                                 Minutes = $mins; Log = $log }
@@ -89,7 +94,7 @@ $md = @("# variants equivalence - $stamp", "", "repo ``$repo`` at ``$head``", ""
 foreach ($r in $rows) { $md += "| $($r.Layer) | $($r.Verdict) | $($r.Minutes) | ``$($r.Log)`` |" }
 foreach ($r in @($rows | Where-Object { $_.Verdict -ne "PASS" })) {
     $md += @("", "## $($r.Layer) - last 40 lines", "", '```')
-    $md += @(Get-Content $r.Log -Tail 40)
+    $md += @(Get-Content $r.Log -Tail 40 -Encoding UTF8)
     $md += '```'
 }
 [System.IO.File]::WriteAllText((Join-Path $out "report.md"), ($md -join "`n") + "`n",
