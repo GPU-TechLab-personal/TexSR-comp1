@@ -212,9 +212,17 @@ def compare(name, old, new, expect, ckpt, base):
         o2c, o2t = old(o2_root, host(o2_root))
         a2 = normalise(o2t, o2_root)
         na, nb, na2 = numbers(a), numbers(b), numbers(a2)
-        if [x for x, _ in na] != [x for x, _ in nb] or [x for x, _ in na] != [x for x, _ in na2]:
-            d = first_diff([x for x, _ in na], [x for x, _ in nb])
-            problems.append("non-numeric stdout differs: %s" % (d,))
+        # A non-numeric line may differ new-vs-old only where it also differs
+        # old-vs-old: the resumed run's [init] hashes the (non-reproducible)
+        # step-3 weights, so it is itself run-dependent.
+        ta, tb, ta2 = [x for x, _ in na], [x for x, _ in nb], [x for x, _ in na2]
+        if len(ta) != len(tb) or len(ta) != len(ta2):
+            problems.append("stdout line counts differ: old %d, new %d, old2 %d"
+                            % (len(ta), len(tb), len(ta2)))
+        for i, (x, y, z) in enumerate(zip(ta, tb, ta2)):
+            if x != y and x == z:
+                problems.append("stdout line %d differs new-vs-old but not old-vs-old:"
+                                "<br>old `%s`<br>new `%s`" % (i, x, y))
         spread_oo = spread_no = 0.0
         for (_, u), (_, v), (_, w) in zip(na, nb, na2):
             for x, y, z in zip(u, v, w):
