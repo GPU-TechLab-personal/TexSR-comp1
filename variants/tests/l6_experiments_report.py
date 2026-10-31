@@ -71,6 +71,8 @@ def main():
         res = d["results"]
         head = ", ".join("%s %s" % (k, d[k]) for k in ("torch", "gpu", "threads") if k in d)
         md += ["## %s" % title, "", head + ("; %.0f s" % d["seconds"] if "seconds" in d else ""), ""]
+        if d.get("note"):
+            md += ["> " + d["note"], ""]
         if "old_model_block_lines" in d:
             md += ["Old trainer side of the arm checks = `%s`, exec'd from the old source." % d["old_model_block_lines"], ""]
         for layer in dict.fromkeys(r["layer"] for r in res):
