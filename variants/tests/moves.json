@@ -1,0 +1,37 @@
+{
+  "_doc": "Old file/function -> new file/function. Checked by l0_static.py; see its docstring for the three kinds.",
+  "moves": [
+    {
+      "old": "scripts/common/map_encode.py",
+      "new": "variants/common/map_encode.py"
+    },
+    {
+      "old": "scripts/common/matsynth_extract.py",
+      "new": "variants/common/matsynth_extract.py"
+    },
+    {
+      "old": "scripts/common/matup_lights.py",
+      "new": "variants/common/matup_lights.py"
+    },
+    {
+      "old": "scripts/common/texsr_metrics.py",
+      "new": "variants/common/texsr_metrics.py"
+    }
+  ],
+  "functions": {},
+  "decomposed": {
+    "scripts/deeptex/deeptex_train.py:check_submodule_pin": {
+      "into": [
+        "variants/common/paths.py"
+      ],
+      "rewritten": {
+        "head = subprocess.check_output(": "return subprocess.check_output([\"git\", \"-C\", root, \"rev-parse\", \"HEAD\"],",
+        "[\"git\", \"-C\", SUBMODULE, \"rev-parse\", \"HEAD\"],": "return subprocess.check_output([\"git\", \"-C\", root, \"rev-parse\", \"HEAD\"],",
+        "stderr=subprocess.DEVNULL).decode().strip()": "stderr=subprocess.DEVNULL).decode().strip()",
+        "return": "return None",
+        "if not head.startswith(PINNED_COMMIT):": "if not head.startswith(pinned):",
+        "print(\"! external/DeepTextures is at %s, not the pinned %s.\" % (head[:12], PINNED_COMMIT))": "print(\"! external/%s is at %s, not the pinned %s.\" % (name, head[:12], pinned))"
+      }
+    }
+  }
+}
