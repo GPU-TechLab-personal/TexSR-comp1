@@ -118,7 +118,7 @@ MSYS_NO_PATHCONV=1 docker run --rm --gpus all --shm-size 8g \
 ## 6. 테스트
 
 ```bash
-variants/tests/l6_experiments_all.sh        # L0 + L6 전부, 리포트까지   ~15분 (GPU 포함)
+variants/tests/l6_experiments_all.sh        # L0 + L6 전부, 리포트까지   ~21분 (GPU ~17분 포함)
 variants/tests/l6_experiments_all.sh cpu    # GPU 층 제외                ~4분
 ```
 
@@ -131,8 +131,8 @@ GPU 학습 출력은 `D:/experimentdata/texsr_exp/variants_verify/expdata/`(컨�
 | L0 | `l0_static.py` + `moves/experiments.json` | moves AST 동일, functions AST 동일, decomposed 줄 커버리지 | 정확히 | <5 s (호스트) |
 | L6 imports | `l6_experiments_imports.py` | 모든 모듈이 새 인터프리터에서 import되고, `experiments.*`, `scripts.*`, `texsr_metrics`를 끌어오지 않는다 | 정확히 | ~1분 |
 | L6 cpu | `l6_experiments_cpu.py` | 상수, 해석된 config(dict와 config.yaml 덤프), arm마다 build(seed 0 state_dict), 키 집합, 옛 ckpt strict 로드, forward, `Criterion.generator`(PSNR/GAN; total, 로그 순서, dG, D BN 상태), `Discriminators.loss`(dD), 이상 동작 단언, matup_driver CPU 경로(init_maps, to_canonical, per_light_residuals, metrics.evaluate), gate_configs·gate_protocol(옛것과 stdout 동일)·gate_exp4 합성(seed 0) | 정확히 (`torch.equal`/`==`) | ~3분 |
-| L6 gpu matup | `l6_experiments_gpu.py` | `optimise` 옛/새, eval12 `acg_wood_floor_060`, seed 1996, 1 epoch(1922 step), 원본 루프와 exp4 훅(B, λ 0.003) | `allclose(rtol=0, atol=1e-3)`, 실측 차이와 old-vs-old 바닥값을 함께 보고 | ~4분 |
-| L6 gpu smoke | 〃 | 새 경로의 `gate_train_smoke.py`(8팔, 20 it 후 30까지 재개) | 정확히 (exit 0, ALL PASS) | ~6분 |
-| L6 gpu compat | 〃 | 옛 트레이너 ckpt(2-0, 2-2, 3-2)를 새 트레이너가 재개하고, 옛·새 `evaluate.py` 결과를 비교 | 정확히 | ~6분 |
+| L6 gpu matup | `l6_experiments_gpu.py` | `optimise` 옛/새, eval12 `acg_wood_floor_060`, seed 1996, 1 epoch(1922 step), 원본 루프와 exp4 훅(B, λ 0.003) | `allclose(rtol=0, atol=1e-3)`, 실측 차이와 old-vs-old 바닥값을 함께 보고 | ~3분 |
+| L6 gpu smoke | 〃 | 새 경로의 `gate_train_smoke.py`(8팔, 20 it 후 30까지 재개) | 정확히 (exit 0, ALL PASS) | ~7.5분 |
+| L6 gpu compat | 〃 | 옛 트레이너 ckpt(2-0, 2-2, 3-2)를 새 트레이너가 재개하고, 옛·새 `evaluate.py` 결과를 비교 | 정확히 (실측 max|d| 0) | ~6.5분 |
 
 DataLoader 워커와 CUDA atomic 때문에 matup_driver만은 옛 코드끼리 두 번 돌려도 결과가 정확히 같지 않을 수 있다. 그래서 이 항목만 allclose로 판정한다.

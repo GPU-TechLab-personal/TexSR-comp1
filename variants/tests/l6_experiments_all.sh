@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The whole experiments verification, L0 + L6, into one report.
 #
-#   variants/tests/l6_experiments_all.sh          # L0 + imports + CPU + GPU   (~15 min)
+#   variants/tests/l6_experiments_all.sh          # L0 + imports + CPU + GPU   (~21 min, GPU ~17)
 #   variants/tests/l6_experiments_all.sh cpu      # without the GPU layers     (~4 min)
 #
 # From Git Bash on the Windows host. Writes
