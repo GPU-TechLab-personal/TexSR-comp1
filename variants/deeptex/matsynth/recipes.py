@@ -16,7 +16,7 @@ A recipe is how many times each map's pair folder (matsynth_make_pairs.py --out
              the channel count, 3:3:1:1:1       count
   basecolor  baseColor only                     (matsynth_basecolor)
 
-The table is the old run_deeptex.ps1:535-542 `$script:MatsynthRecipes`, the
+The table is the old run_deeptex.ps1:539-543 `$script:MatsynthRecipes`, the
 mechanism the old texsr_build_tfrecord.py `--repeat` (:37-43, :86-88, :102-105,
 :116, :133-135): copies after the first get "~r2".."~rk" appended to img_name,
 because texsr_verify_tfrecord.py fails on a duplicate name, and every copy goes
