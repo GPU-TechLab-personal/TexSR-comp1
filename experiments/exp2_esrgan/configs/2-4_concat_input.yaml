@@ -1,0 +1,6 @@
+# 2-4: all maps concatenated as one 15-channel input/output (15->64) instead of
+# independent 3-channel passes (inter-map information).
+base: 2-0_base_scratch.yaml
+name: 2-4_concat_input
+model:
+  input: concat

@@ -1,0 +1,6 @@
+# 2-1: the baseline, initialised from a natural-image RRDBNet.
+# If only this arm loses on the non-basecolor maps, the domain-prior hypothesis holds.
+base: 2-0_base_scratch.yaml
+name: 2-1_base_pretrained
+init:
+  mode: pretrained

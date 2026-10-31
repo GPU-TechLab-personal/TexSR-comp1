@@ -1,0 +1,46 @@
+# 실험 2 baseline: Alonso & Patow-style multi-map ESRGAN.
+# One RRDBNet shared by all five maps, each map fed separately as a 3-channel
+# image (3->64), ESRGAN losses on every map, from scratch.
+# Every other arm in this folder inherits this file (`base:`) and changes ONE factor.
+name: 2-0_base_scratch
+experiment: exp2
+data:
+  hr_patch: 128            # HR patch; LR 32 by the unified protocol
+  scale: 4
+  roughness_mode: lean
+  workers: 6
+model:
+  arch: shared             # shared | separate          (2-2)
+  input: independent       # independent | concat       (2-4)
+  num_block: 23
+  num_feat: 64
+  num_grow_ch: 32
+init:
+  mode: scratch            # scratch | pretrained       (2-1)
+  weights: RealESRGAN_x4plus   # or a path; the official ESRGAN .pth (Google Drive) also loads
+loss:
+  per_map:                 # ESRGAN defaults on every map  (2-3 replaces these)
+    basecolor: {l1: 0.01, vgg: 1.0, gan: 0.005}
+    normal:    {l1: 0.01, vgg: 1.0, gan: 0.005}
+    roughness: {l1: 0.01, vgg: 1.0, gan: 0.005}
+    metallic:  {l1: 0.01, vgg: 1.0, gan: 0.005}
+    height:    {l1: 0.01, vgg: 1.0, gan: 0.005}
+  extra_l1: {}
+  joint_gan: 0.0
+  render: {weight: 0}
+disc:
+  mode: per_map            # none | per_map | joint
+  num_feat: 64
+train:
+  batch: 4                 # material patches per iteration - identical across arms
+  niter: 100000
+  psnr_iters: 20000        # ESRGAN's PSNR-oriented warm-up (pixel terms only)
+  lr_g: 1.0e-4
+  lr_d: 1.0e-4
+  milestones: [50000, 75000]
+  gamma: 0.5
+  amp: bf16
+  seed: 0
+log: {every: 100}
+eval: {every: 2500}
+save: {every: 5000, keep: 3}

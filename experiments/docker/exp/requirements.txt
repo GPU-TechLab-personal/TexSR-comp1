@@ -1,0 +1,24 @@
+# Added on top of texsr/matup (torch 2.0.0, numpy 1.26.4, opencv 4.11,
+# scikit-image 0.25.2, lpips 0.1.4, timm 0.6.13 are inherited, not listed).
+#
+# Every pin is here for a reason; do not unpin to "latest":
+
+# MatSynth parquet shards. Same version the dataprep image measures.
+pyarrow==17.0.0
+
+# NVIDIA's reference FLIP (common protocol: render-space FLIP).
+flip-evaluator==1.6.0.1
+
+# Diffusion upscaler S for experiment 1/4 (stable-diffusion-x4-upscaler) and
+# the DiT timing model for experiment 5. diffusers 0.30 still supports
+# torch 2.0; later lines start assuming torch>=2.1 APIs.
+diffusers==0.30.3
+transformers==4.44.2
+accelerate==0.34.2
+# The matup image resolves huggingface_hub to 1.x, whose API diffusers 0.30 /
+# transformers 4.44 predate. Pinned back into the range they were released with.
+huggingface_hub==0.25.2
+safetensors==0.4.5
+
+# numpy must stay 1.x (torch 2.0.0 ABI). Re-stated so no package above drags 2.x in.
+numpy<2

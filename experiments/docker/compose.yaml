@@ -1,0 +1,36 @@
+# Experiments 1-5 (experiments/README.md). Separate from docker/compose.yaml so
+# the method stacks there stay untouched.
+#
+#   cd experiments/docker
+#   docker compose build            # needs texsr/matup built first
+#   docker compose run --rm exp python experiments/...
+#
+# Mounts:
+#   /workspace  the repo
+#   /data       read-only MatSynth clone; must contain MatSynth/data/*.parquet
+#   /expdata    everything the experiments write: extracted materials, SR
+#               caches, checkpoints, results, model-weight caches. Hundreds of
+#               GB at full scale, so it lives on D:, not in the repo.
+name: texsr-exp
+
+services:
+  exp:
+    build: ./exp
+    image: texsr/exp:torch2.0.0-cu117
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace
+      - ${MATSYNTH_ROOT:-D:/experimentdata}:/data:ro
+      - ${EXP_DATA:-D:/experimentdata/texsr_exp}:/expdata
+    # MatUp's DataLoader(num_workers=8, pin_memory=True) - same reason as the
+    # matup service: the default 64 MB /dev/shm kills the workers.
+    shm_size: "8gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
