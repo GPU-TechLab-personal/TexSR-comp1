@@ -1,0 +1,325 @@
+{
+  "_doc": "DeepTextures data prep / inference / evaluation / reports, and the compare/ and matup/baseline modules they import. 'functions' lists every unchanged def of a file that also has a decomposed def (newest_run merged into variants/compare/matup_runs.py, or an arm branch split out). Generated, then checked by l0_static.py.",
+  "moves": [
+    {
+      "old": "scripts/deeptex/run_upstream_train.py",
+      "new": "variants/deeptex/upstream_runner/run_upstream_train.py",
+      "module_allow": [
+        "SUBMODULE"
+      ]
+    },
+    {
+      "old": "scripts/deeptex/deeptex_sr.py",
+      "new": "variants/deeptex/infer/deeptex_sr.py",
+      "module_allow": [
+        "SUBMODULE"
+      ]
+    },
+    {
+      "old": "scripts/deeptex/texsr_normalize.py",
+      "new": "variants/deeptex/paper/texsr_normalize.py"
+    },
+    {
+      "old": "scripts/deeptex/texsr_make_pairs.py",
+      "new": "variants/deeptex/paper/texsr_make_pairs.py",
+      "module_allow": [
+        "SUBMODULE"
+      ]
+    },
+    {
+      "old": "scripts/deeptex/matsynth_make_pairs.py",
+      "new": "variants/deeptex/matsynth/matsynth_make_pairs.py"
+    },
+    {
+      "old": "scripts/deeptex/deeptex_drift.py",
+      "new": "variants/deeptex/matsynth/deeptex_drift.py",
+      "module_allow": [
+        "SUBMODULE"
+      ]
+    },
+    {
+      "old": "scripts/deeptex/deeptex_tiling_report.py",
+      "new": "variants/deeptex/tiling/deeptex_tiling_report.py"
+    },
+    {
+      "old": "scripts/deeptex/texsr_build_grouped_tfrecord.py",
+      "new": "variants/deeptex/render_loss/build/texsr_build_grouped_tfrecord.py",
+      "module_allow": [
+        "REPO"
+      ]
+    },
+    {
+      "old": "scripts/deeptex/texsr_verify_grouped.py",
+      "new": "variants/deeptex/render_loss/build/texsr_verify_grouped.py"
+    },
+    {
+      "old": "scripts/compare/svbrdf_perceptual_eval.py",
+      "new": "variants/deeptex/render_loss/eval/svbrdf_perceptual_eval.py"
+    },
+    {
+      "old": "scripts/compare/deeptex_dt_montage.py",
+      "new": "variants/deeptex/render_loss/eval/deeptex_dt_montage.py",
+      "module_allow": [
+        "MATUP_ROOT",
+        "SCRIPT"
+      ]
+    },
+    {
+      "old": "scripts/compare/matup_overview.py",
+      "new": "variants/compare/matup_overview.py"
+    },
+    {
+      "old": "scripts/matup/matup_render.py",
+      "new": "variants/matup/baseline/matup_render.py",
+      "module_allow": [
+        "MATUP_ROOT"
+      ]
+    },
+    {
+      "old": "scripts/matup/matup_height.py",
+      "new": "variants/matup/baseline/matup_height.py"
+    }
+  ],
+  "functions": {
+    "scripts/deeptex/texsr_verify_tfrecord.py:sha256": "variants/deeptex/upstream_runner/texsr_verify_tfrecord.py:sha256",
+    "scripts/deeptex/texsr_build_tfrecord.py:_bytes_feature": "variants/deeptex/upstream_runner/texsr_build_tfrecord.py:_bytes_feature",
+    "scripts/deeptex/texsr_build_tfrecord.py:make_example": "variants/deeptex/upstream_runner/texsr_build_tfrecord.py:make_example",
+    "scripts/deeptex/texsr_build_tfrecord.py:sha256": "variants/deeptex/upstream_runner/texsr_build_tfrecord.py:sha256",
+    "scripts/deeptex/deeptex_compare.py:load_as_rgb01": "variants/deeptex/infer/deeptex_compare.py:load_as_rgb01",
+    "scripts/compare/svbrdf_render_eval.py:die": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:die",
+    "scripts/compare/svbrdf_render_eval.py:split_tag": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:split_tag",
+    "scripts/compare/svbrdf_render_eval.py:display_name": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:display_name",
+    "scripts/compare/svbrdf_render_eval.py:label_lines": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:label_lines",
+    "scripts/compare/svbrdf_render_eval.py:step_key": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:step_key",
+    "scripts/compare/svbrdf_render_eval.py:read_raw": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:read_raw",
+    "scripts/compare/svbrdf_render_eval.py:require_readable": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:require_readable",
+    "scripts/compare/svbrdf_render_eval.py:enc_stored": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:enc_stored",
+    "scripts/compare/svbrdf_render_eval.py:read_height": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:read_height",
+    "scripts/compare/svbrdf_render_eval.py:load_gt": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:load_gt",
+    "scripts/compare/svbrdf_render_eval.py:load_dt": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:load_dt",
+    "scripts/compare/svbrdf_render_eval.py:load_matup": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:load_matup",
+    "scripts/compare/svbrdf_render_eval.py:load_bilinear": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:load_bilinear",
+    "scripts/compare/svbrdf_render_eval.py:encode_maps": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:encode_maps",
+    "scripts/compare/svbrdf_render_eval.py:unit_enc": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:unit_enc",
+    "scripts/compare/svbrdf_render_eval.py:decode_enc": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:decode_enc",
+    "scripts/compare/svbrdf_render_eval.py:crop_enc": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:crop_enc",
+    "scripts/compare/svbrdf_render_eval.py:mean_diff": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:mean_diff",
+    "scripts/compare/svbrdf_render_eval.py:remove_offsets": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:remove_offsets",
+    "scripts/compare/svbrdf_render_eval.py:gt_valid_mask": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:gt_valid_mask",
+    "scripts/compare/svbrdf_render_eval.py:prepare": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:prepare",
+    "scripts/compare/svbrdf_render_eval.py:render_display": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:render_display",
+    "scripts/compare/svbrdf_render_eval.py:spans": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:spans",
+    "scripts/compare/svbrdf_render_eval.py:render_chunks": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:render_chunks",
+    "scripts/compare/svbrdf_render_eval.py:score": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:score",
+    "scripts/compare/svbrdf_render_eval.py:eval_image": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:eval_image",
+    "scripts/compare/svbrdf_render_eval.py:psnr": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:psnr",
+    "scripts/compare/svbrdf_render_eval.py:light_block": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:light_block",
+    "scripts/compare/svbrdf_render_eval.py:to_u16": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:to_u16",
+    "scripts/compare/svbrdf_render_eval.py:column_metrics": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:column_metrics",
+    "scripts/compare/svbrdf_render_eval.py:self_check": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:self_check",
+    "scripts/compare/svbrdf_render_eval.py:to_cell": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:to_cell",
+    "scripts/compare/svbrdf_render_eval.py:heat_cell": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:heat_cell",
+    "scripts/compare/svbrdf_render_eval.py:draw_lines": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:draw_lines",
+    "scripts/compare/svbrdf_render_eval.py:write_render_sheet": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:write_render_sheet",
+    "scripts/compare/svbrdf_render_eval.py:write_overview": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:write_overview",
+    "scripts/compare/svbrdf_render_eval.py:process": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:process",
+    "scripts/compare/svbrdf_render_eval.py:fmt": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:fmt",
+    "scripts/compare/svbrdf_render_eval.py:common_materials": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:common_materials",
+    "scripts/compare/svbrdf_render_eval.py:mean_of": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:mean_of",
+    "scripts/compare/svbrdf_render_eval.py:head_to_head_pairs": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:head_to_head_pairs",
+    "scripts/compare/svbrdf_render_eval.py:head_to_head": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:head_to_head",
+    "scripts/compare/svbrdf_render_eval.py:steps_tables": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:steps_tables",
+    "scripts/compare/svbrdf_render_eval.py:write_summary": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:write_summary",
+    "scripts/compare/svbrdf_render_eval.py:write_per_material": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:write_per_material",
+    "scripts/compare/svbrdf_render_eval.py:write_csv": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:write_csv",
+    "scripts/compare/svbrdf_render_eval.py:clean": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:clean",
+    "scripts/compare/svbrdf_render_eval.py:check_out": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:check_out",
+    "scripts/compare/svbrdf_render_eval.py:clear_stale": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:clear_stale",
+    "scripts/compare/svbrdf_render_eval.py:parse_arms": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:parse_arms",
+    "scripts/compare/svbrdf_render_eval.py:build_lights": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:build_lights",
+    "scripts/compare/svbrdf_render_eval.py:read_manifests": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:read_manifests",
+    "scripts/compare/svbrdf_render_eval.py:main": "variants/deeptex/render_loss/eval/svbrdf_render_eval.py:main",
+    "scripts/deeptex/deeptex_arms_report.py:arm_col": "variants/deeptex/matsynth/deeptex_arms_report.py:arm_col",
+    "scripts/deeptex/deeptex_arms_report.py:label_lines": "variants/deeptex/matsynth/deeptex_arms_report.py:label_lines",
+    "scripts/deeptex/deeptex_arms_report.py:angular_error_deg": "variants/deeptex/matsynth/deeptex_arms_report.py:angular_error_deg",
+    "scripts/deeptex/deeptex_arms_report.py:channel_spread": "variants/deeptex/matsynth/deeptex_arms_report.py:channel_spread",
+    "scripts/deeptex/deeptex_arms_report.py:offset_diagnostics": "variants/deeptex/matsynth/deeptex_arms_report.py:offset_diagnostics",
+    "scripts/deeptex/deeptex_arms_report.py:score": "variants/deeptex/matsynth/deeptex_arms_report.py:score",
+    "scripts/deeptex/deeptex_arms_report.py:process": "variants/deeptex/matsynth/deeptex_arms_report.py:process",
+    "scripts/deeptex/deeptex_arms_report.py:draw_lines": "variants/deeptex/matsynth/deeptex_arms_report.py:draw_lines",
+    "scripts/deeptex/deeptex_arms_report.py:write_montage": "variants/deeptex/matsynth/deeptex_arms_report.py:write_montage",
+    "scripts/deeptex/deeptex_arms_report.py:write_overview": "variants/deeptex/matsynth/deeptex_arms_report.py:write_overview",
+    "scripts/deeptex/deeptex_arms_report.py:common_materials": "variants/deeptex/matsynth/deeptex_arms_report.py:common_materials",
+    "scripts/deeptex/deeptex_arms_report.py:mean_table": "variants/deeptex/matsynth/deeptex_arms_report.py:mean_table",
+    "scripts/deeptex/deeptex_arms_report.py:head_to_head": "variants/deeptex/matsynth/deeptex_arms_report.py:head_to_head",
+    "scripts/deeptex/deeptex_arms_report.py:write_summary": "variants/deeptex/matsynth/deeptex_arms_report.py:write_summary",
+    "scripts/deeptex/deeptex_arms_report.py:write_per_material": "variants/deeptex/matsynth/deeptex_arms_report.py:write_per_material",
+    "scripts/deeptex/deeptex_arms_report.py:write_csv": "variants/deeptex/matsynth/deeptex_arms_report.py:write_csv",
+    "scripts/deeptex/deeptex_arms_report.py:main": "variants/deeptex/matsynth/deeptex_arms_report.py:main",
+    "scripts/compare/matup_postprocess.py:read": "variants/compare/matup_postprocess.py:read",
+    "scripts/compare/matup_postprocess.py:to_u16": "variants/compare/matup_postprocess.py:to_u16",
+    "scripts/compare/matup_postprocess.py:to_float": "variants/compare/matup_postprocess.py:to_float",
+    "scripts/compare/matup_postprocess.py:write": "variants/compare/matup_postprocess.py:write",
+    "scripts/compare/matup_postprocess.py:detect_border": "variants/compare/matup_postprocess.py:detect_border",
+    "scripts/compare/matup_postprocess.py:build_columns": "variants/compare/matup_postprocess.py:build_columns",
+    "scripts/compare/matup_postprocess.py:make_sheet": "variants/compare/matup_postprocess.py:make_sheet",
+    "scripts/compare/matup_postprocess.py:sharpness": "variants/compare/matup_postprocess.py:sharpness",
+    "scripts/compare/matup_postprocess.py:corr": "variants/compare/matup_postprocess.py:corr",
+    "scripts/compare/matup_postprocess.py:deeptex_column": "variants/compare/matup_postprocess.py:deeptex_column",
+    "scripts/compare/matup_postprocess.py:full_reference": "variants/compare/matup_postprocess.py:full_reference",
+    "scripts/compare/matup_montage.py:read": "variants/compare/matup_montage.py:read",
+    "scripts/compare/matup_montage.py:to_display": "variants/compare/matup_montage.py:to_display",
+    "scripts/compare/matup_montage.py:placeholder": "variants/compare/matup_montage.py:placeholder",
+    "scripts/compare/matup_montage.py:build": "variants/compare/matup_montage.py:build"
+  },
+  "decomposed": {
+    "scripts/deeptex/texsr_verify_tfrecord.py:main": {
+      "into": [
+        "variants/deeptex/upstream_runner/texsr_verify_tfrecord.py"
+      ],
+      "rewritten": {
+        "sys.path.insert(0, os.environ.get(\"DEEPTEX_ROOT\",": "paths.use_deeptex()",
+        "\"/workspace/external/DeepTextures\"))": "paths.use_deeptex()"
+      }
+    },
+    "scripts/deeptex/texsr_build_tfrecord.py:main": {
+      "into": [
+        "variants/deeptex/upstream_runner/texsr_build_tfrecord.py",
+        "variants/deeptex/matsynth/recipes.py"
+      ],
+      "rewritten": {
+        "description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)": "description=description, formatter_class=argparse.RawDescriptionHelpFormatter)",
+        "repeats = args.repeat or [1] * len(args.hr)": "build(args, [1] * len(args.hr))"
+      },
+      "dropped": {
+        "ap.add_argument(\"--repeat\", type=int, action=\"append\", default=None,": "--repeat left this CLI; matsynth/recipes.py passes its counts to build(args, repeats)",
+        "help=\"times to pack the --hr/--lr pair in the same position \"": "help text of the dropped --repeat",
+        "\"(give one per pair, or none for all 1)\")": "help text of the dropped --repeat"
+      }
+    },
+    "scripts/deeptex/deeptex_compare.py:main": {
+      "into": [
+        "variants/deeptex/infer/deeptex_compare.py",
+        "variants/deeptex/matsynth/eval_arms.py"
+      ],
+      "rewritten": {
+        "description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)": "description=description, formatter_class=argparse.RawDescriptionHelpFormatter)",
+        "ap.add_argument(\"--maps\", default=\"baseColor,render\",": "ap.add_argument(\"--maps\", default=default_maps,",
+        "help=\"comma-separated subset of %s, or 'all'. The default is \"": "help=\"comma-separated subset of %s, or 'all'\"",
+        "% \",\".join(j[0] for j in JOBS))": "% \",\".join(j[0] for j in jobs))",
+        "wanted = None if args.maps == \"all\" else set(args.maps.split(\",\"))": "wanted = None if maps == \"all\" else set(maps.split(\",\"))",
+        "jobs = [j for j in JOBS if wanted is None or j[0] in wanted]": "jobs = [j for j in all_jobs if wanted is None or j[0] in wanted]",
+        "out_shape, spread = save_sr(os.path.join(out_dir, key + \".png\"),": "out_shape, spread = save(os.path.join(out_dir, key + \".png\"), sr, kind)",
+        "sr, kind, args.scalar_collapse)": "out_shape, spread = save(os.path.join(out_dir, key + \".png\"), sr, kind)",
+        "\"scalar_collapse\": args.scalar_collapse,": "\"scalar_collapse\": collapse[0],",
+        "\"collapse_weights\": COLLAPSE[args.scalar_collapse],": "\"collapse_weights\": collapse[1],"
+      },
+      "dropped": {
+        "\"the two maps that need no invented channel collapse\"": "help text: the core's default is baseColor,render and it has no collapse to avoid"
+      }
+    },
+    "scripts/deeptex/deeptex_compare.py:save_sr": {
+      "into": [
+        "variants/deeptex/infer/deeptex_compare.py",
+        "variants/deeptex/matsynth/eval_arms.py"
+      ],
+      "rewritten": {
+        "if kind == \"scalar\":": "if kind != \"scalar\":"
+      },
+      "dropped": {
+        "spread = None": "save_colour returns (shape, None) directly; the scalar branch builds its own spread"
+      }
+    },
+    "scripts/deeptex/deeptex_compare.py:newest_run": {
+      "into": [
+        "variants/compare/matup_runs.py"
+      ],
+      "rewritten": {
+        "if want_stamp:": "if want:",
+        "runs = [r for r in runs if os.path.basename(r) == want_stamp]": "runs = [r for r in runs if os.path.basename(r) == want]"
+      }
+    },
+    "scripts/compare/svbrdf_render_eval.py:newest_run": {
+      "into": [
+        "variants/compare/matup_runs.py"
+      ]
+    },
+    "scripts/deeptex/deeptex_arms_report.py:newest_run": {
+      "into": [
+        "variants/compare/matup_runs.py"
+      ]
+    },
+    "scripts/compare/matup_postprocess.py:process": {
+      "into": [
+        "variants/compare/matup_postprocess.py",
+        "variants/deeptex/paper/deeptex_postprocess.py"
+      ],
+      "rewritten": {
+        "runs = sorted(glob.glob(os.path.join(mat_dir, \"matup-output-%s\" % name, \"*\")))": "run_dir = newest_run(mat_dir, name, args.run)",
+        "runs = [r for r in runs if os.path.isdir(r)]": "run_dir = newest_run(mat_dir, name, args.run)",
+        "if args.run:": "run_dir = newest_run(mat_dir, name, args.run)",
+        "runs = [r for r in runs if os.path.basename(r) == args.run]": "run_dir = newest_run(mat_dir, name, args.run)",
+        "if not runs:": "if not run_dir:",
+        "run_dir = runs[-1]": "run_dir = newest_run(mat_dir, name, args.run)",
+        "dtx_dir = os.path.join(args.deeptex_root, name) if args.deeptex_root else \"\"": "dtx_dir = os.path.join(self.root, name)",
+        "if dtx_dir and m in DEEPTEX_MAPS:": "if m in DEEPTEX_MAPS:",
+        "cols[DEEPTEX_COLUMN] = deeptex_column(p, border, report[\"size\"])": "cols[DEEPTEX_COLUMN] = post.deeptex_column(p, border, size)",
+        "order = [c for c in ORDER_WITH_DEEPTEX if c in cols]": "order = [c for c in column_order if c in cols]",
+        "gd, ld = sharpness(cols[DEEPTEX_COLUMN])": "gd, ld = post.sharpness(cols[DEEPTEX_COLUMN])",
+        "if dtx_dir:": "if extra:",
+        "rcols[DEEPTEX_COLUMN] = deeptex_column(p, border, side)": "rcols[DEEPTEX_COLUMN] = post.deeptex_column(p, border, side)",
+        "ordered = {k: rcols[k] for k in ORDER_WITH_DEEPTEX if k in rcols}": "ordered = {k: rcols[k] for k in column_order if k in rcols}",
+        "d = report[\"maps\"][m].get(\"deeptex_over_bilinear\")": "d = map_entry.get(\"deeptex_over_bilinear\")",
+        "line += \" deeptex/bilinear |grad| %s\" % fmt(d[\"grad\"])": "return \" deeptex/bilinear |grad| %s\" % fmt(d[\"grad\"])",
+        "line += \" / deeptex %s\" % pf(v[\"deeptex\"])": "return \" / deeptex %s\" % pf(v[\"deeptex\"])"
+      }
+    },
+    "scripts/compare/matup_postprocess.py:main": {
+      "into": [
+        "variants/compare/matup_postprocess.py",
+        "variants/deeptex/paper/deeptex_postprocess.py"
+      ],
+      "rewritten": {
+        "ap = argparse.ArgumentParser(description=__doc__,": "ap = argparse.ArgumentParser(description=description,",
+        "done = [r for r in (process(d, args) for d in dirs) if r]": "done = [r for r in (process(d, args, extra) for d in dirs) if r]"
+      }
+    },
+    "scripts/compare/matup_montage.py:process": {
+      "into": [
+        "variants/compare/matup_montage.py",
+        "variants/deeptex/paper/deeptex_montage.py"
+      ],
+      "rewritten": {
+        "dsheet, _, _ = build(mat_dir, cmp_dir, args.size,": "dsheet, _, _ = mont.build(mat_dir, cmp_dir, size,"
+      }
+    },
+    "scripts/compare/matup_montage.py:collect": {
+      "into": [
+        "variants/compare/matup_montage.py",
+        "variants/deeptex/paper/deeptex_montage.py"
+      ],
+      "rewritten": {
+        "n_deeptex = 0": "n_extra = 0",
+        "dsrc = os.path.join(os.path.dirname(newest), \"montage_deeptex.png\")": "dsrc = os.path.join(cmp_dir, \"montage_deeptex.png\")",
+        "n_deeptex += 1": "n_extra += extra.collect_one(os.path.dirname(newest), dest, name)",
+        "% (len(mat_dirs),": "% (len(mat_dirs), count_note, dest))",
+        "(\" + %d deeptex sheet(s)\" % n_deeptex) if n_deeptex else \"\",": "return (\" + %d deeptex sheet(s)\" % n_deeptex) if n_deeptex else \"\"",
+        "dest))": "% (len(mat_dirs), count_note, dest))",
+        "deeptex_note = ([": "return ([",
+        "lines[-2:-2] = deeptex_note": "lines[-2:-2] = extra.note_lines(n_extra)"
+      }
+    },
+    "scripts/compare/matup_montage.py:main": {
+      "into": [
+        "variants/compare/matup_montage.py",
+        "variants/deeptex/paper/deeptex_montage.py"
+      ],
+      "rewritten": {
+        "ap = argparse.ArgumentParser(description=__doc__,": "ap = argparse.ArgumentParser(description=description,",
+        "args = ap.parse_args()": "run(parser().parse_args())",
+        "made = [d for d in dirs if process(d, args)]": "made = [d for d in dirs if process(d, args, extra)]",
+        "collect(made, args.collect)": "collect(made, args.collect, extra)"
+      }
+    }
+  }
+}
