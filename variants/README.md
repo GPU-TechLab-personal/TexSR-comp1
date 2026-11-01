@@ -61,6 +61,99 @@ the same stage name and parameters; the helpers they share are
 8. **One GPU job at a time.** Before any GPU step, check that no other `texsr*`
    container is running (`docker ps`); docs/RUNBOOK.md's concurrency warning applies.
 
+## Adding an experiment
+
+New experiments have no old code to be equivalent to, so L0-L6 do not cover
+them; they must leave the existing arms unchanged, and they get their own smoke
+run.
+
+### DeepTextures: a new training variant (e.g. one more loss term)
+
+`paper_loop/main.py --experiment <name>` looks the name up in `EXPERIMENTS`
+(`main.py:26`); that module's `build(argv)` returns `(hooks, "loop" | "psnr_loop")`,
+and `loop.py` calls the hooks listed at the top of `paper_loop/hooks.py`. The
+defaults are the paper; an experiment overrides only what it changes
+(`fixed/hooks.py` overrides two). Extra G terms come from `extra_loss`: the dict
+it returns goes into `losses_G` (`loop.py:84`) and is summed with reg, pixel,
+feature and gan.
+
+1. `variants/deeptex/<name>/`: `hooks.py`, a config yaml, `run.ps1`, `README.md`.
+2. `hooks.py` - subclass `hooks_common.trainer.TrainerHooks` (checkpoints,
+   `[metrics]`, exit codes come with it):
+
+   ```python
+   import tensorflow as tf
+   from variants.deeptex.hooks_common.trainer import TrainerHooks, add_common_args, parse
+
+   def add_args(ap):
+       add_common_args(ap)                      # --cfg_path, --max-steps, --seed, ...
+       ap.add_argument("--stage", default="esrgan", choices=["esrgan"])
+       ap.add_argument("--w-tv", type=float, default=0.0)
+
+   class MyHooks(TrainerHooks):
+       def extra_loss(self, sr, hr, extras):
+           if self.args.w_tv > 0:              # a Python float: a constant in the trace
+               return {"tv": self.args.w_tv * tf.reduce_mean(tf.image.total_variation(sr))}
+           return {}
+
+       def extra_report(self, steps, losses_G, outs):
+           # [metrics] prints only the sum; log.terms_line knows the render arm's keys only.
+           if "tv" in losses_G and (steps == 1 or steps % self.args.log_every == 0):
+               print("[tv] step=%d tv=%.5g" % (steps, float(losses_G["tv"].numpy())), flush=True)
+
+   def build(argv):
+       return MyHooks(parse(argv, add_args)), "loop"
+   ```
+3. One line in `main.py`'s `EXPERIMENTS`: `"<name>": "variants.deeptex.<name>.hooks"`.
+4. The config: copy an existing one (`fixed/esrgan_scaled.yaml`) and give it its
+   own `sub_name` and `checkpoint_root`. Keep those keys top-level, one per line:
+   the ps1 files read them with line regexes.
+5. `run.ps1`: copy `fixed/run.ps1` (it dot-sources `common/lib.ps1`) and change
+   the trainer call to `--experiment <name>`. To evaluate with `eval_arms.py` or
+   the render eval, add the tag to `Get-ArmInfo` in `common/lib.ps1`.
+
+A variant of an existing arm that only changes numbers (another `w_render`) is
+just a new config; one that needs more hooks subclasses `RenderHooks` or
+`FixedHooks`.
+
+### Experiments (exp2/exp3 style): a new arm
+
+The config decides the arm: `exp2_esrgan/core/assemble.py` holds the
+predicates (generator by `model.*`, discriminators by `disc.mode`, loss terms by
+`loss.*`). `Criterion` is a list of terms; a term has a `key` and
+`in_psnr_stage` and returns `(weight, value)` or `None`.
+
+1. The term or module in `arms/<arm>.py` of the experiment it belongs to.
+2. One condition in `assemble.py`, read with `.get(key, default)` so that every
+   existing config (which lacks the key) builds exactly what it built before.
+3. A config in `configs/` that inherits its reference with `base:` and sets only
+   the new factor; add it to `EXPECT` in `gates/gate_configs.py` (arm ->
+   reference, the keys allowed to differ), which checks that nothing else leaks
+   in through inheritance.
+4. A new experiment number gets `experiments/exp6_<name>/` with `arms/` and
+   `configs/`, training on exp2's `core/train.py` as exp3 does.
+
+### Data only (another MatSynth map mix)
+
+A row in `RECIPES` (`deeptex/matsynth/recipes.py`) and a config yaml; train with
+`deeptex/paper/run.ps1 -Stage paper -PaperConfig <yaml> -PaperRoot runs/deeptex/<arm>`.
+
+### Before running it
+
+- Do not edit `paper_loop/loop.py` except to add a hook call that does not
+  exist yet; then add the default to `paper_loop/hooks.py` and regenerate
+  `upstream.diff`, or L0 skeleton fails.
+- Shared files (`hooks_common/`, `paper_loop/hooks.py`, `assemble.py`,
+  `arms/base.py`) change every arm. Put the new behaviour in a new file and the
+  switch in the shared one, and rerun the layers that cover it
+  (`run_all.ps1 -Only L0,L1` for DeepTextures, `l6_experiments_all.sh cpu` for
+  experiments).
+- Smoke the new arm: DeepTextures `--max-steps 2 --save-steps 1 --no-val`
+  (the term's own log line appears, a checkpoint is written); experiments,
+  `gates/gate_train_smoke.py` trains every yaml in the exp2/exp3 `configs/`
+  folders for a few iterations - a new experiment folder has to be added to
+  its `CONFIGS` glob.
+
 ## Layout
 
 | folder | contents |
