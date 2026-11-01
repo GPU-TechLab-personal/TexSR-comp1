@@ -126,11 +126,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 4)))
 from variants.util import paths  # noqa: E402
 
-# Its import puts MatUp on sys.path (paths.use_matup()) and binds mr, post,
+# Its import puts MatUp on sys.path (paths.use_matup()) and binds mr, mo, rimg,
 # data_utils and Renderer; the names below come from there.
 from variants.deeptex.render_loss.eval import svbrdf_render_eval as sre  # noqa: E402
 
-mr, post, data_utils, Renderer = sre.mr, sre.post, sre.data_utils, sre.Renderer
+mr, mo, rimg, data_utils, Renderer = sre.mr, sre.mo, sre.rimg, sre.data_utils, sre.Renderer
 
 # ------------------------------------------------------------------- constants
 
@@ -341,12 +341,12 @@ def measure_border(run_dir):
     """svbrdf_render_eval.process :710-718 (deeptex_arms_report.py:166-177):
     MatUp's zero rim, never measured on normal or the pre-cropped height."""
     opts = {}
-    for m, (_, opt_name) in post.MAPS.items():
+    for m, (_, opt_name) in mo.MAPS.items():
         p = os.path.join(run_dir, opt_name)
         if os.path.exists(p):
-            opts[m] = post.read(p)
-    return post.detect_border(
-        [a for m, a in opts.items() if m != "normal" and m not in post.PRECROPPED])
+            opts[m] = rimg.read(p)
+    return mo.detect_border(
+        [a for m, a in opts.items() if m != "normal" and m not in mo.PRECROPPED])
 
 
 def load_column(col, mat_dir, run_dir, full, name):

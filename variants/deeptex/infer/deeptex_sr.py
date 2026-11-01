@@ -62,6 +62,7 @@ os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
 from variants.util import paths  # noqa: E402
+from variants.util import arm_output  # noqa: E402
 SUBMODULE = paths.use_deeptex()
 
 import tensorflow as tf  # noqa: E402
@@ -113,39 +114,19 @@ def check_checkpoint(ckpt_dir, explicit):
 
 
 def tile_grid(extent, tile, overlap):
-    """Start offsets covering [0, extent) with the last one anchored to the edge."""
-    if tile <= 0 or extent <= tile:
-        return [0]
-    stride = max(1, tile - overlap)
-    starts = list(range(0, extent - tile + 1, stride))
-    if starts[-1] + tile < extent:
-        starts.append(extent - tile)
-    return starts
+    """variants/util/arm_output.tile_grid."""
+    return arm_output.tile_grid(extent, tile, overlap)
 
 
 def super_resolve(model, lr, scale, tile, overlap):
-    """lr: HxWx3 float32 in [0,1]. Returns (H*scale)x(W*scale)x3 float32."""
-    h, w = lr.shape[:2]
-    if tile <= 0 or (h <= tile and w <= tile):
-        out = model(lr[None], training=False).numpy()[0]
-        assert out.shape[0] == h * scale and out.shape[1] == w * scale, out.shape
-        return out
+    """lr: HxWx3 float32 in [0,1]. Returns (H*scale)x(W*scale)x3 float32.
+    arm_output.super_resolve around this Keras model."""
+    return arm_output.super_resolve(predictor(model), lr, scale, tile, overlap)
 
-    canvas = np.zeros((h * scale, w * scale, lr.shape[2]), np.float32)
-    for y in tile_grid(h, tile, overlap):
-        for x in tile_grid(w, tile, overlap):
-            patch = lr[y:y + tile, x:x + tile]
-            sr = model(patch[None], training=False).numpy()[0]
-            # Discard half the overlap on each interior edge rather than blending:
-            # averaging two differently-conditioned outputs makes its own seam.
-            ty0 = 0 if y == 0 else overlap // 2
-            tx0 = 0 if x == 0 else overlap // 2
-            ty1 = patch.shape[0] if y + tile >= h else patch.shape[0] - overlap // 2
-            tx1 = patch.shape[1] if x + tile >= w else patch.shape[1] - overlap // 2
-            canvas[(y + ty0) * scale:(y + ty1) * scale,
-                   (x + tx0) * scale:(x + tx1) * scale] = \
-                sr[ty0 * scale:ty1 * scale, tx0 * scale:tx1 * scale]
-    return canvas
+
+def predictor(model):
+    """The model as arm_output's predict(NHWC float32) -> NHWC float32."""
+    return lambda batch: model(batch, training=False).numpy()
 
 
 def to_png_bytes(arr_float):
