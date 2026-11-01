@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
 One 4x6 contact sheet per material: LR / bilinear / MatUp / GT across all five
-maps plus the render.
+maps plus the render, and --collect into the shared runs/montages/.
 
-    docker compose run --rm dataprep python variants/compare/matup_montage.py --all
+    docker compose run --rm dataprep python variants/matup/baseline/montage.py --all
 
-Every cell is read from what `matup_postprocess.py` produced, so the border is
-already cropped to the valid region, the normal's green channel is already
-flipped back to OpenGL, and all four rows are already at one size.
+Every cell is read from the comparison set postprocess.py wrote
+(<m>/compare/<stamp>/), so the border is already cropped to the valid region,
+the normal's green channel is already flipped back to OpenGL, and all four rows
+are already at one size. Drawing is variants/util/report (montage.montage,
+sheets.grid).
 
 The bilinear row is MatUp's own initialisation (dataLoader.py resizes every map
 with INTER_LINEAR x4 before the optimisation starts), so it is the row that says
@@ -16,92 +18,38 @@ whether the optimisation added detail or removed it.
 Two of the six columns do not come from MatUp itself and need their own step
 first, otherwise those cells are labelled instead of drawn:
 
-* `height` - MatUp writes none. `matup/data_utils.py` writes exactly five files
-  and height is not among them, and the height it reads is a fixed bilinear
-  upsample that is never optimised. `scripts/matup/matup_height.py` reconstructs one
-  by normal integration, which is what the paper describes in 3.3.
-* `render` - MatUp renders only its own result. `scripts/matup/matup_render.py`
-  renders the LR, bilinear and GT map sets through the same renderer and the
-  same eval light so all four are comparable.
+* `height` - MatUp writes none (`matup/data_utils.py` writes exactly five files,
+  and the height it reads is a fixed bilinear upsample that is never optimised).
+  `matup_height.py` reconstructs one by normal integration, as the paper's 3.3
+  describes.
+* `render` - MatUp renders only its own result. `matup_render.py` renders the LR,
+  bilinear and GT map sets through the same renderer and the same eval light so
+  all four are comparable.
 
-The DeepTextures sheet (`montage_deeptex.png`, 5x2 over baseColor and render) and
-its `<material>_deeptex.png` copies in --collect are the paper arm's:
-variants/deeptex/paper/deeptex_montage.py runs process() and collect() below with
-its hook. Without the hook this writes montage.png, the JSONs and summary.md
-exactly as the old script did when no DeepTextures column existed. build() is
-unchanged and shared: its ("DeepTextures", col) placeholder note only applies
-when a caller passes that row.
+Another method adds a sheet or collected file through the `extra` hook of
+process() / collect() (variants/deeptex/paper/deeptex_montage.py adds
+montage_deeptex.png).
 
 Nothing here is normalised for display: an all-zero metallic renders black, and
-that is the honest picture. Rescaling it per-cell would make a constant map look
-like a textured one.
+that is the honest picture.
 """
 import argparse
-import glob
 import json
 import os
+import sys
 
 import cv2
-import numpy as np
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
+from variants.util.report import layout, montage, sheets  # noqa: E402
 
 COLUMNS = ["baseColor", "normal", "roughness", "metallic", "height", "render"]
-# label -> the filename matup_postprocess.py writes for that column
+# label -> the file stem postprocess.py writes for that column
 ROWS = [("LR", "lr"), ("bilinear", "bilinear"), ("MatUp", "matup"), ("GT", "gt")]
 
-# DEEPTEX_COLUMNS / DEEPTEX_ROWS / DEEPTEX_LEFT: variants/deeptex/paper/deeptex_montage.py.
 
-PAD = 6
-LEFT = 96
-HEAD = 34
-TITLE = 32
-FONT = cv2.FONT_HERSHEY_SIMPLEX
-
-
-def read(path):
-    return cv2.imread(path, cv2.IMREAD_UNCHANGED)
-
-
-def to_display(arr, size):
-    """16-bit or 8-bit, gray or colour -> 8-bit BGR at `size`, no rescaling."""
-    if arr is None:
-        return None
-    a = (arr >> 8).astype(np.uint8) if arr.dtype == np.uint16 else arr.astype(np.uint8)
-    if a.ndim == 2:
-        a = cv2.cvtColor(a, cv2.COLOR_GRAY2BGR)
-    interp = cv2.INTER_AREA if a.shape[0] > size else cv2.INTER_NEAREST
-    return cv2.resize(a, (size, size), interpolation=interp)
-
-
-def placeholder(size, note):
-    cell = np.full((size, size, 3), 28, np.uint8)
-    cv2.putText(cell, "n/a", (size // 2 - 26, size // 2 - 6), FONT, 0.7,
-                (110, 110, 110), 2, cv2.LINE_AA)
-    for i, line in enumerate(note):
-        w = cv2.getTextSize(line, FONT, 0.36, 1)[0][0]
-        cv2.putText(cell, line, (max(4, size // 2 - w // 2), size // 2 + 20 + i * 15),
-                    FONT, 0.36, (90, 90, 90), 1, cv2.LINE_AA)
-    return cell
-
-
-def build(mat_dir, cmp_dir, size, columns, rows, suffix="", left=LEFT):
-    """Draw one contact sheet for the given grid.
-
-    `run_dir` used to be a parameter and was never read - process() still
-    validates it, which is where that check belongs.
-    """
-    name = os.path.basename(mat_dir.rstrip("/"))
-    stamp = os.path.basename(cmp_dir.rstrip("/"))
-
-    # Everything now comes out of compare/, already cropped to the valid region,
-    # already at one size, with the normal's green channel already flipped back
-    # to OpenGL. height arrives via matup_height.py and render via
-    # matup_render.py; a cell is only missing if one of those has not been run.
-    cells = {}
-    for col in columns:
-        for row, fname in rows:
-            path = os.path.join(cmp_dir, col, fname + ".png")
-            cells[(row, col)] = read(path) if os.path.exists(path) else None
-
+def notes_for(rows, columns):
+    """What would fill an empty cell, per (row label, map)."""
     notes = {("MatUp", "height"): ["run matup_height.py"]}
     for r, _ in rows:
         notes.setdefault((r, "render"), ["run matup_render.py"])
@@ -109,31 +57,16 @@ def build(mat_dir, cmp_dir, size, columns, rows, suffix="", left=LEFT):
         # Overwrite the render note too: "run matup_render.py" is the wrong advice
         # for this row - nothing MatUp does will ever fill it.
         notes[("DeepTextures", col)] = ["run", "deeptex_compare.py"]
+    return notes
 
-    w = left + len(columns) * (size + PAD) + PAD
-    h = TITLE + HEAD + len(rows) * (size + PAD) + PAD
-    sheet = np.full((h, w, 3), 18, np.uint8)
 
-    cv2.putText(sheet, "%s    %s%s" % (name, stamp, suffix), (10, 22), FONT, 0.6,
-                (255, 255, 255), 1, cv2.LINE_AA)
-
-    for c, col in enumerate(columns):
-        x = left + c * (size + PAD)
-        cv2.putText(sheet, col, (x + 4, TITLE + 22), FONT, 0.55,
-                    (210, 210, 210), 1, cv2.LINE_AA)
-
-    for r, (row, _) in enumerate(rows):
-        y = TITLE + HEAD + r * (size + PAD)
-        cv2.putText(sheet, row, (10, y + size // 2), FONT, 0.62,
-                    (210, 210, 210), 1, cv2.LINE_AA)
-        for c, col in enumerate(columns):
-            x = left + c * (size + PAD)
-            arr = cells.get((row, col))
-            cell = to_display(arr, size)
-            if cell is None:
-                cell = placeholder(size, notes.get((row, col), []))
-            sheet[y:y + size, x:x + size] = cell
-
+def build(mat_dir, cmp_dir, size, columns, rows, suffix="", left=sheets.GRID.left):
+    """One contact sheet of the comparison set `cmp_dir` -> (sheet, name, stamp)."""
+    name = os.path.basename(mat_dir.rstrip("/"))
+    stamp = os.path.basename(cmp_dir.rstrip("/"))
+    sheet = montage.montage(cmp_dir, columns, rows, size,
+                            "%s    %s%s" % (name, stamp, suffix),
+                            notes_for(rows, columns), left)
     return sheet, name, stamp
 
 
@@ -141,14 +74,10 @@ def process(mat_dir, args, extra=None):
     """One material's montage.png. `extra` (paper/deeptex_montage.py's DeeptexSheet)
     may draw a second sheet from the same compare/ folder afterwards."""
     name = os.path.basename(mat_dir.rstrip("/"))
-    cmps = sorted(d for d in glob.glob(os.path.join(mat_dir, "compare", "*"))
-                  if os.path.isdir(d))
-    if args.run:
-        cmps = [d for d in cmps if os.path.basename(d) == args.run]
-    if not cmps:
-        print("  %-28s SKIP (run matup_postprocess.py first)" % name)
+    cmp_dir = layout.newest_set(mat_dir, args.run)
+    if not cmp_dir:
+        print("  %-28s SKIP (run postprocess.py first)" % name)
         return False
-    cmp_dir = cmps[-1]
     stamp = os.path.basename(cmp_dir)
 
     run_dir = os.path.join(mat_dir, "matup-output-%s" % name, stamp)
@@ -186,7 +115,8 @@ def collect(mat_dirs, dest, extra=None):
     n_extra = 0
     for d in mat_dirs:
         name = os.path.basename(d.rstrip("/"))
-        newest = sorted(glob.glob(os.path.join(d, "compare", "*", "montage.png")))[-1]
+        newest = layout.newest(os.path.join(s, "montage.png") for s in layout.set_dirs(d)
+                               if os.path.exists(os.path.join(s, "montage.png")))
         cv2.imwrite(os.path.join(dest, name + ".png"),
                     cv2.imread(newest, cv2.IMREAD_UNCHANGED))
 
@@ -255,8 +185,7 @@ def run(args, extra=None):
     if args.material:
         dirs = [os.path.join(args.root, args.material)]
     elif args.all:
-        dirs = sorted(d for d in glob.glob(os.path.join(args.root, "*"))
-                      if os.path.isdir(os.path.join(d, "compare")))
+        dirs = layout.materials(args.root, layout.SET_PARENT)
     else:
         raise SystemExit("pass --material <name> or --all")
 

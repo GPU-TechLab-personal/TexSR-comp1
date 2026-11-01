@@ -119,7 +119,7 @@ if (-not $EvalTag) { $EvalTag = $Dataset }
 #   Invoke-GatePremise       run_deeptex.ps1:1228-1241
 #   Stage-GateRender         run_deeptex.ps1:1243-1252
 #   Stage-RenderTrain        run_deeptex.ps1:1254-1333
-#   Get-DisplayName          run_deeptex.ps1:1335-1347
+#   Get-DisplayName          run_deeptex.ps1:1335-1347 (now util/lib.ps1, from variants/arms.json)
 #   Write-RenderLossReadme   run_deeptex.ps1:1349-1415
 #   Stage-EvalRender         run_deeptex.ps1:1417-1528
 #   Stage-EvalPerceptual     run_deeptex.ps1:1530-1611
@@ -451,20 +451,6 @@ function Stage-RenderTrain {
     Say "  once all arms are done:  -Stage eval-render -Arms $Arms -Steps $Steps" "DarkGray"
 }
 
-# Row names the render sheets use (svbrdf_render_eval.py's table), for the README.
-function Get-DisplayName([string]$label) {
-    $names = @{ matsynth_all = "DeepTextures (matsynth_all)"
-                matsynth_chratio = "DeepTextures (matsynth_chratio)"
-                matsynth_basecolor = "DeepTextures (matsynth_basecolor)"
-                render_r0a = "DeepTextures grouped (R0a)"; render_r0b = "DeepTextures grouped (R0b)"
-                render_r1 = "DeepTextures + render loss (R1)" }
-    if ($names.ContainsKey($label)) { return $names[$label] }
-    if ($label -match '^(.+)_(\d+k)$' -and $names.ContainsKey($Matches[1])) {
-        return "$($names[$Matches[1]]) $($Matches[2])"
-    }
-    return $label
-}
-
 function Write-RenderLossReadme([string]$dst, $ref, $rows, [int]$last, [string[]]$tags, [int[]]$stepList, $suite) {
     $renRel = $suite.Render -replace '^/workspace/', ''
     $repRel = $suite.Report -replace '^/workspace/', ''
@@ -574,8 +560,9 @@ function Stage-EvalRender {
 
     # 3. map montages and map metrics at the last step - the existing report,
     #    in the container Stage-EvalArms runs it in. Its one arm-vs-arm
-    #    head-to-head is last column vs second-to-last, so R0a and R1 go last
-    #    whatever the -Arms order: R1 - R0a is the paired same-seed comparison.
+    #    head-to-head is the first variants/arms.json pair present (R1 vs R0a, the
+    #    paired same-seed comparison); R0a and R1 go last so the columns keep the
+    #    order the committed report has.
     $atLast = @($rows | Where-Object { $_.Step -eq $last })
     $repRows = @($atLast | Where-Object { $_.Info.Tag -notmatch '^(render|smoke)_(r0a|r1)$' }) +
                @($atLast | Where-Object { $_.Info.Tag -match '^(render|smoke)_r0a$' }) +

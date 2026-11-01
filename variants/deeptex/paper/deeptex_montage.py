@@ -16,7 +16,7 @@ ships are colour-dominated, so the checkpoint is a colour model. Splitting keeps
 montage.png exactly as it was committed and gives DeepTex a sheet where every cell
 is full. See docs/DEEPTEX-DEVIATIONS.md 0.5-0.8.
 
-Everything else is variants/compare/matup_montage.py, run with the DeeptexSheet
+Everything else is variants/matup/baseline/montage.py, run with the DeeptexSheet
 hook below. The hook is the old matup_montage.py:53-61 (constants), :173-185 (the
 sheet), :201/:208-212 (the copy in --collect) and :230-237/:255 (the note above
 the summary table).
@@ -28,7 +28,7 @@ import sys
 import cv2
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.compare import matup_montage as mont  # noqa: E402
+from variants.matup.baseline import montage as mont  # noqa: E402
 
 # The DeepTextures sheet. Separate grid, separate file - see the module docstring
 # for why it is not a fifth row of montage.png.

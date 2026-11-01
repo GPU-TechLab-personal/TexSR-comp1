@@ -506,7 +506,7 @@ def head_to_head(reports, a, b):
 def steps_tables(common, cols):
     """svbrdf_render_eval.steps_tables (:907-931) for these metrics: per base arm
     with step-suffixed tags, the mean at each step, over steps, and the range."""
-    dts = [c for c in cols if c["kind"] == "dt" and c["step"]]
+    dts = [c for c in cols if sre.is_arm(c) and c["step"]]
     bases = []
     for c in dts:
         if c["base"] not in bases:
@@ -631,7 +631,7 @@ def write_summary(path, reports, cols, names, lights, sets, args, h2h, steps, ch
                   "|---|" + "---|" * (len(t["steps"]) + 2)]
             for base, row in t["rows"].items():
                 L.append("| %s | %s | %s | %s |" % (
-                    sre.DISPLAY.get(base, base),
+                    sre.arms.base_display(base),
                     " | ".join(sre.fmt(row["steps"].get(s), "%.4f") for s in t["steps"]),
                     sre.fmt(row["mean"], "%.4f"), sre.fmt(row["range"], "%.4f")))
             L.append("")

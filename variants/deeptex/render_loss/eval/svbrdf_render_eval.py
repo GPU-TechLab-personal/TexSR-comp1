@@ -157,11 +157,10 @@ MATUP_ROOT = paths.use_matup()
 from matup import data_utils, dataLoader, file_utils, light_utils, render_utils  # noqa: E402
 from matup.renderer import Renderer  # noqa: E402
 
-from variants.util import matup_lights  # noqa: E402
-from variants.compare import matup_montage as mont  # noqa: E402
-from variants.compare import matup_overview as ov  # noqa: E402
-from variants.compare import matup_postprocess as post  # noqa: E402
-from variants.compare.matup_runs import newest_run  # noqa: E402  (was a local copy, :450-456)
+from variants.util import arms, matup_lights  # noqa: E402
+from variants.matup.baseline import matup_outputs as mo  # noqa: E402
+from variants.util.report import images as rimg, metrics as rmet, sheets as rsheet  # noqa: E402
+from variants.matup.baseline.matup_outputs import newest_run  # noqa: E402,F401
 from variants.matup.baseline import matup_render as mr  # noqa: E402
 
 # ------------------------------------------------------------------- constants
@@ -194,18 +193,12 @@ SHEET_LEFT = 250
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 COLORMAP = getattr(cv2, "COLORMAP_INFERNO", cv2.COLORMAP_JET)
 
-# Built-in display names. A row says which method it is, not which folder it came
-# from (commit 9f6b8be). "_NNk" appends the step; an unknown tag shows as itself.
-DISPLAY = {
-    "matsynth_all": "DeepTextures (matsynth_all)",
-    "matsynth_chratio": "DeepTextures (matsynth_chratio)",
-    "matsynth_basecolor": "DeepTextures (matsynth_basecolor)",
-    "render_r0a": "DeepTextures grouped (R0a)",
-    "render_r0b": "DeepTextures grouped (R0b)",
-    "render_r1": "DeepTextures + render loss (R1)",
-}
+# Arm names, column keys and comparison pairs come from the arm registry
+# (variants/arms.json via variants/util/arms.py). A row says which method it is, not
+# which folder it came from; an unknown tag shows as itself.
 FIXED_NAMES = {"bilinear": "bilinear", "matup": "MatUp", "gt": "GT"}
-STEP_RE = re.compile(r"^(.+)_(\d+k)$")
+FIXED_KINDS = ("bilinear", "matup")
+
 
 # Scalars per (material, column, variant), in CSV / table order.
 BAND_NAMES = ("grazing", "mid", "high")
@@ -225,29 +218,15 @@ def die(code, msg):
 
 # ---------------------------------------------------------------- names, tags
 
-def split_tag(tag):
-    """'render_r1_40k' -> ('render_r1', '40k'); no suffix -> (tag, '')."""
-    m = STEP_RE.match(tag)
-    return (m.group(1), m.group(2)) if m else (tag, "")
+split_tag = arms.split_tag
+display_name = arms.display_name
+label_lines = arms.label_lines
+step_key = arms.step_key
 
 
-def display_name(tag):
-    base, step = split_tag(tag)
-    if base not in DISPLAY:
-        return tag
-    return DISPLAY[base] + (" " + step if step else "")
-
-
-def label_lines(name):
-    """One or two lines: break before the bracket ("... (R1) 40k")."""
-    i = name.find(" (")
-    if i <= 0 or len(name) <= 18:
-        return [name]
-    return [name[:i], name[i + 1:]]
-
-
-def step_key(step):
-    return int(step[:-1]) if step else -1
+def is_arm(col):
+    """An SR arm column (any --arm), as opposed to the built-in bilinear / MatUp."""
+    return col["kind"] not in FIXED_KINDS
 
 
 # ------------------------------------------------------------------- reading
@@ -564,7 +543,7 @@ def column_metrics(rmaps, ctx, args, where, keep=()):
     q = lambda x: np.rint(np.clip(x, 0.0, 1.0) * 255.0)  # noqa: E731
     d8 = (q(img) - q(ctx["gt_eval"]))[mk]
     m["eval_psnr_8bit"] = psnr(float((d8 * d8).mean()), 255.0)
-    m["render_grad"] = post.sharpness(to_u16(img))[0]
+    m["render_grad"] = rmet.sharpness(to_u16(img))[0]
     m["render_grad_pct_gt"] = (100.0 * m["render_grad"] / ctx["gt_grad"]
                                if ctx["gt_grad"] else None)
 
@@ -586,10 +565,10 @@ def self_check(col, ours, run_dir, border, full):
     are aligned by trimming the wider one; render_opt.png keeps MatUp's zero rim
     and is first cropped by the border, as deeptex_arms_report.py:216-217 does.
     """
-    path = os.path.join(run_dir, post.RENDER[col])
+    path = os.path.join(run_dir, mo.RENDER[col])
     if not os.path.exists(path):
         die(3, "self-check: %s is missing - run matup_render.py first" % path)
-    theirs = post.read(path)[..., ::-1].astype(np.float64) / U16    # BGR -> RGB
+    theirs = rimg.read(path)[..., ::-1].astype(np.float64) / U16    # BGR -> RGB
     if theirs.shape[0] == full:
         theirs = mr.crop(theirs, border)
         b_t = border
@@ -615,7 +594,7 @@ def self_check(col, ours, run_dir, border, full):
 def to_cell(img, size):
     """Float RGB render -> the montage cell (8-bit BGR), via the committed sheets'
     to_display; quantised like the PNG MatUp would have written."""
-    return mont.to_display(np.ascontiguousarray(to_u16(img)[..., ::-1]), size)
+    return rimg.to_display(np.ascontiguousarray(to_u16(img)[..., ::-1]), size)
 
 
 def heat_cell(img, gt, mask_hw, size):
@@ -629,25 +608,25 @@ def heat_cell(img, gt, mask_hw, size):
 def draw_lines(img, lines, x, y, width, start, colour):
     """deeptex_arms_report.draw_lines (:236-240)."""
     for i, t in enumerate(lines):
-        s = ov.fit(t, width, start if i == 0 else start * 0.85)
+        s = rsheet.fit(t, width, start if i == 0 else start * 0.85)
         cv2.putText(img, t, (x, y + i * int(26 * start + 6)), FONT, s, colour, 1, cv2.LINE_AA)
 
 
 def write_render_sheet(path, title, notes, heads, rows):
     """deeptex_arms_report.write_montage's layout (:243-265): methods down,
     renders across."""
-    pad, head = mont.PAD, mont.HEAD
-    top = mont.TITLE + 18 * len(notes)
+    pad, head = rsheet.GRID.pad, rsheet.GRID.head
+    top = rsheet.GRID.title + 18 * len(notes)
     w = SHEET_LEFT + len(heads) * (CELL + pad) + pad
     h = top + head + len(rows) * (CELL + pad) + pad
     sheet = np.full((h, w, 3), 18, np.uint8)
     cv2.putText(sheet, title, (10, 22), FONT, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
     for i, t in enumerate(notes):
-        cv2.putText(sheet, t, (10, 22 + 18 * (i + 1)), FONT, ov.fit(t, w - 20, 0.45),
+        cv2.putText(sheet, t, (10, 22 + 18 * (i + 1)), FONT, rsheet.fit(t, w - 20, 0.45),
                     (200, 200, 200), 1, cv2.LINE_AA)
     for c, t in enumerate(heads):
         x = SHEET_LEFT + c * (CELL + pad)
-        cv2.putText(sheet, t, (x + 4, top + 22), FONT, ov.fit(t, CELL - 8, 0.5),
+        cv2.putText(sheet, t, (x + 4, top + 22), FONT, rsheet.fit(t, CELL - 8, 0.5),
                     (210, 210, 210), 1, cv2.LINE_AA)
     for r, (name, cells) in enumerate(rows):
         y = top + head + r * (CELL + pad)
@@ -655,14 +634,14 @@ def write_render_sheet(path, title, notes, heads, rows):
                    (210, 210, 210))
         for c, cell in enumerate(cells):
             x = SHEET_LEFT + c * (CELL + pad)
-            sheet[y:y + CELL, x:x + CELL] = cell if cell is not None else mont.placeholder(CELL, [])
-    post.write(path, sheet)
+            sheet[y:y + CELL, x:x + CELL] = cell if cell is not None else rsheet.placeholder(CELL, [])
+    rimg.write(path, sheet)
 
 
 def write_overview(path, rows, keys, names):
     """deeptex_arms_report.write_overview's layout (:268-293): materials down,
     methods across."""
-    pad, left, top, head = ov.PAD, ov.LEFT, ov.TITLE, 46
+    pad, left, top, head = rsheet.TABLE.pad, rsheet.TABLE.left, rsheet.TABLE.title, 46
     w = left + len(keys) * (OV_CELL + pad) + pad
     h = top + head + len(rows) * (OV_CELL + pad) + pad
     sheet = np.full((h, w, 3), 18, np.uint8)
@@ -675,7 +654,7 @@ def write_overview(path, rows, keys, names):
     for r, (name, cells) in enumerate(rows):
         y = top + head + r * (OV_CELL + pad)
         cv2.putText(sheet, name, (8, y + OV_CELL // 2), FONT,
-                    ov.fit(name, left - 16, 0.46), (215, 215, 215), 1, cv2.LINE_AA)
+                    rsheet.fit(name, left - 16, 0.46), (215, 215, 215), 1, cv2.LINE_AA)
         for c, key in enumerate(keys):
             x = left + c * (OV_CELL + pad)
             cell = cells.get(key)
@@ -684,7 +663,7 @@ def write_overview(path, rows, keys, names):
                 cv2.putText(cell, "n/a", (OV_CELL // 2 - 18, OV_CELL // 2), FONT, 0.5,
                             (110, 110, 110), 1, cv2.LINE_AA)
             sheet[y:y + OV_CELL, x:x + OV_CELL] = cell
-    post.write(path, sheet)
+    rimg.write(path, sheet)
 
 
 # --------------------------------------------------------------- per material
@@ -704,12 +683,12 @@ def process(mat_dir, cols, args, device, lights):
     # Border: deeptex_arms_report.py:166-177 - MatUp's zero rim, never measured
     # on normal (mid-grey rim) or the pre-cropped height.
     opts = {}
-    for m, (_, opt_name) in post.MAPS.items():
+    for m, (_, opt_name) in mo.MAPS.items():
         p = os.path.join(run_dir, opt_name)
         if os.path.exists(p):
-            opts[m] = post.read(p)
-    border, sides = post.detect_border(
-        [a for m, a in opts.items() if m != "normal" and m not in post.PRECROPPED])
+            opts[m] = rimg.read(p)
+    border, sides = mo.detect_border(
+        [a for m, a in opts.items() if m != "normal" and m not in mo.PRECROPPED])
 
     gt_maps, gt_enc_full, _ = load_gt(mat_dir)
     full = gt_maps[0].shape[0]
@@ -734,7 +713,7 @@ def process(mat_dir, cols, args, device, lights):
     gt_held, gt_kept = render_chunks(gt_rmaps, lights["held"], args.chunk,
                                      "%s gt heldout" % name, sheet_idx)
     gt_train, _ = render_chunks(gt_rmaps, lights["train"], args.chunk, "%s gt train100" % name)
-    gt_grad = post.sharpness(to_u16(gt_eval))[0]
+    gt_grad = rmet.sharpness(to_u16(gt_eval))[0]
     rep["columns"]["gt"] = {"raw": {
         "render_grad": gt_grad, "nz_below_min": int((gt_rmaps[2][..., 2] < NZ_MIN).sum()),
         "nz_zero_fixed": gt_fix, "metallic_mean": float(gt_rmaps[1].double().mean())}}
@@ -838,19 +817,18 @@ def mean_of(reports, key, variant, metric):
 
 
 def head_to_head_pairs(cols):
-    dts = [c for c in cols if c["kind"] == "dt"]
+    """Registry pairs (same step), then every arm vs its registry reference (same
+    step, else the reference's unsuffixed tag), then every arm vs bilinear / MatUp."""
+    dts = [c for c in cols if is_arm(c)]
     by = {(c["base"], c["step"]): c["key"] for c in dts}
+    key_of = {c["tag"]: c["key"] for c in dts}
     keys = {c["key"] for c in cols}
-    pairs = []
-    for s in sorted({c["step"] for c in dts}, key=step_key):
-        for a, b in (("render_r1", "render_r0a"), ("render_r1", "render_r0b"),
-                     ("render_r0a", "render_r0b")):
-            if (a, s) in by and (b, s) in by:
-                pairs.append((by[(a, s)], by[(b, s)]))
+    pairs = [(key_of[a], key_of[b]) for a, b in arms.pairs([c["tag"] for c in dts])]
     for c in dts:
-        if c["base"] == "matsynth_all":
+        ref_base = arms.reference(c["tag"])
+        if not ref_base or c["base"] == ref_base:
             continue
-        ref = by.get(("matsynth_all", c["step"])) or by.get(("matsynth_all", ""))
+        ref = by.get((ref_base, c["step"])) or by.get((ref_base, ""))
         if ref:
             pairs.append((c["key"], ref))
     for c in dts:
@@ -901,7 +879,7 @@ def head_to_head(reports, a, b):
 def steps_tables(common, cols):
     """Per base arm with step-suffixed tags: P1 / P1raw mean at each step, the mean
     over steps and the within-run range - the inputs of the plan's tau."""
-    dts = [c for c in cols if c["kind"] == "dt" and c["step"]]
+    dts = [c for c in cols if is_arm(c) and c["step"]]
     bases = []
     for c in dts:
         if c["base"] not in bases:
@@ -1028,7 +1006,7 @@ def write_summary(path, reports, cols, names, lights, h2h, steps):
                   "|---|" + "---|" * (len(t["steps"]) + 2)]
             for base, row in t["rows"].items():
                 L.append("| %s | %s | %s | %s |" % (
-                    DISPLAY.get(base, base),
+                    arms.base_display(base),
                     " | ".join(fmt(row["steps"].get(s), "%.3f") for s in t["steps"]),
                     fmt(row["mean"], "%.3f"), fmt(row["range"], "%.3f")))
             L.append("")
@@ -1161,7 +1139,7 @@ def clear_stale(out, mats):
     gone = 0
     for n in names:
         p = os.path.join(out, n)
-        if n not in post.RENDER.values() and os.path.isfile(p):
+        if n not in mo.RENDER.values() and os.path.isfile(p):
             os.remove(p)
             gone += 1
     if gone:
@@ -1178,7 +1156,8 @@ def parse_arms(specs):
             die(2, "--arm tag %r is used twice or clashes with a built-in column" % tag)
         seen.add(tag)
         base, step = split_tag(tag)
-        cols.append({"key": "dt_" + tag, "kind": "dt", "tag": tag, "dir": os.path.normpath(d),
+        key = arms.column_key(tag)
+        cols.append({"key": key, "kind": key[:key.index("_")], "tag": tag, "dir": os.path.normpath(d),
                      "base": base, "step": step, "short": tag})
     return cols
 
@@ -1217,7 +1196,7 @@ def read_manifests(cols, mats, expect_step):
     before any rendering."""
     out = {}
     for c in cols:
-        if c["kind"] != "dt":
+        if not is_arm(c):
             continue
         per = {}
         for mat_dir in mats:
@@ -1253,9 +1232,9 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", default="/workspace/runs/matsynth")
     ap.add_argument("--arm", action="append", default=[],
-                    help="TAG=DIR of a deeptex_compare.py --out (DIR/<mat>/{five maps}.png "
-                         "+ sr_manifest.json); repeat per arm. TAG names the row: "
-                         "matsynth_all, render_r0a/_r0b/_r1 (+ _30k etc.) get method names; "
+                    help="TAG=DIR of an arm output folder (DIR/<mat>/{five maps}.png "
+                         "+ sr_manifest.json); repeat per arm. TAG names the row through "
+                         "variants/arms.json (+ _30k etc.); an unregistered tag shows as itself; "
                          "a _NNk suffix must match the manifest's step")
     ap.add_argument("--out", required=True, help="absolute output folder")
     ap.add_argument("--material", default="")

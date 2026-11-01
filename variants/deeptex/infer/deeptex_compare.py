@@ -48,7 +48,7 @@ from modules.models import RRDB_Model  # noqa: E402
 from modules.utils import load_yaml, set_memory_growth  # noqa: E402
 
 from variants.util import map_encode  # noqa: E402
-from variants.compare.matup_runs import newest_run  # noqa: E402,F401  (re-exported)
+from variants.matup.baseline.matup_outputs import newest_run  # noqa: E402,F401
 from variants.deeptex.infer import deeptex_sr  # noqa: E402
 
 # name -> (source, kind). "svbrdf" sources come from the material's LR set, "run"

@@ -60,8 +60,8 @@ from modules.utils import load_yaml, set_memory_growth  # noqa: E402
 from variants.deeptex.matsynth import eval_arms as deeptex_compare  # noqa: E402
 from variants.deeptex.infer import deeptex_sr  # noqa: E402
 from variants.util import map_encode  # noqa: E402
-from variants.compare import matup_montage  # noqa: E402
-from variants.compare.matup_overview import fit  # noqa: E402
+from variants.util.report import images as rimg, sheets as rsheet  # noqa: E402
+from variants.util.report.sheets import fit  # noqa: E402
 
 SHEET_MAPS = [j[0] for j in deeptex_compare.JOBS]   # baseColor ... height, render
 
@@ -113,7 +113,7 @@ def write_sheet(path, title, label, outputs):
                     (210, 210, 210), 1, cv2.LINE_AA)
         a = outputs.get(m)
         s[top + head:top + head + cell, x:x + cell] = (
-            matup_montage.to_display(a, cell) if a is not None else matup_montage.placeholder(cell, ["missing"]))
+            rimg.to_display(a, cell) if a is not None else rsheet.placeholder(cell, ["missing"]))
     for i, t in enumerate(label):
         cv2.putText(s, t, (10, top + head + cell // 2 - 8 + i * 26), cv2.FONT_HERSHEY_SIMPLEX,
                     fit(t, left - 18, 0.62), (210, 210, 210), 1, cv2.LINE_AA)

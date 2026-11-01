@@ -78,9 +78,9 @@ What it reads from other folders:
 - **MatUp baseline**: `eval_arms.py`'s `render` job super-resolves MatUp's
   `render_lr.png` from the newest `runs/matsynth/<m>/matup-output-<m>/<stamp>/`.
   `deeptex_arms_report.py` builds its lr / bilinear / MatUp / GT columns from
-  `runs/matsynth/<m>/` with `compare/matup_postprocess.py` (same crop, border and
-  DirectX -> OpenGL flip as `runs/montages/`) and draws with `compare/matup_montage.py`
-  / `compare/matup_overview.py`.
+  `runs/matsynth/<m>/` with `matup/baseline/postprocess.py` (same crop, border and
+  DirectX -> OpenGL flip as `runs/montages/`) and draws with `matup/baseline/montage.py`
+  / `util/report/overview.py`.
 - **Other arms**: `deeptex_arms_report.py --arm` takes any `eval_arms.py --out`; the
   render-loss arms are `runs/deeptex/eval/render_r*_<k>k`.
 - **Pairs**: `runs/deeptex/datasets/matsynth/<map>/{HR,LRx4}` (and `_meta/`) also feed

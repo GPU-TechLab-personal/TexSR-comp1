@@ -26,9 +26,9 @@ Inputs:
   the manifest's step; `--expect-step` checks every arm.
 * **MatUp baseline.** GT, LR, bilinear and MatUp columns come from
   `runs/matsynth/<material>/` (`--root`) and its newest
-  `matup-output-<m>/<stamp>/` (`--run` picks another; `variants/compare/matup_runs.py`),
+  `matup-output-<m>/<stamp>/` (`--run` picks another; `variants/matup/baseline/matup_outputs.py`),
   through `variants/matup/baseline/matup_render.py` (`load_set`, `crop`,
-  `DISP_VAL`, `EVAL_LIGHT`) and `variants/compare/matup_postprocess.py`
+  `DISP_VAL`, `EVAL_LIGHT`) and `variants/matup/baseline/postprocess.py`
   (`deeptex_column`, border, `MAPS`). The renderer is `external/matup_egsr`,
   always at `variants/util/paths.MATUP_ROOT` (`/workspace/external/matup_egsr`
   in the containers; there is no environment override).
@@ -48,7 +48,7 @@ Outputs (each removes its earlier outputs of these names from `--out` first):
 | `deeptex_dt_montage.py` | `dt_<material>.png`, `dt_overview_<key>.png` (key = five maps + render), `README.md` with the command that regenerates the folder |
 
 `svbrdf_perceptual_eval.py` imports `svbrdf_render_eval`;
-`deeptex_dt_montage.py` imports both that and `variants/compare/*`.
+`deeptex_dt_montage.py` imports both that and `variants/util/report/ and variants/matup/baseline/matup_outputs.py`.
 `render_loss/run.ps1` calls the first two: `-Stage eval-render` writes
 `runs/deeptex/render_eval/main/` and copies `summary.md` (as
 `render_summary.md`), the `render_*.png` sheets and `overview_render_pred.png`

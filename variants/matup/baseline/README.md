@@ -13,10 +13,13 @@ evaluation.
 | `run.ps1` | host | orchestrator: preflight, MatUp `main.py` per material (resumable), then the optional post-processing chain |
 | `matup_height.py` | dataprep | paper 3.3 height reconstruction: DCT (Neumann) Poisson integration of MatUp's normal map over the valid region, high-passed and composited with the bilinear LR height; writes `matup-output-<m>/<stamp>/height_opt.png` (MatUp writes no height) |
 | `matup_render.py` | matup | renders the LR, GT and bilinear maps with MatUp's own renderer and eval light `[0.276172, 0.276172, 0.920575]`; writes `<stamp>/render_lr.png`, `render_gt.png`, `render_bilinear.png` (MatUp renders only its own output). `--verify` re-renders MatUp's maps against its `render_opt.png` |
+| `matup_outputs.py` | any | how to read a MatUp run: file names per map (`MAPS`, `RENDER`), `newest_run` (the run every report uses: `sorted(...)[-1]`), `detect_border` (the unoptimised zero rim), `build_columns` (LR / bilinear / MatUp / GT cropped to the valid region, normal flipped DirectX -> OpenGL). Imported by every DeepTextures evaluator |
+| `postprocess.py` | dataprep | each run -> its comparison set `runs/matsynth/<m>/compare/<stamp>/` (`<map>/<column>.png`, `sheet_<map>.png`, render columns, `metrics.json`); `extra` hook for another method's column |
+| `montage.py` | dataprep | `montage.png` (4 rows x 6 maps) per comparison set; `--collect` copies montages and metrics into `runs/montages/` and writes `summary.md`; `extra` hook for another method's sheet |
 
 Shared code it calls: `variants/util/preflight.ps1` (docker context and stray
-container checks), `variants/compare/matup_postprocess.py` and
-`variants/compare/matup_montage.py` (comparison sets, metrics, montages).
+container checks) and `variants/util/report/` (images, metrics, sheets, layout,
+montages).
 
 ## How it works
 
@@ -61,8 +64,8 @@ There is no `-Stage` parameter; switches pick the steps, which run in this order
 | per material | each material; skipped if `matup-output-<m>/**/baseColor_opt.png` exists, unless `-Force` | `matup python main.py ...` (above) |
 | height | `-PostProcess` and no failure | `dataprep python variants/matup/baseline/matup_height.py --all` |
 | renders | same | `matup python /workspace/variants/matup/baseline/matup_render.py --all` |
-| comparison sets + metrics | same | `dataprep python variants/compare/matup_postprocess.py --all --metrics` |
-| montages | same | `dataprep python variants/compare/matup_montage.py --all --collect /workspace/runs/montages` |
+| comparison sets + metrics | same | `dataprep python variants/matup/baseline/postprocess.py --all --metrics` |
+| montages | same | `dataprep python variants/matup/baseline/montage.py --all --collect /workspace/runs/montages` |
 
 The order of the last four is load-bearing: height and render produce the two
 columns MatUp does not write, postprocess normalises everything into
@@ -83,11 +86,11 @@ These are why MatUp output paths and file names must not move:
   `variants/deeptex/render_loss/eval/svbrdf_render_eval.py` /
   `svbrdf_perceptual_eval.py`.
 * `variants/deeptex/paper/run.ps1 -Stage eval` (eval-postprocess, eval-montage)
-  runs `deeptex_postprocess.py` (which is `compare/matup_postprocess.py` plus a
+  runs `deeptex_postprocess.py` (which is `matup/baseline/postprocess.py` plus a
   fifth column) and `deeptex_montage.py`, writing into the same
   `runs/matsynth/<m>/compare/<stamp>/` and `runs/montages/`.
 * Every consumer picks the run folder with `sorted(...)[-1]`
-  (`variants/compare/matup_runs.py:newest_run`, plus inline copies in
+  (`variants/matup/baseline/matup_outputs.py:newest_run`, plus inline copies in
   `matup_height.py`, `matup_render.py` and `render_gate.py`). A new MatUp run
   (for example `-Force`) therefore changes what all DT evaluations read.
 * The DT side's eval root is fixed at `/workspace/runs/matsynth` (`$EVAL_ROOT`

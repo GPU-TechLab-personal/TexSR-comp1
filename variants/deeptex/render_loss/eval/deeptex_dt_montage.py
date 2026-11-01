@@ -22,10 +22,10 @@ see. These sheets keep only the --arm rows (in the order given) and GT.
 
 Nothing is recomputed differently from those two scripts; their code is imported:
 
-  maps     deeptex_arms_report.process: the border post.detect_border measures on
+  maps     deeptex_arms_report.process: the border mo.detect_border measures on
            MatUp's _opt maps (normal and the pre-cropped height excluded), the DT
-           PNG through post.deeptex_column, the GT through the same crop and
-           post.to_u16, displayed with matup_montage.to_display (>> 8, no
+           PNG through rimg.load_fit, the GT through the same crop and
+           rimg.to_u16, displayed with rimg.to_display (>> 8, no
            per-cell normalisation: an all-zero metallic is black; the normal is
            its stored OpenGL RGB encoding; grey maps stay grey).
   renders  svbrdf_render_eval.process: load_dt / load_gt (load_set + position3d of
@@ -71,9 +71,8 @@ MATUP_ROOT = paths.use_matup()
 
 from matup.renderer import Renderer  # noqa: E402
 
-from variants.compare import matup_montage as mont  # noqa: E402
-from variants.compare import matup_overview as ov  # noqa: E402
-from variants.compare import matup_postprocess as post  # noqa: E402
+from variants.matup.baseline import matup_outputs as mo  # noqa: E402
+from variants.util.report import images as rimg, sheets as rsheet  # noqa: E402
 from variants.matup.baseline import matup_render as mr  # noqa: E402
 from variants.deeptex.render_loss.eval import svbrdf_render_eval as ev  # noqa: E402
 
@@ -97,7 +96,7 @@ def die(code, msg):
 
 
 def write_png(path, img):
-    """post.write with maximum (lossless) PNG compression."""
+    """rimg.write with maximum (lossless) PNG compression."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if not cv2.imwrite(path, img, PNG_PARAMS):
         die(2, "cv2.imwrite failed for " + path)
@@ -138,7 +137,7 @@ def wrap_part(part, width, scale):
 def wrap_label(text, width, scale):
     """ev.label_lines (break before the bracket), then each part wrapped to
     `width` at `scale` (wrap_part); a single word that still does not fit is
-    shrunk when drawn (ov.fit)."""
+    shrunk when drawn (rsheet.fit)."""
     lines = []
     for part in ev.label_lines(text):
         lines += wrap_part(part, width, scale)
@@ -147,7 +146,7 @@ def wrap_label(text, width, scale):
 
 def put_lines(img, lines, x, y, width, scale, colour, step):
     for i, t in enumerate(lines):
-        cv2.putText(img, t, (x, y + i * step), FONT, ov.fit(t, width, scale),
+        cv2.putText(img, t, (x, y + i * step), FONT, rsheet.fit(t, width, scale),
                     colour, 1, cv2.LINE_AA)
 
 
@@ -155,7 +154,7 @@ def gt_heat_cell(size):
     """The GT row has no error to show: a black cell that says so."""
     cell = np.zeros((size, size, 3), np.uint8)
     for i, t in enumerate(("GT = reference", "no |pred - GT|")):
-        s = ov.fit(t, size - 16, 0.5)
+        s = rsheet.fit(t, size - 16, 0.5)
         w = cv2.getTextSize(t, FONT, s, 1)[0][0]
         cv2.putText(cell, t, (max(4, size // 2 - w // 2), size // 2 - 4 + 22 * i), FONT, s,
                     (150, 150, 150), 1, cv2.LINE_AA)
@@ -186,9 +185,9 @@ def render_pair(maps, border, lights, chunk, device, where):
 
 
 def map_display(a, size):
-    """The montage cell of a stored map array (mont.to_display, as
+    """The montage cell of a stored map array (rimg.to_display, as
     deeptex_arms_report does); a 4th channel, if any, is not drawn."""
-    return mont.to_display(a[..., :3] if a.ndim == 3 else a, size)
+    return rimg.to_display(a[..., :3] if a.ndim == 3 else a, size)
 
 
 # --------------------------------------------------------------- per material
@@ -207,12 +206,12 @@ def process(mat_dir, cols, args, device, lights):
     # deeptex_arms_report.py:166-177 / svbrdf_render_eval.process: MatUp's zero
     # rim, never measured on normal (mid-grey rim) or the pre-cropped height.
     opts = {}
-    for m, (_, opt_name) in post.MAPS.items():
+    for m, (_, opt_name) in mo.MAPS.items():
         p = os.path.join(run_dir, opt_name)
         if os.path.exists(p):
-            opts[m] = post.read(p)
-    border, sides = post.detect_border(
-        [a for m, a in opts.items() if m != "normal" and m not in post.PRECROPPED])
+            opts[m] = rimg.read(p)
+    border, sides = mo.detect_border(
+        [a for m, a in opts.items() if m != "normal" and m not in mo.PRECROPPED])
     del opts
 
     gt_maps, _, _ = ev.load_gt(mat_dir)
@@ -238,13 +237,13 @@ def process(mat_dir, cols, args, device, lights):
         if lost:
             print("  ! %s: arm %s has no %s" % (name, col["tag"], ", ".join(lost)))
             info["missing"].append(col["tag"])
-            rows.append((col, [mont.placeholder(args.cell, ["missing"])] * 8))
+            rows.append((col, [rsheet.placeholder(args.cell, ["missing"])] * 8))
             continue
         ev.require_readable(need, "%s / %s" % (name, key))
 
         cells = []
         for m, p in zip(MAP_ORDER, need):
-            a = post.deeptex_column(p, border, side)              # deeptex_arms_report.py:197
+            a = rimg.load_fit(p, border, side)              # deeptex_arms_report.py:197
             cells.append(map_display(a, args.cell))
             ov_cells[m][key] = map_display(a, args.ov_cell)
 
@@ -263,8 +262,8 @@ def process(mat_dir, cols, args, device, lights):
 
     cells = []
     for m in MAP_ORDER:
-        # deeptex_arms_report: post.build_columns' crop_hr(gt) -> to_u16.
-        a = post.to_u16(mr.crop(post.read(os.path.join(mat_dir, "GT", m + ".png")), border))
+        # deeptex_arms_report: mo.build_columns' crop_hr(gt) -> to_u16.
+        a = rimg.to_u16(mr.crop(rimg.read(os.path.join(mat_dir, "GT", m + ".png")), border))
         cells.append(map_display(a, args.cell))
         ov_cells[m]["gt"] = map_display(a, args.ov_cell)
     cells += [ev.to_cell(gt_eval, args.cell), ev.to_cell(gt_graz, args.cell),
@@ -285,17 +284,17 @@ def separators(keys_bases):
 def write_sheet(path, title, notes, heads, rows, names, cell):
     """svbrdf_render_eval.write_render_sheet's layout (methods down, maps and
     renders across), with two-line column heads and wrapped row labels."""
-    pad = mont.PAD
-    top = mont.TITLE + 18 * len(notes)
+    pad = rsheet.GRID.pad
+    top = rsheet.GRID.title + 18 * len(notes)
     head_lines = [wrap_label(h, cell - 8, 0.5) if isinstance(h, str) else h for h in heads]
     head = 14 + 19 * max(len(h) for h in head_lines) + 8
     w = LEFT + len(heads) * (cell + pad) + pad
     h = top + head + len(rows) * (cell + pad) + pad
     sheet = np.full((h, w, 3), 18, np.uint8)
-    cv2.putText(sheet, title, (10, 22), FONT, ov.fit(title, w - 20, 0.6), (255, 255, 255),
+    cv2.putText(sheet, title, (10, 22), FONT, rsheet.fit(title, w - 20, 0.6), (255, 255, 255),
                 1, cv2.LINE_AA)
     for i, t in enumerate(notes):
-        cv2.putText(sheet, t, (10, 22 + 18 * (i + 1)), FONT, ov.fit(t, w - 20, 0.45),
+        cv2.putText(sheet, t, (10, 22 + 18 * (i + 1)), FONT, rsheet.fit(t, w - 20, 0.45),
                     (200, 200, 200), 1, cv2.LINE_AA)
     for c, lines in enumerate(head_lines):
         x = LEFT + c * (cell + pad)
@@ -318,13 +317,13 @@ def write_sheet(path, title, notes, heads, rows, names, cell):
 def write_overview(path, title, rows, col_keys, bases, names, cell):
     """svbrdf_render_eval.write_overview / deeptex_arms_report.write_overview's
     layout (materials down, methods across), with wrapped column heads."""
-    pad, left, top = ov.PAD, ov.LEFT, ov.TITLE
+    pad, left, top = rsheet.TABLE.pad, rsheet.TABLE.left, rsheet.TABLE.title
     head_lines = [wrap_label(names[k], cell - 6, 0.42) for k in col_keys]
     head = 12 + 16 * max(len(h) for h in head_lines) + 6
     w = left + len(col_keys) * (cell + pad) + pad
     h = top + head + len(rows) * (cell + pad) + pad
     sheet = np.full((h, w, 3), 18, np.uint8)
-    cv2.putText(sheet, title, (10, 24), FONT, ov.fit(title, w - 20, 0.62), (255, 255, 255),
+    cv2.putText(sheet, title, (10, 24), FONT, rsheet.fit(title, w - 20, 0.62), (255, 255, 255),
                 1, cv2.LINE_AA)
     seps = separators(bases)
     for c, lines in enumerate(head_lines):
@@ -335,7 +334,7 @@ def write_overview(path, title, rows, col_keys, bases, names, cell):
     for r, (name, cells) in enumerate(rows):
         y = top + head + r * (cell + pad)
         cv2.putText(sheet, name, (8, y + cell // 2), FONT,
-                    ov.fit(name, left - 16, 0.46), (215, 215, 215), 1, cv2.LINE_AA)
+                    rsheet.fit(name, left - 16, 0.46), (215, 215, 215), 1, cv2.LINE_AA)
         for c, key in enumerate(col_keys):
             x = left + c * (cell + pad)
             cl = cells.get(key)
@@ -441,8 +440,8 @@ def write_readme(path, args, out, cols, names, manifests, infos, lights, files):
           "metallic; never normal or the pre-cropped height) - the call `deeptex_arms_report.py` and "
           "`svbrdf_render_eval.py` make. Map cells and renders cover the same %s px region." % (
               "/".join(sorted({"%d^2" % i["side"] for i in infos}))),
-          "- **Maps** are drawn as `deeptex_arms_report.py` draws them: `post.deeptex_column` / the "
-          "GT crop, `matup_montage.to_display` (16-bit >> 8, area-downsampled). Nothing is "
+          "- **Maps** are drawn as `deeptex_arms_report.py` draws them: `util/report/images.load_fit` / the "
+          "GT crop, `images.to_display` (16-bit >> 8, area-downsampled). Nothing is "
           "normalised: an all-zero metallic is black, the normal is its stored OpenGL RGB encoding, "
           "grey maps are grey.",
           "- **Renders** follow `svbrdf_render_eval.py` exactly: `load_dt` / `load_gt` "

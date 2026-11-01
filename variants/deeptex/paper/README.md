@@ -15,8 +15,8 @@ and sheet to the MatUp comparison. Training itself is
 | `esrgan_paper.yaml` | upstream `configs/esrgan.yaml @ e4ee562` with one line changed (`train_dataset.path`, absolute) |
 | `texsr_normalize.py` | stage [A], dataprep container: any image dir -> 8-bit, 3-channel PNGs with sides a multiple of 4 and >= 128, every conversion counted in `normalize_manifest.json` |
 | `texsr_make_pairs.py` | stage [B], deeptex container: tiles HR and derives each LRx4 tile with upstream's `imresize_np`; holdout split by source image; writes `pairs_manifest.json` |
-| `deeptex_postprocess.py` | `compare/matup_postprocess.py` plus the `DeeptexColumn` hook: a fifth column (`deeptex`) on baseColor and render, with its sharpness metrics and console notes |
-| `deeptex_montage.py` | `compare/matup_montage.py` plus the `DeeptexSheet` hook: the separate 5x2 `montage_deeptex.png` and its `--collect` copy `<material>_deeptex.png` |
+| `deeptex_postprocess.py` | `matup/baseline/postprocess.py` plus the `DeeptexColumn` hook: a fifth column (`deeptex`) on baseColor and render, with its sharpness metrics and console notes |
+| `deeptex_montage.py` | `matup/baseline/montage.py` plus the `DeeptexSheet` hook: the separate 5x2 `montage_deeptex.png` and its `--collect` copy `<material>_deeptex.png` |
 
 ## How it works
 
@@ -45,11 +45,11 @@ logged to `runs/_logs/<stamp>/<step>.log`; helpers from `variants/util/lib.ps1`)
 | `eval` | `infer/deeptex_compare.py --root runs/matsynth --out runs/deeptex/eval/<EvalTag>` -> `deeptex_postprocess.py --all --metrics --deeptex-root <out>` -> `deeptex_montage.py --all --collect /workspace/runs/montages` |
 | `all` (default) | `prep`, `smoke`, `paper`, `eval` |
 
-The two hooks are objects passed as `extra` to `compare/matup_postprocess.run()` and
-`compare/matup_montage.run()`; without `--deeptex-root` `deeptex_postprocess.py`
-writes exactly what `compare/matup_postprocess.py` writes. `deeptex_column()` (crop an
-SR output into MatUp's valid region) lives in `compare/matup_postprocess.py` because the
-MatSynth and render-loss reports use it too. Only baseColor and render get a
+The two hooks are objects passed as `extra` to `matup/baseline/postprocess.run()` and
+`matup/baseline/montage.run()`; without `--deeptex-root` `deeptex_postprocess.py`
+writes exactly what `matup/baseline/postprocess.py` writes. The column is cropped into
+MatUp's valid region with `util/report/images.load_fit()`, which the MatSynth and
+render-loss reports use too. Only baseColor and render get a
 DeepTextures column here; the all-maps comparison is `variants/deeptex/matsynth/`.
 
 What it reads from other folders:
@@ -57,7 +57,7 @@ What it reads from other folders:
 - **MatUp baseline** (`variants/matup/baseline/`): `runs/matsynth/<m>/{SVBRDF,GT}` and
   the newest `matup-output-<m>/<stamp>/` (`*_opt.png`, `height_opt.png`,
   `render_{lr,bilinear,opt,gt}.png`). The `render` input to DeepTextures is MatUp's
-  `render_lr.png` (newest run, `compare/matup_runs.newest_run`): every DeepTextures
+  `render_lr.png` (newest run, `matup/baseline/matup_outputs.newest_run`): every DeepTextures
   render column, here and in `matsynth/` and `render_loss/eval/`, is DeepTextures
   applied to MatUp's render of the LR maps.
 - `eval` writes into the MatUp tree (`runs/matsynth/<m>/compare/<stamp>/`) and rewrites

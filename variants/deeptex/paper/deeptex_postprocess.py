@@ -7,7 +7,7 @@ Run it in the dataprep container (the old `matup_postprocess.py --all --metrics
     python variants/deeptex/paper/deeptex_postprocess.py --all --metrics \\
         --deeptex-root /workspace/runs/deeptex/eval/paper
 
-Everything except the column is variants/compare/matup_postprocess.py, run with the
+Everything except the column is variants/matup/baseline/postprocess.py, run with the
 DeeptexColumn hook below; without --deeptex-root this writes exactly what that
 file writes. The column itself is old matup_postprocess.py:71-82 (constants),
 :303 and :308-313 (per map), :340-345 (metrics), :365-370 (render) and :400-409
@@ -27,7 +27,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.compare import matup_postprocess as post  # noqa: E402
+from variants.matup.baseline import postprocess as post  # noqa: E402
+from variants.util.report import images as rimg, metrics as rmet  # noqa: E402
 
 DEEPTEX_COLUMN = "deeptex"
 DEEPTEX_MAPS = {"baseColor", "render"}
@@ -47,7 +48,7 @@ class DeeptexColumn:
         if m in DEEPTEX_MAPS:
             p = os.path.join(dtx_dir, m + ".png")
             if os.path.exists(p):
-                cols[DEEPTEX_COLUMN] = post.deeptex_column(p, border, size)
+                cols[DEEPTEX_COLUMN] = rimg.load_fit(p, border, size)
             else:
                 print("  ! %s: no DeepTextures output for %s (%s)" % (name, m, p))
 
@@ -55,13 +56,13 @@ class DeeptexColumn:
         dtx_dir = os.path.join(self.root, name)
         p = os.path.join(dtx_dir, "render.png")
         if os.path.exists(p):
-            rcols[DEEPTEX_COLUMN] = post.deeptex_column(p, border, side)
+            rcols[DEEPTEX_COLUMN] = rimg.load_fit(p, border, side)
         else:
             print("  ! %s: no DeepTextures render (%s)" % (name, p))
 
     def add_metrics(self, entry, cols, gb, lb):
         if DEEPTEX_COLUMN in cols:
-            gd, ld = post.sharpness(cols[DEEPTEX_COLUMN])
+            gd, ld = rmet.sharpness(cols[DEEPTEX_COLUMN])
             entry[DEEPTEX_COLUMN] = {"grad": gd, "lapvar": ld}
             entry["deeptex_over_bilinear"] = {
                 "grad": gd / gb if gb else None,

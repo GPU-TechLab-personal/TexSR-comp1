@@ -11,9 +11,10 @@ experiment or shared job.
 
 | folder | purpose | main contents |
 |---|---|---|
-| `util/` | helpers no single method owns | `paths.py` (submodule paths, the only `sys.path` setup), MatSynth extraction, map encoding, MatUp light tables, shared metrics, `lib.ps1` / `preflight.ps1` for every `run.ps1` |
-| `compare/` | the comparison/report layer over the MatUp baseline's output tree | metrics, comparison montages (LR / bilinear / MatUp / GT columns), the two-method overview, newest-MatUp-run lookup; the DeepTextures arms add their column through hooks |
-| `matup/baseline/` | the MatUp baseline over the extracted materials | `run.ps1` (MatUp in its container), `matup_render.py`, `matup_height.py` |
+| `util/` | helpers no single method owns | `paths.py` (submodule paths, the only `sys.path` setup), `arms.py` (the arm registry), `arm_output.py` (writing an SR arm's evaluation folder), MatSynth extraction, map encoding, MatUp light tables, shared metrics, `lib.ps1` / `preflight.ps1` for every `run.ps1` |
+| `util/report/` | comparison reports for any experiment | image I/O and conversions, metrics, sheets (strip / grid / table), the comparison-set folder layout, montages and overviews, colour drift |
+| `arms.json` | the arm registry | every SR arm: method, display name, reference arm, config, checkpoint root; the head-to-head pairs |
+| `matup/baseline/` | the MatUp baseline over the extracted materials | `run.ps1` (MatUp in its container), `matup_render.py`, `matup_height.py`, `matup_outputs.py` (reading a MatUp run), `postprocess.py` / `montage.py` (its comparison sets, montages and `runs/montages/`) |
 | `deeptex/paper_loop/` | the DeepTextures trainer skeleton | `loop.py` = upstream `train_esrgan.py` + hook calls, `hooks.py` (defaults = the paper), `main.py --experiment paper\|fixed\|render` |
 | `deeptex/hooks_common/` | trainer machinery every DeepTextures experiment shares | checkpoints (verified resume, pretrain lookup), `[metrics]` logging, NaN / exit-code handling, seeding, validation |
 | `deeptex/paper/` | DeepTextures as released, on textures_db | data prep (normalize, pairs), `run.ps1` stages prep / smoke / paper / eval, the DeepTextures column and montage |
@@ -53,7 +54,8 @@ MatSynth parquet ──util/matsynth_extract──> runs/matsynth/<m>/{SVBRDF 12
    │                                              ├─ matup/baseline/run.ps1 ──> matup-output-<m>/<stamp>/
    │                                              │        (+ matup_render / matup_height)
    │                                              │
-   │                                              └─ compare/ ──> compare/<stamp>/ metrics, montages
+   │                                              └─ matup/baseline/postprocess + montage (util/report)
+   │                                                    ──> compare/<stamp>/ metrics, montages
    │                                                    ▲             ──> runs/montages/ (committed)
    │                                                    │ DeepTextures column (paper hooks)
    └─ deeptex/*/ data prep ──> runs/deeptex/datasets/*.tfrecord
@@ -148,6 +150,38 @@ feature and gan.
 A variant of an existing arm that only changes numbers (another `w_render`) is
 just a new config; one that needs more hooks subclasses `RenderHooks` or
 `FixedHooks`.
+
+### Another SR method as an arm (ESRGAN, SwinIR, ...)
+
+Every evaluator reads an arm as a folder (`--arm TAG=DIR`); the method behind it
+does not matter.
+
+1. Write the folder with `util/arm_output.py` (its docstring is the contract:
+   `<DIR>/<material>/<map>.png` at the GT size, OpenGL normal, 1-channel scalar
+   maps, plus `sr_manifest.json`):
+
+   ```python
+   from variants.util import arm_output
+   predict = lambda batch: run_model(batch)          # NHWC float32 [0,1] -> NHWC
+   mats = arm_output.materials("/workspace/runs/matsynth")
+   arm_output.write_arm(mats, out, arm_output.ALL_JOBS,
+                        lambda lr, where: arm_output.super_resolve(predict, lr, 4, 0, 16),
+                        lambda p, sr, kind: arm_output.save_sr(p, sr, kind, "mean"),
+                        ("mean", arm_output.COLLAPSE["mean"]),
+                        {"checkpoint": ckpt, "step": step, "sub_name": name, "scale": 4,
+                         "checkpoint_file": ckpt_path})
+   ```
+2. Register it in `arms.json`: the method once under `methods` (display name,
+   column key prefix, checkpoint kind) and the arm under `arms` (display, reference
+   arm, config, checkpoint root); add arm-vs-arm comparisons to `head_to_head`.
+3. Evaluate with the existing scripts, which take any registered or unregistered
+   tag: `deeptex/matsynth/deeptex_arms_report.py` (map space, dataprep image),
+   `deeptex/render_loss/eval/svbrdf_render_eval.py` (render space, matup image; needs
+   all five maps), `svbrdf_perceptual_eval.py` (exp image), `deeptex_dt_montage.py`,
+   and `util/report/overview.py --column LABEL=STEM ...` for a materials x methods
+   sheet.
+4. Colour drift per checkpoint: `util/report/drift.py` with the method's
+   `predict` (`deeptex/matsynth/deeptex_drift.py` is the TF driver).
 
 ### Experiments (PyTorch): a new arm
 

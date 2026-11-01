@@ -20,7 +20,7 @@ add a DeepTextures column. Used by every DeepTextures arm's evaluation.
    (`--ckpt-dir`, else `cfg["checkpoint_root"]/<sub_name>`, default root
    `/workspace/runs/deeptex/checkpoints`), restore it and fail if no weight changed.
 2. For every `runs/matsynth/<m>/` with an `SVBRDF/` (or `--material`): find the newest
-   MatUp run (`compare/matup_runs.newest_run`, or `--run <stamp>`).
+   MatUp run (`matup/baseline/matup_outputs.newest_run`, or `--run <stamp>`).
 3. Per job: `load_as_rgb01` (cv2 read, `variants/util/map_encode.to_rgb8` to 8-bit
    RGB - any of the five map encodings or the 16-bit render), `deeptex_sr.super_resolve`,
    write with `save(path, sr, kind)` (`save_colour`: rint, RGB -> BGR, PNG).

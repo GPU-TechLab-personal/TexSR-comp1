@@ -1,0 +1,46 @@
+{
+  "_doc": [
+    "Every SR arm the evaluators and orchestrators know: what method it is, how it is shown, what it is compared with, and where its config and checkpoints are.",
+    "Read by variants/util/arms.py (Python) and Get-ArmInfo / Get-DisplayName in variants/util/lib.ps1 (PowerShell, ConvertFrom-Json).",
+    "A tag may carry a step suffix (render_r1_40k): the entry of its base tag applies and the step is appended to the display name.",
+    "methods.<m>: display = the method name in sheets; key_prefix = the column key prefix in reports (dt_ for DeepTextures: existing report keys);",
+    "  checkpoint = tf | torch | none (how a step is found: tf = <prefix>.index files).",
+    "arms.<tag>: method, display (row name), reference (the arm it is compared against; null = none),",
+    "  config (repo-relative), checkpoint_root (container path; 'from_config' = the config's checkpoint_root key; {RSMOKE} = the smoke root of run.ps1).",
+    "head_to_head: arm-vs-arm comparisons, in report order. A report shows the pairs whose two arms it was given (the map report: the first such pair)."
+  ],
+  "methods": {
+    "deeptex": {"display": "DeepTextures", "key_prefix": "dt_", "checkpoint": "tf"}
+  },
+  "arms": {
+    "textures_db":        {"method": "deeptex", "display": "DeepTextures (textures_db)", "reference": null,
+                           "config": "variants/deeptex/paper/esrgan_paper.yaml",
+                           "checkpoint_root": "/workspace/runs/deeptex/paper/checkpoints"},
+    "matsynth_all":       {"method": "deeptex", "display": "DeepTextures (matsynth_all)", "reference": null,
+                           "config": "variants/deeptex/matsynth/esrgan_matsynth.yaml",
+                           "checkpoint_root": "/workspace/runs/deeptex/matsynth_all/checkpoints"},
+    "matsynth_chratio":   {"method": "deeptex", "display": "DeepTextures (matsynth_chratio)", "reference": "matsynth_all",
+                           "config": "variants/deeptex/matsynth/esrgan_matsynth_chratio.yaml",
+                           "checkpoint_root": "/workspace/runs/deeptex/matsynth_chratio/checkpoints"},
+    "matsynth_basecolor": {"method": "deeptex", "display": "DeepTextures (matsynth_basecolor)", "reference": "matsynth_all",
+                           "config": "variants/deeptex/matsynth/esrgan_matsynth_basecolor.yaml",
+                           "checkpoint_root": "/workspace/runs/deeptex/matsynth_basecolor/checkpoints"},
+    "render_r0a":         {"method": "deeptex", "display": "DeepTextures grouped (R0a)", "reference": "matsynth_all",
+                           "config": "variants/deeptex/render_loss/r0a.yaml", "checkpoint_root": "from_config"},
+    "render_r0b":         {"method": "deeptex", "display": "DeepTextures grouped (R0b)", "reference": "matsynth_all",
+                           "config": "variants/deeptex/render_loss/r0b.yaml", "checkpoint_root": "from_config"},
+    "render_r1":          {"method": "deeptex", "display": "DeepTextures + render loss (R1)", "reference": "matsynth_all",
+                           "config": "variants/deeptex/render_loss/r1.yaml", "checkpoint_root": "from_config"},
+    "smoke_r0a":          {"method": "deeptex", "display": "smoke_r0a", "reference": null,
+                           "config": "variants/deeptex/render_loss/r0a.yaml", "checkpoint_root": "{RSMOKE}/smoke_r0a/checkpoints"},
+    "smoke_r1":           {"method": "deeptex", "display": "smoke_r1", "reference": null,
+                           "config": "variants/deeptex/render_loss/r1.yaml", "checkpoint_root": "{RSMOKE}/smoke_r1/checkpoints"}
+  },
+  "head_to_head": [
+    ["render_r1", "render_r0a"],
+    ["render_r1", "render_r0b"],
+    ["render_r0a", "render_r0b"],
+    ["matsynth_basecolor", "matsynth_chratio"],
+    ["matsynth_all", "textures_db"]
+  ]
+}

@@ -265,9 +265,9 @@ if ($PostProcess -and $bad -eq 0) {
     Invoke-Step "LR / bilinear / GT renders" matup `
         @("python", "/workspace/variants/matup/baseline/matup_render.py", "--all")
     Invoke-Step "comparison sets + metrics" dataprep `
-        @("python", "variants/compare/matup_postprocess.py", "--all", "--metrics")
+        @("python", "variants/matup/baseline/postprocess.py", "--all", "--metrics")
     Invoke-Step "montages" dataprep `
-        @("python", "variants/compare/matup_montage.py", "--all", "--collect", "/workspace/runs/montages")
+        @("python", "variants/matup/baseline/montage.py", "--all", "--collect", "/workspace/runs/montages")
 } elseif ($PostProcess) {
     Say "`nskipping the post-processing chain: $bad material(s) failed" "Yellow"
 }

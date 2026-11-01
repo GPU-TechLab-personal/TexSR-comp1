@@ -20,8 +20,7 @@
     changed (Get-ArmInfo: configs/deeptex/* -> variants/deeptex/<arm>/*;
     Invoke-CompareAtSteps: `deeptex_compare.py --maps all --scalar-collapse mean`
     -> matsynth/eval_arms.py, whose defaults those are).
-    variants/tests/l5_deeptex.ps1 compares the docker argv every stage produces
-    against the old orchestrator.
+    Arm tags are the registry's (variants/arms.json): Get-ArmInfo, Get-DisplayName.
 #>
 
 . (Join-Path $PSScriptRoot "preflight.ps1")
@@ -42,7 +41,7 @@
 #   Format-Float               run_deeptex.ps1:671-673
 #   Get-Median                 run_deeptex.ps1:675-681
 #   Write-JsonFile             run_deeptex.ps1:683-689
-#   Get-ArmInfo                run_deeptex.ps1:691-731
+#   Get-ArmInfo                run_deeptex.ps1:691-731 (now read from variants/arms.json)
 #   Get-CheckpointSteps        run_deeptex.ps1:733-778
 #   Resolve-StepPrefix         run_deeptex.ps1:780-796
 #   Assert-CheckpointStep      run_deeptex.ps1:798-816
@@ -118,8 +117,11 @@ function Invoke-DeeptexPreflight {
 function Invoke-Step {
     # $ComposeFile: another compose file for $Service (eval-perceptual's exp
     # service); empty = docker\compose.yaml, as every other stage uses.
+    # $NamePrefix: the container name prefix, default $script:StepNamePrefix or
+    # "texsr-deeptex" (a run.ps1 of another method sets $script:StepNamePrefix).
+    # It must start with "texsr-": the GPU-busy checks look for texsr* containers.
     param([string]$Label, [string]$Service, [string[]]$Cmd, [string]$LogName,
-          [string]$WorkDir = "", [string]$ComposeFile = "")
+          [string]$WorkDir = "", [string]$ComposeFile = "", [string]$NamePrefix = "")
 
     Say "`n-- $Label" "Cyan"
     New-Item -ItemType Directory -Force -Path $logDir | Out-Null
@@ -131,7 +133,9 @@ function Invoke-Step {
     # invocation, so this is mandatory here rather than merely prudent.
     $prev = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
-    $name = "texsr-deeptex-$LogName-$stamp"
+    $pfx = if ($NamePrefix) { $NamePrefix } elseif ($script:StepNamePrefix) { $script:StepNamePrefix } else { "texsr-deeptex" }
+    if ($pfx -notlike "texsr-*") { throw "Invoke-Step: container name prefix '$pfx' must start with 'texsr-'" }
+    $name = "$pfx-$LogName-$stamp"
     try {
         $wd = if ($WorkDir) { @("-w", $WorkDir) } else { @() }
         $cf = if ($ComposeFile) { $ComposeFile } else { $compose }
@@ -241,34 +245,35 @@ function Write-JsonFile([string]$path, $obj) {
                                    (New-Object System.Text.UTF8Encoding $false))
 }
 
-# Arm tag -> config, checkpoint directories, sub_name. The tag is what names
-# runs/deeptex/eval/<tag>_<k>k and the report columns. The render arms' checkpoint
-# root comes from their config, because that is where deeptex_train.py wrote;
-# smoke_* are the gate-render -Gate smoke checkpoints, for a dry run of eval-render.
-function Get-ArmInfo([string]$tag) {
-    $ckptRoot = $null
-    switch -Regex ($tag) {
-        '^matsynth_all$' {
-            $cfg = "variants/deeptex/matsynth/esrgan_matsynth.yaml"
-            $ckptRoot = "/workspace/runs/deeptex/$tag/checkpoints" }
-        '^matsynth_(chratio|basecolor)$' {
-            $cfg = "variants/deeptex/matsynth/esrgan_$tag.yaml"
-            $ckptRoot = "/workspace/runs/deeptex/$tag/checkpoints" }
-        '^render_(r0a|r0b|r1)$' {
-            $cfg = "variants/deeptex/render_loss/$($Matches[1]).yaml" }
-        '^smoke_(r0a|r1)$' {
-            $cfg = "variants/deeptex/render_loss/$($Matches[1]).yaml"
-            $ckptRoot = "$RSMOKE/$tag/checkpoints" }
-        default {
-            throw "unknown arm tag '$tag'. Known: matsynth_all, matsynth_chratio, " +
-                  "matsynth_basecolor, render_r0a, render_r0b, render_r1, smoke_r0a, smoke_r1."
-        }
+# The arm registry, variants/arms.json (also read by variants/util/arms.py).
+function Get-ArmRegistry {
+    if (-not $script:ArmRegistry) {
+        $p = Join-Path $repo "variants/arms.json"
+        $script:ArmRegistry = [System.IO.File]::ReadAllText($p) | ConvertFrom-Json
     }
+    return $script:ArmRegistry
+}
+
+# Arm tag -> config, checkpoint directories, sub_name, from the registry. The tag
+# is what names runs/deeptex/eval/<tag>_<k>k and the report columns. checkpoint_root
+# "from_config" = the config's checkpoint_root key (where the trainer wrote; the
+# render arms), else runs/deeptex/<tag>/checkpoints; {RSMOKE} = this run.ps1's
+# smoke root (the gate-render -Gate smoke checkpoints, for a dry run of eval-render).
+function Get-ArmInfo([string]$tag) {
+    $reg = Get-ArmRegistry
+    $e = $reg.arms.$tag
+    if (-not $e) {
+        $known = ($reg.arms.PSObject.Properties | ForEach-Object { $_.Name }) -join ", "
+        throw "unknown arm tag '$tag'. Known (variants/arms.json): $known."
+    }
+    $cfg = $e.config
     if (-not (Test-Path (Join-Path $repo $cfg))) { throw "$tag : config $cfg does not exist" }
-    if (-not $ckptRoot) {
+    $ckptRoot = $e.checkpoint_root
+    if ($ckptRoot -eq "from_config") {
         $ckptRoot = Read-CfgValue $cfg "checkpoint_root"
         if (-not $ckptRoot) { $ckptRoot = "/workspace/runs/deeptex/$tag/checkpoints" }
     }
+    $ckptRoot = $ckptRoot.Replace("{RSMOKE}", "$RSMOKE")
     if ($ckptRoot -notlike "/workspace/*") {
         throw "$tag : checkpoint_root '$ckptRoot' in $cfg is not under /workspace"
     }
@@ -276,11 +281,23 @@ function Get-ArmInfo([string]$tag) {
     if (-not $sn) { throw "$tag : no sub_name in $cfg" }
     return [pscustomobject]@{
         Tag = $tag; Cfg = $cfg; SubName = $sn
+        Method = $e.method
         Ckpt = "$ckptRoot/$sn"
         # Where -KeepAllCheckpoints copies to: checkpoints -> checkpoints_all, as
         # Stage-Paper names it.
         CkptAll = "${ckptRoot}_all/$sn"
     }
+}
+
+# Row name of an arm tag (the registry display, + " <NN>k" for a step-suffixed
+# tag); an unknown tag shows as itself - as variants/util/arms.display_name.
+function Get-DisplayName([string]$label) {
+    $arms = (Get-ArmRegistry).arms
+    if ($arms.$label) { return $arms.$label.display }
+    if ($label -match '^(.+)_(\d+k)$' -and $arms.($Matches[1])) {
+        return "$($arms.($Matches[1]).display) $($Matches[2])"
+    }
+    return $label
 }
 
 # Every ckpt-*.index under the given container directories, keyed by the step
@@ -389,8 +406,11 @@ function Get-CompleteEval([string]$ctrDir, [int]$want) {
         # The same step is not the same checkpoint: a retrained arm (-Force
         # -DeleteCheckpoints) writes the same ckpt-N names with the same step
         # tensors. A manifest older than its checkpoint, or whose checkpoint is
-        # gone, scored something else - not reused.
-        $idx = (Get-HostPath ([string]$j.checkpoint)) + ".index"
+        # gone, scored something else - not reused. The checkpoint's file is the
+        # manifest's checkpoint_file (a torch .pth, variants/util/arm_output.py),
+        # else <checkpoint>.index (a TF prefix).
+        $src = if ($j.checkpoint_file) { [string]$j.checkpoint_file } else { ([string]$j.checkpoint) + ".index" }
+        $idx = Get-HostPath $src
         if (-not (Test-Path $idx)) {
             Say "  ! $mf : its checkpoint $($j.checkpoint) no longer exists; not reusing it" "Yellow"
             return $null
