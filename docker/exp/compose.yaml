@@ -1,9 +1,9 @@
-# Experiments 1-5 (experiments/README.md). Separate from docker/compose.yaml so
+# Experiments 1-5 (variants/experiments/README.md). Separate from docker/compose.yaml so
 # the method stacks there stay untouched.
 #
-#   cd experiments/docker
+#   cd docker/exp
 #   docker compose build            # needs texsr/matup built first
-#   docker compose run --rm exp python experiments/...
+#   docker compose run --rm exp python variants/experiments/...
 #
 # Mounts:
 #   /workspace  the repo
@@ -15,7 +15,7 @@ name: texsr-exp
 
 services:
   exp:
-    build: ./exp
+    build: .
     image: texsr/exp:torch2.0.0-cu117
     working_dir: /workspace
     volumes:

@@ -10,7 +10,7 @@
 # record order. |R0a - R0b| is the run-to-run noise tau that R1 - R0a has to
 # clear.
 #
-# EXACT DIFF against configs/deeptex/esrgan_matsynth.yaml, and only these:
+# EXACT DIFF against variants/deeptex/matsynth/esrgan_matsynth.yaml, and only these:
 #   batch_size             8 -> 2 (materials; 10 images per step)
 #   seed                   added, 2
 #   checkpoint_root        added, '/workspace/runs/deeptex/render_r0b/checkpoints'
@@ -23,8 +23,8 @@
 # Every other value is esrgan_matsynth.yaml's. pretrain_name is kept but unused:
 # deeptex_train.py reads pretrain_dir, and the stage passes --pretrain-dir none.
 # Check it (comments stripped, so only the values above remain):
-#   diff <(sed 's/[[:space:]]*#.*//' configs/deeptex/esrgan_matsynth.yaml | grep -v '^$') \
-#        <(sed 's/[[:space:]]*#.*//' configs/deeptex/esrgan_matsynth_render_r0b.yaml | grep -v '^$')
+#   diff <(sed 's/[[:space:]]*#.*//' variants/deeptex/matsynth/esrgan_matsynth.yaml | grep -v '^$') \
+#        <(sed 's/[[:space:]]*#.*//' variants/deeptex/render_loss/r0b.yaml | grep -v '^$')
 #
 # Run:
 #   scripts\deeptex\run_deeptex.ps1 -Stage render-train -Arm r0b -KeepAllCheckpoints

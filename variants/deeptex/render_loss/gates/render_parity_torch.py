@@ -3,7 +3,7 @@
 Gate (a) and the torch half of gate (b): MatUp's own torch code against the TF
 port of its renderer (scripts/deeptex/render_tf.py).
 
-    docker compose run --rm matup python /workspace/scripts/matup/render_parity_torch.py --part all
+    docker compose run --rm matup python /workspace/variants/deeptex/render_loss/gates/render_parity_torch.py --part all
 
 Runs in the matup container (torch 2.0, Python 3.10, no TensorFlow). The TF half,
 scripts/deeptex/render_gate.py --part export, runs first in the deeptex container

@@ -2,7 +2,7 @@
 # EXACTLY ONE LINE DIFFERS: train_dataset.path. Same rule as esrgan_paper.yaml.
 #
 # Verify that claim:
-#   diff --strip-trailing-cr <(sed '1,14d' configs/deeptex/esrgan_matsynth_basecolor.yaml) \
+#   diff --strip-trailing-cr <(sed '1,14d' variants/deeptex/matsynth/esrgan_matsynth_basecolor.yaml) \
 #        external/DeepTextures/configs/esrgan.yaml
 # (the submodule checkout has CRLF line endings, so without the flag every line differs)
 #

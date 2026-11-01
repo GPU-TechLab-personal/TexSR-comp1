@@ -5,8 +5,8 @@ Stage prep-grouped, step 1 of 2 (texsr_verify_grouped.py is step 2). Runs in the
 deeptex container, because it needs tf.io.TFRecordWriter as
 texsr_build_tfrecord.py does:
 
-    python /workspace/scripts/deeptex/texsr_build_grouped_tfrecord.py [--force]
-    python /workspace/scripts/deeptex/texsr_verify_grouped.py
+    python /workspace/variants/deeptex/render_loss/build/texsr_build_grouped_tfrecord.py [--force]
+    python /workspace/variants/deeptex/render_loss/build/texsr_verify_grouped.py
 
 WHY A SECOND RECORD. The render-space loss (render_tf.py) renders all five maps
 of one material under one crop, so a batch has to carry the five maps together.
@@ -468,7 +468,7 @@ def main():
     print("[build] records=%d sha256=%s... order_sha256=%s... seconds=%.0f"
           % (n, meta["sha256"][:16], meta["order_sha256"][:16], time.time() - t0))
     print("meta -> %s" % meta_path)
-    print("next: python /workspace/scripts/deeptex/texsr_verify_grouped.py --tfrecord %s"
+    print("next: python /workspace/variants/deeptex/render_loss/build/texsr_verify_grouped.py --tfrecord %s"
           % out)
 
 

@@ -3,7 +3,7 @@
 One 4x6 contact sheet per material: LR / bilinear / MatUp / GT across all five
 maps plus the render.
 
-    docker compose run --rm dataprep python scripts/compare/matup_montage.py --all
+    docker compose run --rm dataprep python variants/compare/matup_montage.py --all
 
 Every cell is read from what `matup_postprocess.py` produced, so the border is
 already cropped to the valid region, the normal's green channel is already

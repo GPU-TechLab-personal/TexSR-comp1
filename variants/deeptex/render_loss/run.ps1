@@ -85,7 +85,7 @@ $repo    = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptR
 $compose = Join-Path $repo "docker\compose.yaml"
 # The experiments image (service exp, working_dir /workspace): the only one with
 # both lpips and flip-evaluator. Used by -Stage eval-perceptual alone.
-$expCompose = Join-Path $repo "experiments\docker\compose.yaml"
+$expCompose = Join-Path $repo "docker\exp\compose.yaml"
 $stamp   = Get-Date -Format "yyyyMMdd-HHmmss"
 $logDir  = Join-Path $repo "runs\_logs\$stamp"
 $DS      = "/workspace/runs/deeptex/datasets/$Dataset"
@@ -652,7 +652,7 @@ function Stage-EvalRender {
 # incomplete, older than its checkpoint or at another step stops the stage
 # (Get-CompleteEval, as eval-render validates them), so these numbers can only
 # describe the checkpoints render_summary.md describes. Runs in the exp service of
-# experiments/docker/compose.yaml, the only image with flip-evaluator. smoke_* arms
+# docker/exp/compose.yaml, the only image with flip-evaluator. smoke_* arms
 # keep everything under runs\deeptex\_smoke_render, as in Stage-EvalRender.
 function Stage-EvalPerceptual {
     $tags = @(Split-List $Arms)

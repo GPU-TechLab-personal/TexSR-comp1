@@ -2,7 +2,7 @@
 # EXACTLY ONE LINE DIFFERS: train_dataset.path.
 #
 # Verify that claim:
-#   diff <(sed '1,12d' configs/deeptex/esrgan_paper.yaml) \
+#   diff <(sed '1,12d' variants/deeptex/paper/esrgan_paper.yaml) \
 #        external/DeepTextures/configs/esrgan.yaml
 #
 # Upstream's path is './data/...' which resolves against the process CWD. The

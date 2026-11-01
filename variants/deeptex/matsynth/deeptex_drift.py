@@ -3,8 +3,8 @@
 
 Runs in the deeptex container:
 
-    docker compose run --rm deeptex python /workspace/scripts/deeptex/deeptex_drift.py \\
-        --cfg      /workspace/configs/deeptex/esrgan_matsynth.yaml \\
+    docker compose run --rm deeptex python /workspace/variants/deeptex/matsynth/deeptex_drift.py \\
+        --cfg      /workspace/variants/deeptex/matsynth/esrgan_matsynth.yaml \\
         --ckpt-dir /workspace/runs/deeptex/matsynth_all/checkpoints/esrgan_40k \\
         --pairs    /workspace/runs/deeptex/datasets/matsynth/baseColor \\
         --out      /workspace/runs/deeptex/drift/matsynth_all

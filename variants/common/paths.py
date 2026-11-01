@@ -15,7 +15,7 @@ Every entry point in variants/ starts with
 and imports nothing from scripts/ or experiments/. The submodules are the only
 outside code variants/ may import (variants/README.md).
 
-Container layout (docker/compose.yaml, experiments/docker/compose.yaml):
+Container layout (docker/compose.yaml, docker/exp/compose.yaml):
 /workspace is the repo. Host runs (the L0 checker, the L5 harness) resolve the
 repo from this file's location instead.
 """

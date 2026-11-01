@@ -5,8 +5,8 @@ Runs in the exp container (texsr/exp, built ON TOP of texsr/matup: torch 2.0,
 Python 3.10, cv2, lpips 0.1.4, flip-evaluator 1.6.0.1), on the same
 deeptex_compare.py --out folders svbrdf_render_eval.py scores:
 
-    cd experiments/docker
-    docker compose run --rm exp python /workspace/scripts/compare/svbrdf_perceptual_eval.py \\
+    cd docker/exp
+    docker compose run --rm exp python /workspace/variants/deeptex/render_loss/eval/svbrdf_perceptual_eval.py \\
         --arm matsynth_all=/workspace/runs/deeptex/eval/matsynth_all \\
         --arm render_r0a_40k=/workspace/runs/deeptex/eval/render_r0a_40k \\
         --arm render_r1_40k=/workspace/runs/deeptex/eval/render_r1_40k \\
@@ -169,7 +169,7 @@ class Perceptual:
             import flip_evaluator
             import lpips
         except ImportError as e:
-            sre.die(2, "%s - run this in the exp container (experiments/docker/compose.yaml, "
+            sre.die(2, "%s - run this in the exp container (docker/exp/compose.yaml, "
                        "service exp): the matup image has lpips but not flip-evaluator" % e)
         # metrics.py:39. AlexNet's ImageNet weights come from TORCH_HOME
         # (/expdata/cache/torch in the exp image); the linear heads ship with lpips.

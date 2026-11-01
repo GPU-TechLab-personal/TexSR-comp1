@@ -4,7 +4,7 @@
 Runs in the matup container (torch 2.0, Python 3.10, cv2), after
 deeptex_compare.py --maps all --scalar-collapse mean has written each arm:
 
-    docker compose run --rm matup python /workspace/scripts/compare/svbrdf_render_eval.py \\
+    docker compose run --rm matup python /workspace/variants/deeptex/render_loss/eval/svbrdf_render_eval.py \\
         --arm matsynth_all=/workspace/runs/deeptex/eval/matsynth_all \\
         --arm render_r1_40k=/workspace/runs/deeptex/eval/render_r1_40k \\
         --out /workspace/runs/deeptex/render_eval/main

@@ -25,7 +25,7 @@
 #    additionally proves the restore changed the generator's weights.
 #
 # Everything else - batch_size, the loss weights, gan_type, save_steps, network_G -
-# is upstream's value untouched. See configs/deeptex/esrgan_asconfigured.yaml for
+# is upstream's value untouched. See variants/deeptex/fixed/esrgan_asconfigured.yaml for
 # the unmodified schedule if the "upstream as published" baseline is ever wanted.
 
 # general setting

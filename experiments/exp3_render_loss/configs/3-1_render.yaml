@@ -1,9 +1,0 @@
-# 3-1: + rendering loss. Each iteration draws k of MatUp's 100 Fibonacci lights,
-# renders SR and GT maps with MatUp's renderer, L1 in display space
-# (metric: logl1 = log-L1 on linear radiance). Plus weak per-map L1 with
-# metallic and height weighted more (the maps rendering constrains least).
-base: 3-0_maploss.yaml
-name: 3-1_render
-loss:
-  render: {weight: 1.0, k: 8, n_lights: 100, metric: l1}
-  extra_l1: {basecolor: 0.01, normal: 0.01, roughness: 0.01, metallic: 0.1, height: 0.1}

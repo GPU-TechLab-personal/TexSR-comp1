@@ -86,7 +86,7 @@ $repo    = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptR
 $compose = Join-Path $repo "docker\compose.yaml"
 # The experiments image (service exp, working_dir /workspace): the only one with
 # both lpips and flip-evaluator. Used by -Stage eval-perceptual alone.
-$expCompose = Join-Path $repo "experiments\docker\compose.yaml"
+$expCompose = Join-Path $repo "docker\exp\compose.yaml"
 $stamp   = Get-Date -Format "yyyyMMdd-HHmmss"
 $logDir  = Join-Path $repo "runs\_logs\$stamp"
 $DS      = "/workspace/runs/deeptex/datasets/$Dataset"

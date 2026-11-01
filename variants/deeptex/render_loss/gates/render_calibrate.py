@@ -3,8 +3,8 @@
 
 Runs in the deeptex container (TF 2.10.1, Python 3.8), on the GPU:
 
-    docker compose run --rm deeptex python /workspace/scripts/deeptex/render_calibrate.py \\
-        --cfg  /workspace/configs/deeptex/esrgan_matsynth_render_r1.yaml \\
+    docker compose run --rm deeptex python /workspace/variants/deeptex/render_loss/gates/render_calibrate.py \\
+        --cfg  /workspace/variants/deeptex/render_loss/r1.yaml \\
         --ckpt /workspace/runs/deeptex/matsynth_all/checkpoints/esrgan_40k/ckpt-6 \\
         --ckpt ... (one per state) --batches 20 --seed 0 \\
         --out  /workspace/runs/deeptex/render_gate/calibration.json

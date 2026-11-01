@@ -3,7 +3,8 @@
 The MatUp baseline: MatUp (`external/matup_egsr`, pinned `c74ec99`) run over the
 extracted MatSynth materials, plus the two post-processes the reference
 implementation does not have. `run.ps1` is `scripts/matup/run_matup.ps1` moved
-here; `variants/tests/l5_matup.ps1` proves the two issue the same docker calls.
+here; `variants/tests/l5_matup.ps1` proved the two issue the same docker calls
+(deleted with the old code; both are at tag `variants-verified`).
 
 ## MatUp itself: unmodified
 
@@ -128,14 +129,10 @@ argument anywhere.
 
 ## Verification
 
-```
-powershell -NoProfile -ExecutionPolicy Bypass -File variants\tests\l5_matup.ps1
-```
-
-Runs both orchestrators from byte copies in sandbox repo roots with `docker`
-replaced by a recording function, over 13 scenarios (single, batch, skip-done,
-force, postprocess, postprocess-blocked, two-failures, gpu-lost, checkpoint,
-root-tilewidth, unknown-material, preflight, preflight-stray), and compares
-docker argv after the path mapping above, the normalised transcript and the
-created files. Output: `runs/variants_verify/matup/<stamp>/report.md`. No GPU,
-no container, nothing written outside `runs/variants_verify/`.
+Done and removed with the old code. `variants/tests/l5_matup.ps1` (tag `variants-verified`)
+ran both orchestrators from byte copies in sandbox repo roots with `docker` replaced by a
+recording function, over 13 scenarios (single, batch, skip-done, force, postprocess,
+postprocess-blocked, two-failures, gpu-lost, checkpoint, root-tilewidth, unknown-material,
+preflight, preflight-stray), and compared docker argv after the path mapping above, the
+normalised transcript and the created files: all PASS (last run 20261101, report
+`runs/variants_verify/matup/20261101-024030/report.md`).

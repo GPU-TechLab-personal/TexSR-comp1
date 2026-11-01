@@ -1,9 +1,0 @@
-# 2-3: loss per map. normal -> angular error only; roughness, metallic -> L1 only
-# (no VGG, no GAN). basecolor, height keep the ESRGAN losses.
-base: 2-0_base_scratch.yaml
-name: 2-3_mapaware_loss
-loss:
-  per_map:
-    normal:    {angular: 1.0}
-    roughness: {l1: 1.0}
-    metallic:  {l1: 1.0}

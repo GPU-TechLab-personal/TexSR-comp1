@@ -17,7 +17,7 @@
 
 코드는 GitHub로, **데이터는 GitHub를 타지 않는다** (DAS에 있음).
 
-예외는 `runs/montages/` 하나다. 연구실 공유용 산출물 — 재질별 4행×6열 몽타주, `metrics.json`, `summary.md` — 만 커밋한다(약 36 MB). 나머지 `runs/`는 600 MB가 넘고 **코드와 MatSynth로부터 재생성 가능**하므로(`scripts\matup\run_matup.ps1 -PostProcess`) git 히스토리에 넣지 않는다.
+예외는 `runs/montages/` 하나다. 연구실 공유용 산출물 — 재질별 4행×6열 몽타주, `metrics.json`, `summary.md` — 만 커밋한다(약 36 MB). 나머지 `runs/`는 600 MB가 넘고 **코드와 MatSynth로부터 재생성 가능**하므로(`variants\matup\baseline\run.ps1 -PostProcess`) git 히스토리에 넣지 않는다.
 
 ---
 
@@ -153,15 +153,15 @@ docker/          컨테이너 정의. 두 스택은 CUDA 요구가 배타적이�
   compose.yaml   /workspace(repo) · /data(DAS) 고정 마운트, GPU 예약, shm 8GB
   .env.example   DAS_ROOT — 유일한 머신별 값
 .devcontainer/   VS Code devcontainer 정의. compose.yaml을 재사용만 한다
-configs/deeptex/ DeepTextures 학습 config 3종. upstream 것을 편집하지 않고 따로 둔다
-                 psnr_texsr / esrgan_scaled(실사용) / esrgan_asconfigured(결함 보존 기준선)
-scripts/         실험별로 나뉜다. 공유되는 것만 common/에 있다
-  common/        preflight.ps1        두 오케스트레이터가 쓰는 사전점검
+variants/        실험별로 나뉜다. 공유되는 것만 common/에 있다 (실험 → 폴더 → 실행 명령: variants/README.md)
+  common/        preflight.ps1 · lib.ps1  오케스트레이터가 쓰는 사전점검·공용 함수
                  texsr_metrics.py     두 방법이 **같은 코드로** 재도록 공유
                  matsynth_extract.py  MatSynth → LR/GT 쌍 (두 실험의 평가 데이터)
-  matup/         matup_height.py · matup_render.py · run_matup.ps1  (→ RUNBOOK §2.4)
-  deeptex/       texsr_*(데이터 준비 4단계) · deeptex_*(학습·평가·비교)
-                 run_deeptex.ps1                                    (→ RUNBOOK §2.5)
+  matup/baseline/ matup_height.py · matup_render.py · run.ps1       (→ RUNBOOK §2.4)
+  deeptex/       arm마다 폴더 하나(paper · matsynth · fixed · render_loss), 각자 run.ps1과 config
+                 paper/run.ps1                                      (→ RUNBOOK §2.5)
+                 학습 config는 upstream 것을 편집하지 않고 따로 둔다. fixed/에
+                 psnr_texsr / esrgan_scaled(실사용) / esrgan_asconfigured(결함 보존 기준선)
   compare/       matup_postprocess.py · matup_montage.py
                  두 방법의 결과를 한 격자에 놓는 곳. 양쪽 오케스트레이터가 호출한다
 external/        upstream 서브모듈 (커밋 고정, **수정하지 않는다**)
@@ -178,10 +178,10 @@ docs/            RUNBOOK.md            — 실험 운용. 점검·코드 지도�
 2. **MatSynth 법선은 OpenGL 규약**이므로 MatUp에 `--ogl_normals`가 필요하다. 반면 MatUp **출력은 항상 DirectX**로 하드코딩돼 있어 비교 전 되돌려야 한다.
 3. **MatUp은 `height`를 출력하지 않는다.** 산출 맵은 4장뿐이고, 512² 중 **유효 영역은 496²**(8px 검은 테두리)라 비교 시 전 방법·GT에서 잘라내야 공정하다.
 4. **DeepTextures의 학습 데이터 준비·학습·평가 스크립트는 이제 존재한다.** upstream이 삭제한 것들을
-   `scripts/deeptex/` 아래에 새로 썼다. **서브모듈은 한 바이트도 고치지 않았다** —
+   `variants/deeptex/` 아래에 새로 썼다. **서브모듈은 한 바이트도 고치지 않았다** —
    `modules/*`를 바깥에서 import해 구동한다(`matup_render.py:14`와 같은 규약).
    **학습은 `external/DeepTextures/train_esrgan.py` 원본을 그대로 돌린다** — 우리 트레이너가
-   아니다(`scripts\deeptex\run_deeptex.ps1 -Stage paper`).
+   아니다(`variants\deeptex\paper\run.ps1 -Stage paper`).
    전체 절차는 `docs/RUNBOOK.md` §2.5, 편차 목록은 `docs/DEEPTEX-DEVIATIONS.md`.
    `external/esrgan-tf2`는 여전히 삭제된 `train_psnr.py`/`psnr.yaml`의 공여자다.
 5. **`requirements.txt`를 upstream 것으로 되돌리지 말 것.** `docker/*/requirements.txt`에 변경 사유가 줄별로 주석돼 있다.

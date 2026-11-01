@@ -1,4 +1,4 @@
-# Experiment image for experiments/ (실험 1-5).
+# Experiment image for variants/experiments/ (실험 1-5).
 #
 # Built ON TOP of texsr/matup rather than from a fresh torch base, on purpose:
 # every experiment drives MatUp's own renderer, dataset and SwinIR hookup

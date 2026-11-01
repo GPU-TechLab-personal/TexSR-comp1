@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One sheet for the whole set: every material as a row, every method as a column.
 
-    docker compose run --rm dataprep python scripts/compare/matup_overview.py \
+    docker compose run --rm dataprep python variants/compare/matup_overview.py \
         --map baseColor --out /workspace/runs/montages/overview_baseColor.png
 
 matup_montage.py answers "what did the methods do to THIS material". This answers

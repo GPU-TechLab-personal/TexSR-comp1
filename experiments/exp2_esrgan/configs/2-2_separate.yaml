@@ -1,5 +1,0 @@
-# 2-2: one network per map instead of one shared network (capacity / fitting).
-base: 2-0_base_scratch.yaml
-name: 2-2_separate
-model:
-  arch: separate

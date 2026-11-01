@@ -2,7 +2,7 @@
 """
 Render an arbitrary SVBRDF map set with MatUp's own renderer and eval light.
 
-    docker compose run --rm matup python /workspace/scripts/matup/matup_render.py --all
+    docker compose run --rm matup python /workspace/variants/matup/baseline/matup_render.py --all
 
 MatUp writes a render only for its own output, so the LR and GT rows of the
 comparison montage have no render to show. This produces them, using the same

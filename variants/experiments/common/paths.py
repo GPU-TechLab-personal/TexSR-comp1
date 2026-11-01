@@ -1,4 +1,4 @@
-"""Container-side paths. Everything is fixed by experiments/docker/compose.yaml
+"""Container-side paths. Everything is fixed by docker/exp/compose.yaml
 (or the `docker run` mounts in variants/experiments/README.md).
 
 Moved from experiments/common/paths.py. The names are the same; what changed:

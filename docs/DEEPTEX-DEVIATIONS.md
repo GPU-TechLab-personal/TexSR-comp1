@@ -4,6 +4,10 @@
 수정분은 전부 상위 저장소의 새 파일로 들고, `modules/*`를 바깥에서 import해 구동한다 —
 `scripts/matup/matup_render.py:14`가 `matup_egsr`에 대해 이미 세운 규약과 같다.
 
+> 경로 주의: `scripts/`·`experiments/`·`configs/` 아래 파일을 줄 번호(또는 줄 수)와 함께 인용한 곳은
+> 태그 `variants-verified`의 옛 코드를 가리킨다(`git show variants-verified:<경로>`). 그 코드는 이제
+> `variants/` 아래에 있고, 옛 파일 → 새 폴더 대응은 `variants/README.md`에 있다.
+
 왜 in-place 패치가 아닌가:
 
 - `docs/RUNBOOK.md` §4의 줄 번호가 이 커밋에 묶여 있다. 패치하면 **에러 없이 조용히** 틀어진다.
@@ -121,8 +125,8 @@ upstream처럼 설정한 것이 아니라, 논문이 배포한 코드가 그대�
 | | |
 |---|---|
 | 실행 코드 | `external/DeepTextures/train_esrgan.py` (서브모듈, 무수정) |
-| 래퍼 | `scripts/deeptex/run_upstream_train.py` — stdout만 재포맷 |
-| config | `configs/deeptex/esrgan_paper.yaml` — 서브모듈 config에서 **정확히 한 줄**(tfrecord 경로)만 다름 |
+| 래퍼 | `variants/deeptex/upstream_runner/run_upstream_train.py` — stdout만 재포맷 |
+| config | `variants/deeptex/paper/esrgan_paper.yaml` — 서브모듈 config에서 **정확히 한 줄**(tfrecord 경로)만 다름 |
 | 작업 디렉터리 | `runs/deeptex/paper/` — upstream의 `./checkpoints`·`./logs`가 서브모듈 밖으로 떨어지도록 |
 | 소요 | 약 2.6시간 (40k 스텝, **실측 4.30 st/s** — §2.6. 200스텝 프로브의 4.75는 낙관적이었다) |
 
@@ -133,7 +137,7 @@ step·loss_G·loss_D·lr·step/sec가 다 있고 `\r`로 뭉쳐 있을 뿐이다
 
 #### 왜 "고친 arm"을 돌리지 않는가
 
-`scripts/deeptex/deeptex_train.py`와 `deeptex_losses.py`(합 502줄)는 결함 4개
+`scripts/deeptex/deeptex_train.py`와 `deeptex_losses.py`(합 502줄, 지금은 `variants/deeptex/fixed/`)는 결함 4개
 (사전학습·shuffle·손실 수치안정성·LR 스케줄)를 고친 판이고, 동작하며 테스트도 돼 있다.
 **그래도 이번 비교에서는 쓰지 않는다.**
 
@@ -142,7 +146,7 @@ step·loss_G·loss_D·lr·step/sec가 다 있고 `\r`로 뭉쳐 있을 뿐이다
   진짜 ablation을 하려면 세 번째 실행(고친 config + 사전학습 없음)이 더 필요하다.
 - "이 논문 코드에 결함이 있고 고치면 이만큼 달라진다"를 **따로** 주장하고 싶을 때만 값이 생긴다.
 
-두 파일은 지운 게 아니라 남겨 뒀다. `-Stage pretrain` / `-Stage train`으로 여전히 돌릴 수 있고,
+두 파일은 지운 게 아니라 남겨 뒀다. `variants/deeptex/fixed/run.ps1 -Stage pretrain` / `-Stage train`으로 여전히 돌릴 수 있고,
 `-Stage all`의 기본 흐름에서만 빠졌다.
 
 #### 성공 판정
@@ -231,7 +235,7 @@ DeepTex는 6열 몽타주의 다섯째 **행**이 아니라 **별도 시트**로
 
 > **2026-10-01 갱신.** MatSynth arm(§0.9)의 비교 기준선으로 **같은 체크포인트**
 > (`runs/deeptex/paper/checkpoints/esrgan_40k/ckpt-8`, 재학습 없음)를 다섯 맵 + render 전부에
-> 돌렸다. `run_deeptex.ps1 -Stage eval-arms` → `runs/deeptex/eval/paper_allmaps`.
+> 돌렸다. `variants/deeptex/matsynth/run.ps1 -Stage eval-arms` → `runs/deeptex/eval/paper_allmaps`.
 >
 > - 그 결과 열이 보여 주는 것은 위 문장 그대로 "컬러로 학습된 모델이 학습하지 않은 맵에 하는 일"이다.
 >   논문 Fig. 7의 재현이 아니다.
@@ -366,9 +370,9 @@ donor를 명시적으로 크레딧하는 문장은 없다.
 | 쌍 | 480² 타일, LR = bicubic `imresize_np` | 소재 전체를 512²(HR)와 128²(LR)로, **원본에서 각각** `INTER_AREA` |
 | 평가 입력과의 관계 | 열화 커널이 다름 (bicubic vs area) | **픽셀 동일** — 아래 게이트 |
 
-**열화를 평가와 같게 만든 방법.** `scripts/deeptex/matsynth_make_pairs.py`는
+**열화를 평가와 같게 만든 방법.** `variants/deeptex/matsynth/matsynth_make_pairs.py`는
 `matsynth_extract.py`(평가 12개를 만든 스크립트)의 함수를 **import해서** 같은 순서로 부르고,
-`scripts/common/map_encode.to_rgb8`로 8-bit RGB를 만든다. `deeptex_compare.load_as_rgb01`도 같은
+`variants/common/map_encode.to_rgb8`로 8-bit RGB를 만든다. `deeptex_compare.load_as_rgb01`도 같은
 함수를 부르도록 바꿨다(132개 입력에서 리팩터 전후 배열 동일 확인). `--check-eval`이 test-00000에서
 평가 12개를 다시 만들어 `runs/matsynth`와 **120개 파일 전부 픽셀 동일**임을 확인한다 — 학습 전 게이트.
 
@@ -574,7 +578,7 @@ arm마다 학습이 한 번이고 시드가 없으므로, 차이가 작으면 �
 - **종합:** 논문 비율(1:1)이 가장 낫거나 비슷하다. 비율 조정으로 얻은 것은 없다.
 
 **다음.** 색 불안정을 줄이려면 데이터가 아니라 레시피를 바꿔야 한다. 후보는 다음과 같다.
-- PSNR 사전학습 (결함 #2, `deeptex_train.py --stage psnr`)
+- PSNR 사전학습 (결함 #2, `variants/deeptex/paper_loop/main.py --experiment fixed --stage psnr`)
 - 픽셀 손실 가중치 상향
 - 학습률 감쇠가 실제로 걸리는 스케줄 (결함 #3)
 - 체크포인트 선택이나 가중치 평균
@@ -587,21 +591,21 @@ arm마다 학습이 한 번이고 시드가 없으므로, 차이가 작으면 �
 
 | # | upstream 위치 | 증상 | 우리 대응 | 서브모듈 수정 |
 |---|---|---|---|---|
-| 1 | `configs/esrgan.yaml:17` | 학습 tfrecord 없음. 변환기 입력(`HR/`·`LRx4/`)도 없음. **×4 LR 생성기가 두 저장소 어디에도 없다** (upstream은 DIV2K LR을 다운로드했다) | `scripts/deeptex/texsr_normalize.py` → `texsr_make_pairs.py` → `texsr_build_tfrecord.py` → `texsr_verify_tfrecord.py`. LR은 `modules/utils.py:125 imresize_np`를 **import해서** 쓴다(복제하지 않는다 — 복제본은 학습·평가가 쓰는 커널과 드리프트할 수 있다) | 없음 |
+| 1 | `configs/esrgan.yaml:17` | 학습 tfrecord 없음. 변환기 입력(`HR/`·`LRx4/`)도 없음. **×4 LR 생성기가 두 저장소 어디에도 없다** (upstream은 DIV2K LR을 다운로드했다) | `variants/deeptex/paper/texsr_normalize.py` → `texsr_make_pairs.py` → `variants/deeptex/upstream_runner/texsr_build_tfrecord.py` → `texsr_verify_tfrecord.py`. LR은 `modules/utils.py:125 imresize_np`를 **import해서** 쓴다(복제하지 않는다 — 복제본은 학습·평가가 쓰는 커널과 드리프트할 수 있다) | 없음 |
 | 2 | `train_esrgan.py:71` + `configs/esrgan.yaml:8` | `pretrain_dir = cfg['pretrain_name']`, 값은 `'./checkpoints/'`. donor는 `'./checkpoints/' + name`. **즉 donor의 PSNR 단계를 복원해도 `./checkpoints/psnr_pretrain/`를 못 찾는다.** 실패는 `:78-79`의 `print` 한 줄, 그 뒤 랜덤 초기화로 학습 진행 (OPEN-ITEMS #6) | config 키를 **전체 경로** `pretrain_dir`로. 설정됐는데 못 찾으면 **exit 9**. 추가로 restore 전후 `generator.trainable_variables[0]`을 비교해 **복원을 증명**하고, 안 바뀌면 abort | 없음 |
 | 3 | `configs/esrgan.yaml:23,27` | `niter 40000` < `lr_steps[0] 50000` → LR 감쇠 영구 미발동. `:128,:142-144`가 로깅하는 스케줄은 죽은 코드 (OPEN-ITEMS #7) | config 2종. `esrgan_scaled.yaml`은 `[5000,10000,20000,30000]`(upstream 값의 1/10 = ESRGAN 원형의 형태), `esrgan_asconfigured.yaml`은 그대로. 트레이너가 `lr_steps[0] < niter`를 **단언**하고, `--allow-dead-lr-schedule` 없이는 거부 | 없음 |
 | 4 | `train_esrgan.py:23-25` | `logger.disabled = True; setLevel(FATAL)` — **Python 로거**를 죽인다. 그런데 정작 시끄러운 cuBLAS/NUMA는 **C++ 로거**에서 나온다(OPEN-ITEMS #5). 엉뚱한 쪽을 막았고, 그 결과 체크포인트 불일치·retracing 경고가 사라졌다 | C++는 `TF_CPP_MIN_LOG_LEVEL=2`로 INFO만 죽이고 **Python 로거는 WARNING 유지**. 환경변수는 `import tensorflow` **전에** 설정한다 (upstream은 `:20`에서 `:4`의 import 뒤에 설정해 효과가 없다) | 없음 |
 | 5 | `train_esrgan.py:37` | ESRGAN 단계가 `shuffle=False`. 크롭·플립·회전은 매 패스 새로 뽑히지만 **레코드 순서, 따라서 배치 구성**이 고정 — batch *k*는 ~1600 패스 내내 같은 8장. donor의 PSNR 단계는 `shuffle=True` | `load_dataset(..., shuffle=True)`가 기본. 플래그는 `modules/utils.py:38`에 이미 있다. `--shuffle off`로 upstream 거동 복원 | 없음 |
 | 6 | `modules/dataset.py:40-50` | `tf.Assert` 3개의 **반환값을 버린다**(`control_dependencies` 없음). HR≠LR×4가 에러가 아니라 `:56-57`에서 성공적으로 슬라이스돼 **어긋난 쌍**으로 학습된다 | 패치하지 않는다. 대신 (a) `texsr_make_pairs.py`가 HR만 타일링하고 LR을 **타일마다 유도**해 `hr.shape == lr.shape*4`를 *구성상* 참으로 만들고, (b) `texsr_verify_tfrecord.py`가 학습 전 전수 검사한다. 스텝마다 도는 그래프 단언보다 강하고 학습 중 비용은 0 | 없음 |
 | 7 | `modules/dataset.py:12-13` | `decode_png(channels=3)` uint8 → 알파 삭제·팔레트 전개·그레이 3배·**16-bit 절단**이 전부 무경고 | `texsr_normalize.py`가 상류에서 전부 처리하고 **각각 카운트**한다. `texsr_verify_tfrecord.py`는 **`channels=0`(네이티브)** 으로 디코드해 검사한다 — `channels=3`으로 열면 바로 그 지점에서 숨는다 | 없음 |
-| 8 | `modules/losses.py:56,80` | `from_logits=False` + 수동 sigmoid. Keras가 `[1e-7, 1-1e-7]`로 clip하므로 NaN은 아니고, **그래디언트가 정확히 0이 된다** — D가 이기기 시작하면 sigmoid가 float32에서 정확히 1.0/0.0에 닿아 손실이 0으로 떨어지고 기울기도 **0.000e+00**이 된다(§2.5 실측). 랜덤 초기화(#2)면 이게 **기본** 실패 모드 | `scripts/deeptex/deeptex_losses.py`에 `from_logits=True` 판본(수학적으로 동일, softplus로 안정). `--losses {corrected,upstream}`로 **차이를 단언이 아니라 측정 가능**하게 둔다. `PixelLoss`/`ContentLoss`는 서브모듈 것을 그대로 import | 없음 |
-| 9 | `test.py:36` | 체크포인트 경로가 `'./checkpoints/original'` 하드코딩(+주석 처리된 8개). 학습은 `./checkpoints/<sub_name>`에 쓴다 → **직접 학습한 모델을 평가할 수단이 없다.** CLI 플래그도 없음 | `scripts/deeptex/deeptex_sr.py`가 `test.py`를 완전히 대체. 경로는 `sub_name`에서 유도, `--ckpt-dir`로 override. 없으면 **exit 3** | 없음 |
+| 8 | `modules/losses.py:56,80` | `from_logits=False` + 수동 sigmoid. Keras가 `[1e-7, 1-1e-7]`로 clip하므로 NaN은 아니고, **그래디언트가 정확히 0이 된다** — D가 이기기 시작하면 sigmoid가 float32에서 정확히 1.0/0.0에 닿아 손실이 0으로 떨어지고 기울기도 **0.000e+00**이 된다(§2.5 실측). 랜덤 초기화(#2)면 이게 **기본** 실패 모드 | `variants/deeptex/fixed/losses_corrected.py`에 `from_logits=True` 판본(수학적으로 동일, softplus로 안정). `--losses {corrected,upstream}`로 **차이를 단언이 아니라 측정 가능**하게 둔다. `PixelLoss`/`ContentLoss`는 서브모듈 것을 그대로 import | 없음 |
+| 9 | `test.py:36` | 체크포인트 경로가 `'./checkpoints/original'` 하드코딩(+주석 처리된 8개). 학습은 `./checkpoints/<sub_name>`에 쓴다 → **직접 학습한 모델을 평가할 수단이 없다.** CLI 플래그도 없음 | `variants/deeptex/infer/deeptex_sr.py`가 `test.py`를 완전히 대체. 경로는 `sub_name`에서 유도, `--ckpt-dir`로 override. 없으면 **exit 3** | 없음 |
 | 10 | `modules/utils.py:401` | `split_large_image`가 타일을 **JPEG q95**로 디스크에 굽고 `test.py:68`이 다시 읽어 SR 입력으로 쓴다. bicubic 기준선은 원본 메모리 배열 → 내장 비교가 SR에 불리하게 편향되고, **PNG 입력이 조용히 JPEG를 경유**한다 | 타일링을 전부 메모리 내에서. 디코드~인코드 사이에 디스크가 없다 | 없음 |
 | 11 | `modules/utils.py:376-405` + `test.py:79` | SR 캔버스는 `(H//512)*512`, HR은 `(H//4)*4` → 512의 정확한 배수가 아니면 `ValueError` | 캔버스가 정확히 `(H*4, W*4)`. 마지막 행/열은 가장자리 정렬로 나머지를 덮는다 | 없음 |
 | 12 | `test.py:57,68,70` | 학습은 RGB(`tf.image.decode_png`), 추론은 **BGR**(`cv2.imread`). 학습된 채널별 거동이 엉뚱한 채널에 적용된다 | 추론 경로에서 **cv2를 아예 쓰지 않는다** — `tf.io.decode_image(channels=3)` → `tf.io.encode_png`. 실수로 되돌아올 수 없는 구조 | 없음 |
 | 13 | `test.py:75` | `if len(matrix_images[0]) > 1:` — N행×1열이면 join을 건너뛰고 **좌상단 타일만** 저장 | 2차원 그리드 루프, 특례 없음 | 없음 |
 | 14 | `data/convert_train_tfrecord.py:93-97` | `exit(1)`(출력 이미 존재)이 `except SystemExit: pass`에 먹혀 **프로세스 종료 코드 0**. `test.py:108-111`도 동일 | argparse + 평범한 `sys.exit(n)`. absl 래퍼 없음 | 없음 |
-| 15 | `modules/utils.py:329-333` | `calculate_ssim` 3채널 분기가 `for _ in range(3): ssims.append(_ssim(img1, img2))` — 같은 전체 SSIM을 3번 평균. RGB 입력에 대해 무의미한 값 | 쓰지 않는다. `scripts/common/texsr_metrics.py`가 채널별로 제대로 계산 | 없음 |
+| 15 | `modules/utils.py:329-333` | `calculate_ssim` 3채널 분기가 `for _ in range(3): ssims.append(_ssim(img1, img2))` — 같은 전체 SSIM을 3번 평균. RGB 입력에 대해 무의미한 값 | 쓰지 않는다. `variants/common/texsr_metrics.py`가 채널별로 제대로 계산 | 없음 |
 | 16 | `modules/utils.py:340-365` | `rgb2ycbcr`이 `:350`에서 인자를 **in-place 변형**하고 `:351`에서 채널을 뒤집는다 — 이름과 달리 실제로는 BGR을 기대한다 | 쓰지 않는다 | 없음 |
 | 17 | `modules/utils.py:64` | `tensor2img`가 `astype(uint8)`로 **절단**(반올림 아님) → 약 0.5 LSB, PSNR 약 −0.1 dB | `np.rint` | 없음 |
 | 18 | `modules/utils.py:16` | `yaml.load(..., Loader=yaml.Loader)` — 안전하지 않은 로더 | 우리 config는 우리 코드가 읽는다. 서브모듈 `load_yaml`은 우리가 쓴 파일에만 쓰이므로 실질 위험은 없지만 기록해 둔다 | 없음 |

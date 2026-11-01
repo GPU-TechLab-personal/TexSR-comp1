@@ -4,7 +4,7 @@ Turn a MatUp run into a comparison-ready LR / bilinear / MatUp / GT set.
 
 Run it in the dataprep container:
 
-    docker compose run --rm dataprep python scripts/compare/matup_postprocess.py --all --metrics
+    docker compose run --rm dataprep python variants/compare/matup_postprocess.py --all --metrics
 
 Three things have to be normalised before MatUp output can be put next to the
 ground truth, or differences that have nothing to do with quality get read as

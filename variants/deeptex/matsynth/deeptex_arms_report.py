@@ -4,7 +4,7 @@
 Run it in the dataprep container, after deeptex_compare.py --maps all has written
 each arm's outputs:
 
-    docker compose run --rm dataprep python scripts/deeptex/deeptex_arms_report.py \\
+    docker compose run --rm dataprep python variants/deeptex/matsynth/deeptex_arms_report.py \\
         --arm textures_db=/workspace/runs/deeptex/eval/paper_allmaps \\
         --arm matsynth_all=/workspace/runs/deeptex/eval/matsynth_all \\
         --out /workspace/runs/deeptex/report_matsynth_all

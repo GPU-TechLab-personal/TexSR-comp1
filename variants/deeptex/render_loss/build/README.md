@@ -33,8 +33,8 @@ record by record, identical `order_sha256`, verify reports identical
 
 ## Kept, not fixed
 
-- `texsr_build_grouped_tfrecord.py:471` prints `next: python /workspace/scripts/deeptex/texsr_verify_grouped.py`,
-  the old path (a moved file keeps its strings).
+- (Fixed when the old tree was deleted: `texsr_build_grouped_tfrecord.py:471`'s `next:` line
+  printed the old `scripts/deeptex/` path; it now names this folder's verifier.)
 - The record's file sha256 (in the meta and checked by the verifier against the file it
   reads) is not reproducible across rebuilds: protobuf map order. A rebuilt record must be
   verified again; the content and `order_sha256` are what stay fixed.

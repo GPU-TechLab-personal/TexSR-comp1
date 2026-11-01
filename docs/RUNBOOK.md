@@ -51,7 +51,7 @@ docker ps
 ### 2.1 샤드에서 뭐가 있는지 본다
 
 ```powershell
-docker compose run --rm dataprep python scripts/common/matsynth_extract.py --list
+docker compose run --rm dataprep python variants/common/matsynth_extract.py --list
 ```
 
 기본 샤드는 `test-00000-of-00008.parquet`(12개 재질). 다른 샤드는 `--shard`로.
@@ -61,7 +61,7 @@ MatUp은 학습이 없으므로 test만으로 충분하다.
 ### 2.2 뽑는다
 
 ```powershell
-docker compose run --rm dataprep python scripts/common/matsynth_extract.py --index 8
+docker compose run --rm dataprep python variants/common/matsynth_extract.py --index 8
 ```
 
 `runs/matsynth/<이름>/` 아래에 만들어진다:
@@ -108,7 +108,7 @@ loss 1 ... loss 10
 위 명령을 재질마다 손으로 치는 대신:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\matup\run_matup.ps1 -PostProcess
+powershell -ExecutionPolicy Bypass -File variants\matup\baseline\run.ps1 -PostProcess
 ```
 
 `runs/matsynth`의 모든 재질을 순차 실행하고 후처리 체인까지 돈다. 사전 점검(§1)을
@@ -143,14 +143,14 @@ MatUp과 달리 **학습이 필요하다**. 사전학습 가중치가 배포된 
 ### 2.5.1 한 줄씩
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep    # 정규화 -> 타일 -> tfrecord -> 검증 (10~30분)
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage smoke   # 20스텝 학습 + 평가 self-test (약 4분)
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper   # 논문 코드 40k 학습 (약 2.3시간)
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval    # SR -> compare/ -> 5행 몽타주
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage prep    # 정규화 -> 타일 -> tfrecord -> 검증 (10~30분)
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage smoke   # 20스텝 학습 + 평가 self-test (약 4분)
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage paper   # 논문 코드 40k 학습 (약 2.3시간)
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage eval    # SR -> compare/ -> 5행 몽타주
 ```
 
 > **`-ExecutionPolicy Bypass`가 왜 붙어 있나:** 이 머신은 실행 정책이 전 범위 `Undefined`라
-> Windows 기본값 `Restricted`가 걸린다. 그냥 `scripts\...ps1`로 부르면 `UnauthorizedAccess`로
+> Windows 기본값 `Restricted`가 걸린다. 그냥 `variants\...\run.ps1`로 부르면 `UnauthorizedAccess`로
 > 거부된다. `Bypass`는 **그 실행 하나에만** 적용되고 시스템 설정을 바꾸지 않는다.
 > 매번 붙이기 싫으면 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`를 한 번 하면 되는데,
 > 그건 계정 전역 설정이다.
@@ -181,11 +181,11 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 ### 2.5.3 학습 — 논문 코드를 그대로 돌린다
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage paper
 ```
 
 **실행되는 것은 `external/DeepTextures/train_esrgan.py` 원본이다.** 우리 트레이너가 아니다.
-`scripts/deeptex/run_upstream_train.py`가 그것을 subprocess로 띄우고 stdout만 재포맷한다 —
+`variants/deeptex/upstream_runner/run_upstream_train.py`가 그것을 subprocess로 띄우고 stdout만 재포맷한다 —
 진행바가 `\r`로 뭉쳐 나오는 걸 `[metrics]` 줄로 쪼개는 것뿐이고, 학습에는 손대지 않는다.
 
 작업 디렉터리는 `runs/deeptex/paper/`다. upstream이 `./checkpoints`·`./logs`를 CWD 상대로 만들기
@@ -206,7 +206,7 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 **성공 판정은 로그가 아니라 상태다.** `[metrics]`가 niter에 닿는 것과 **별개로**, 체크포인트의
 `step` 텐서가 niter 이상인지 컨테이너에서 직접 확인한다. 둘 중 하나라도 안 맞으면 실패다.
 
-> 결함 4개를 고친 판(`deeptex_train.py` + PSNR 사전학습)은 `-Stage pretrain` / `-Stage train`으로
+> 결함 4개를 고친 판(`variants/deeptex/fixed/` + PSNR 사전학습)은 `variants\deeptex\fixed\run.ps1 -Stage pretrain` / `-Stage train`으로
 > 여전히 돌릴 수 있지만 **이번 비교에서는 쓰지 않는다.** 이유는 `docs/DEEPTEX-DEVIATIONS.md` §0.4.
 
 ### 2.5.4 재개와 재시작
@@ -242,18 +242,18 @@ height(uint16)를 처리할 수 없다. 나머지 4칸은 placeholder로 남고,
 `/data/MatSynth/data/*.parquet`이 보인다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth   # 게이트 -> 쌍 -> tfrecord -> 검증 (처음 약 20분, 재실행 약 5분)
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper     -PaperConfig configs/deeptex/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all   # 40k (약 2.6시간)
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all   # SR 2회 + 리포트 (약 10분)
+powershell -ExecutionPolicy Bypass -File variants\deeptex\matsynth\run.ps1 -Stage prep-matsynth   # 게이트 -> 쌍 -> tfrecord -> 검증 (처음 약 20분, 재실행 약 5분)
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage paper     -PaperConfig variants/deeptex/matsynth/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all   # 40k (약 2.6시간)
+powershell -ExecutionPolicy Bypass -File variants\deeptex\matsynth\run.ps1 -Stage eval-arms -PaperConfig variants/deeptex/matsynth/esrgan_matsynth.yaml -PaperRoot runs/deeptex/matsynth_all   # SR 2회 + 리포트 (약 10분)
 ```
 
 | 단계 | 스크립트 | 컨테이너 | 막는 것 |
 |---|---|---|---|
 | 게이트 | `matsynth_make_pairs.py --check-eval` | dataprep | 평가 12개를 다시 만들어 `runs/matsynth`와 **픽셀 비교**. 다르면 학습 데이터를 만들지 않는다 |
 | 쌍 | `matsynth_make_pairs.py --jobs 4` | dataprep | train shard만, LFS 스텁 건너뜀, 평가 재질 블렌드 제외. **재실행하면 이어서 한다**(`_meta/<소재>.json`이 완료 표시) |
-| tfrecord | `texsr_build_tfrecord.py --hr ×5 --lr ×5` | deeptex | 다섯 맵을 **한 번에 섞는다** — upstream `shuffle=False` |
+| tfrecord | `recipes.py --recipe <R>` (→ `texsr_build_tfrecord.py`, 다섯 맵) | deeptex | 다섯 맵을 **한 번에 섞는다** — upstream `shuffle=False` |
 | 검증 | `texsr_verify_tfrecord.py --align-sample 16` | deeptex | `alignment` 경고는 정상이다. LR이 `imresize_np(HR)`이 아니라 원본에서 area로 만든 것이라서 |
-| 평가 | `deeptex_compare.py --maps all` ×2 → `deeptex_arms_report.py` | deeptex → dataprep | textures_db·MatSynth 체크포인트를 같은 6개 입력에. 결과는 `runs\deeptex\report_matsynth_all\summary.md` |
+| 평가 | `eval_arms.py` ×2 → `deeptex_arms_report.py` | deeptex → dataprep | textures_db·MatSynth 체크포인트를 같은 6개 입력에. 결과는 `runs\deeptex\report_matsynth_all\summary.md` |
 
 리포트 폴더(`runs\deeptex\report_<tag>\`)에 생기는 것:
 
@@ -279,14 +279,14 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 
 ```powershell
 # 데이터 (각 수 분). -Recipe all은 기존 matsynth_all_lrx4.tfrecord를 그대로 다시 만든다
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth -Recipe chratio
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage prep-matsynth -Recipe basecolor
+powershell -ExecutionPolicy Bypass -File variants\deeptex\matsynth\run.ps1 -Stage prep-matsynth -Recipe chratio
+powershell -ExecutionPolicy Bypass -File variants\deeptex\matsynth\run.ps1 -Stage prep-matsynth -Recipe basecolor
 # 학습 (각 약 2.6시간). -KeepAllCheckpoints가 5k마다 저장되는 8개를 checkpoints_all\에 모두 남긴다
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper -PaperConfig configs/deeptex/esrgan_matsynth_chratio.yaml   -PaperRoot runs/deeptex/matsynth_chratio   -KeepAllCheckpoints
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage paper -PaperConfig configs/deeptex/esrgan_matsynth_basecolor.yaml -PaperRoot runs/deeptex/matsynth_basecolor -KeepAllCheckpoints
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage paper -PaperConfig variants/deeptex/matsynth/esrgan_matsynth_chratio.yaml   -PaperRoot runs/deeptex/matsynth_chratio   -KeepAllCheckpoints
+powershell -ExecutionPolicy Bypass -File variants\deeptex\paper\run.ps1 -Stage paper -PaperConfig variants/deeptex/matsynth/esrgan_matsynth_basecolor.yaml -PaperRoot runs/deeptex/matsynth_basecolor -KeepAllCheckpoints
 # 평가. 두 번째 명령이 네 arm을 한 표로 묶는다 (report_matsynth_basecolor)
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth_chratio.yaml   -PaperRoot runs/deeptex/matsynth_chratio
-powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage eval-arms -PaperConfig configs/deeptex/esrgan_matsynth_basecolor.yaml -PaperRoot runs/deeptex/matsynth_basecolor -ExtraArms matsynth_all,matsynth_chratio
+powershell -ExecutionPolicy Bypass -File variants\deeptex\matsynth\run.ps1 -Stage eval-arms -PaperConfig variants/deeptex/matsynth/esrgan_matsynth_chratio.yaml   -PaperRoot runs/deeptex/matsynth_chratio
+powershell -ExecutionPolicy Bypass -File variants\deeptex\matsynth\run.ps1 -Stage eval-arms -PaperConfig variants/deeptex/matsynth/esrgan_matsynth_basecolor.yaml -PaperRoot runs/deeptex/matsynth_basecolor -ExtraArms matsynth_all,matsynth_chratio
 ```
 
 | recipe | 맵 반복 | 레코드 |
@@ -301,7 +301,7 @@ powershell -ExecutionPolicy Bypass -File scripts\deeptex\run_deeptex.ps1 -Stage 
 - `--sheet-material <재질>`을 주면 체크포인트마다 그 재질의 다섯 맵 + render 한 줄 시트도 만든다.
 
 ```powershell
-docker compose -f docker/compose.yaml run --rm deeptex python /workspace/scripts/deeptex/deeptex_drift.py --cfg /workspace/configs/deeptex/esrgan_matsynth_chratio.yaml --ckpt-dir /workspace/runs/deeptex/matsynth_chratio/checkpoints_all/esrgan_40k --pairs /workspace/runs/deeptex/datasets/matsynth/baseColor --out /workspace/runs/deeptex/drift/matsynth_chratio --sheet-material 0844_syntetic_foam
+docker compose -f docker/compose.yaml run --rm deeptex python /workspace/variants/deeptex/matsynth/deeptex_drift.py --cfg /workspace/variants/deeptex/matsynth/esrgan_matsynth_chratio.yaml --ckpt-dir /workspace/runs/deeptex/matsynth_chratio/checkpoints_all/esrgan_40k --pairs /workspace/runs/deeptex/datasets/matsynth/baseColor --out /workspace/runs/deeptex/drift/matsynth_chratio --sheet-material 0844_syntetic_foam
 ```
 
 ⚠️ **`--jobs`를 올리지 말 것.** shard 하나가 ~1 GB row group 하나다. 워커 6개로 시작했다가 16 GB VM에서
@@ -370,13 +370,13 @@ ENOMEM으로 두 번 죽었다. 지금은 열 하나씩 읽고 shard마다 새 �
 
 | 하려는 것 | 볼 곳 |
 |---|---|
-| 학습 하이퍼파라미터 | `configs/deeptex/{psnr_texsr,esrgan_scaled,esrgan_asconfigured}.yaml` |
-| 학습 루프 | `scripts/deeptex/deeptex_train.py` (`train_esrgan.py`와 평행 구조) |
-| 적대 손실 (수정판) | `scripts/deeptex/deeptex_losses.py` |
-| 평가·추론 | `scripts/deeptex/deeptex_sr.py` (`test.py` 대체) |
-| 비교 연결부 | `scripts/deeptex/deeptex_compare.py` |
-| 데이터 준비 | `scripts/deeptex/texsr_{normalize,make_pairs,build_tfrecord,verify_tfrecord}.py` |
-| 오케스트레이션 | `scripts/deeptex/run_deeptex.ps1` |
+| 학습 하이퍼파라미터 | `variants/deeptex/fixed/{psnr_texsr,esrgan_scaled,esrgan_asconfigured}.yaml` |
+| 학습 루프 | `variants/deeptex/paper_loop/loop.py` + `variants/deeptex/fixed/hooks.py` (`train_esrgan.py`와 평행 구조) |
+| 적대 손실 (수정판) | `variants/deeptex/fixed/losses_corrected.py` |
+| 평가·추론 | `variants/deeptex/infer/deeptex_sr.py` (`test.py` 대체) |
+| 비교 연결부 | `variants/deeptex/infer/deeptex_compare.py` |
+| 데이터 준비 | `variants/deeptex/paper/texsr_{normalize,make_pairs}.py`, `variants/deeptex/upstream_runner/texsr_{build_tfrecord,verify_tfrecord}.py` |
+| 오케스트레이션 | `variants/deeptex/{paper,matsynth,fixed,render_loss}/run.ps1` (공용 함수는 `variants/common/lib.ps1`) |
 
 **upstream 결함은 둘이 아니라 열여덟이었다.** 전체 목록과 각각에 대한 우리 대응은
 `docs/DEEPTEX-DEVIATIONS.md`에 있다. 원래 알려져 있던 둘은 이제 해소됐다:
@@ -405,7 +405,7 @@ ENOMEM으로 두 번 죽었다. 지금은 열 하나씩 읽고 shard마다 새 �
 | TF 실행 시 cuBLAS·NUMA 경고 | 무해하다. 쫓지 말 것 (OPEN-ITEMS #5) |
 | 서브모듈 폴더가 비어 있다 | 초기화 안 된 것. `SRFlow`가 비어 있는 건 **의도**다 (재현 불가·라이선스 상이) |
 
-DeepTextures 쪽은 실패가 다른 모양으로 나온다. `run_deeptex.ps1`이 로그에서 아래를 찾아 분류한다:
+DeepTextures 쪽은 실패가 다른 모양으로 나온다. `variants/common/lib.ps1`이 로그에서 아래를 찾아 분류한다:
 
 | 증상 | 진짜 원인 |
 |---|---|

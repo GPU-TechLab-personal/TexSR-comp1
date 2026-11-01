@@ -1,7 +1,8 @@
 # variants/experiments/ — 실험 리스트 1–5
 
-`experiments/`(설명은 `experiments/README.md`)를 `variants/` 규칙(`variants/README.md`)에 맞춰 옮기고 분해한 트리다.
-**동작은 바꾸지 않았다.** 옛 코드는 그대로 남아 있고, `variants/tests/`의 L0·L6가 두 코드가 같다는 것을 확인한다.
+옛 `experiments/`를 `variants/` 규칙(`variants/README.md`)에 맞춰 옮기고 분해한 트리다. 실험 계획·실행 명령·측정 기록은
+`EXPERIMENTS.md`(옛 `experiments/README.md`)에 있다.
+**동작은 바꾸지 않았다.** L0·L6가 옛 코드와 같다는 것을 확인한 뒤 옛 코드와 그 테스트를 지웠다(둘 다 태그 `variants-verified`에 있다).
 
 - **자기완결.** 이 트리는 `scripts/`와 `experiments/`를 import하지 않는다. 밖에서 가져오는 코드는 `external/*`(MatUp)뿐이다.
   `texsr_metrics`는 `variants/common/texsr_metrics.py`에서 가져온다.
@@ -15,7 +16,7 @@
   build_train_set). 이 트리로 옮기지 않았다. 이 트리의 코드는 그 결과물만 읽는다(`/expdata/materials`, `/expdata/train`,
   `cli.py`의 기본값 `--selection /workspace/experiments/data/selection_exp1.json`). 오류 메시지가 `experiments/data/...`를
   가리키는 것은 그대로 두었다.
-- `experiments/docker/`(이미지 `texsr/exp:torch2.0.0-cu117`)도 옮기지 않았다. 같은 이미지를 `docker run`으로 쓴다(아래 §5).
+- 이미지 `texsr/exp:torch2.0.0-cu117`의 Dockerfile과 compose 파일은 `docker/exp/`에 있다(옛 `experiments/docker/`).
 
 ## 1. 실험 → 폴더
 
@@ -32,7 +33,8 @@
 
 ### 옮긴 파일과 분해한 파일
 
-기록은 `variants/tests/moves/experiments.json`에 있다. L0(`python variants/tests/l0_static.py`)가 이 기록을 검사한다.
+기록은 `variants/tests/moves/experiments.json`에 있었고 L0(`l0_static.py`)가 검사했다. 둘 다 옛 코드와 함께 지웠다
+(`git show variants-verified:variants/tests/moves/experiments.json`).
 
 - **moves (파일 통째, import와 경로 상수만 바꿈):** `common/{cli,protocol,shards,render,upscalers,sr_cache,metrics,matup_runs}.py`,
   `exp1_inconsistency/*`, `exp2_esrgan/data.py → core/dataset.py`, `exp4_grf_stats/*`, `exp5_benchmark/{bench_infer,gpu_hours,texel_cost}.py`,
@@ -102,8 +104,9 @@ Criterion 항 순서(합산 순서가 같아야 비트 동일): 맵마다 `[L1, 
 
 ## 5. 실행
 
-이미지는 `texsr/exp:torch2.0.0-cu117`이다(`experiments/docker`에서 빌드). `docker compose`를 쓰지 않으므로 마운트는 직접 준다.
-Git Bash에서 실행하는 예:
+이미지는 `texsr/exp:torch2.0.0-cu117`이다(`docker/exp`에서 `docker compose build`). 메인 체크아웃에서는
+`docker/exp`에서 `docker compose run --rm exp python variants/experiments/...`로 돌린다(`EXPERIMENTS.md`의 명령).
+compose 없이 마운트를 직접 주는 경우(Git Bash):
 
 ```bash
 MSYS_NO_PATHCONV=1 docker run --rm --gpus all --shm-size 8g \
@@ -112,27 +115,19 @@ MSYS_NO_PATHCONV=1 docker run --rm --gpus all --shm-size 8g \
   python variants/experiments/exp2_esrgan/core/train.py --config variants/experiments/exp2_esrgan/configs/2-0_base_scratch.yaml
 ```
 
-나머지 명령은 `experiments/README.md`의 명령에서 `experiments/`를 `variants/experiments/`로 바꾸면 된다.
-트레이너와 평가기만 `exp2_esrgan/core/` 아래에 있다. 시간 단위 실행(실험 1 본 실험, 4, 2·3의 100k it)은 직접 돌려야 한다. 소요 시간은 `experiments/README.md` §8 표와 같다.
+나머지 명령은 `EXPERIMENTS.md`에 있다. 시간 단위 실행(실험 1 본 실험, 4, 2·3의 100k it)은 직접 돌려야 한다. 소요 시간은 `EXPERIMENTS.md` §8 표와 같다.
 
 ## 6. 테스트
 
+옛 코드와의 동등성 테스트(L0 + L6: imports, CPU 139건, GPU matup·smoke·compat 9건)는 모두 통과한 뒤 옛 코드와 함께 지웠다.
+마지막 전체 통과는 `run_all.ps1` 20261101-004941(리포트 `runs/variants_verify/experiments/20261101_024032/report.md`)이고,
+테스트 코드는 태그 `variants-verified`의 `variants/tests/l6_*`에 있다.
+
+새 코드만으로 도는 확인은 `gates/`에 있다(`EXPERIMENTS.md` §8):
+
 ```bash
-variants/tests/l6_experiments_all.sh        # L0 + L6 전부, 리포트까지   ~21분 (GPU ~17분 포함)
-variants/tests/l6_experiments_all.sh cpu    # GPU 층 제외                ~4분
+docker compose run --rm exp python variants/experiments/gates/gate_configs.py      # config가 기준과 지정한 factor만 다른지   수 초
+docker compose run --rm exp python variants/experiments/gates/gate_protocol.py     # 공통 평가 프로토콜
+docker compose run --rm exp python variants/experiments/gates/gate_train_smoke.py  # 모든 팔 몇 it 학습 (GPU)
 ```
-
-결과는 `runs/variants_verify/experiments/<stamp>/report.md`에 쓴다(메인 체크아웃).
-GPU 학습 출력은 `D:/experimentdata/texsr_exp/variants_verify/expdata/`(컨테이너의 `EXPDATA=/vvx`)에 쓴다.
-`/expdata`는 읽기 전용으로 마운트하므로 기존 runs와 캐시는 건드리지 않는다. GPU 단계는 다른 `texsr*` 컨테이너가 돌고 있으면 시작하지 않는다.
-
-| 층 | 파일 | 무엇을 | 판정 | 시간 |
-|---|---|---|---|---|
-| L0 | `l0_static.py` + `moves/experiments.json` | moves AST 동일, functions AST 동일, decomposed 줄 커버리지 | 정확히 | <5 s (호스트) |
-| L6 imports | `l6_experiments_imports.py` | 모든 모듈이 새 인터프리터에서 import되고, `experiments.*`, `scripts.*`, `texsr_metrics`를 끌어오지 않는다 | 정확히 | ~1분 |
-| L6 cpu | `l6_experiments_cpu.py` | 상수, 해석된 config(dict와 config.yaml 덤프), arm마다 build(seed 0 state_dict), 키 집합, 옛 ckpt strict 로드, forward, `Criterion.generator`(PSNR/GAN; total, 로그 순서, dG, D BN 상태), `Discriminators.loss`(dD), 이상 동작 단언, matup_driver CPU 경로(init_maps, to_canonical, per_light_residuals, metrics.evaluate), gate_configs·gate_protocol(옛것과 stdout 동일)·gate_exp4 합성(seed 0) | 정확히 (`torch.equal`/`==`) | ~3분 |
-| L6 gpu matup | `l6_experiments_gpu.py` | `optimise` 옛/새, eval12 `acg_wood_floor_060`, seed 1996, 1 epoch(1922 step), 원본 루프와 exp4 훅(B, λ 0.003) | `allclose(rtol=0, atol=1e-3)`, 실측 차이와 old-vs-old 바닥값을 함께 보고 | ~3분 |
-| L6 gpu smoke | 〃 | 새 경로의 `gate_train_smoke.py`(8팔, 20 it 후 30까지 재개) | 정확히 (exit 0, ALL PASS) | ~7.5분 |
-| L6 gpu compat | 〃 | 옛 트레이너 ckpt(2-0, 2-2, 3-2)를 새 트레이너가 재개하고, 옛·새 `evaluate.py` 결과를 비교 | 정확히 (실측 max|d| 0) | ~6.5분 |
-
-DataLoader 워커와 CUDA atomic 때문에 matup_driver만은 옛 코드끼리 두 번 돌려도 결과가 정확히 같지 않을 수 있다. 그래서 이 항목만 allclose로 판정한다.
+(`docker/exp`에서 실행한다.)

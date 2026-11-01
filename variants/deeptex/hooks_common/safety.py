@@ -139,5 +139,5 @@ def check_lr_schedule(cfg, allow_dead_lr_schedule):
         if allow_dead_lr_schedule:
             print("[warn] %s Continuing because --allow-dead-lr-schedule." % msg)
         else:
-            die(8, msg + "\n        Use configs/deeptex/esrgan_scaled.yaml, or pass "
+            die(8, msg + "\n        Use variants/deeptex/fixed/esrgan_scaled.yaml, or pass "
                          "--allow-dead-lr-schedule to reproduce upstream on purpose.")

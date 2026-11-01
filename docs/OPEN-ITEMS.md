@@ -5,6 +5,10 @@ blocks it, why it matters, and how to close it.
 
 Last updated: 2026-09-16
 
+Paths under `scripts/`, `experiments/` or `configs/` cited with a line number
+point at the old code at tag `variants-verified` (`git show variants-verified:<path>`).
+That code now lives under `variants/`; `variants/README.md` maps old files to new folders.
+
 ---
 
 ## 1. `DAS_ROOT` — the MatSynth data path
@@ -210,8 +214,8 @@ unknown for reproduction quality.
 those two deleted files.
 
 **RESOLVED 2026-09-16 — 복원하되, 현실적으로 "잘린" 복원만 가능하다.**
-`scripts/deeptex/deeptex_train.py --stage psnr`가 donor의 사전학습 레시피를 돌리고,
-`configs/deeptex/esrgan_scaled.yaml`의 `pretrain_dir`이 그 출력을 가리킨다.
+`variants/deeptex/paper_loop/main.py --experiment fixed --stage psnr`가 donor의 사전학습 레시피를 돌리고,
+`variants/deeptex/fixed/esrgan_scaled.yaml`의 `pretrain_dir`이 그 출력을 가리킨다.
 이번 조사에서 위 항목이 프레이밍하지 않았던 두 가지가 나왔다:
 
 1. **donor의 단계를 복원하는 것만으로는 고쳐지지 않았을 것이다.** 탐색이 깨진 방식이,
@@ -224,7 +228,7 @@ those two deleted files.
    복원되면 generator 가중치 전후 비교로 **증명**한다.
 
 2. **donor의 `niter: 1000000`은 이 카드에서 70~180시간**이라 선택지가 아니다.
-   `configs/deeptex/psnr_texsr.yaml`은 `niter: 40000`으로 자르고 `lr_steps`를 같은 1/5 간격
+   `variants/deeptex/fixed/psnr_texsr.yaml`은 `niter: 40000`으로 자르고 `lr_steps`를 같은 1/5 간격
    (`[8000, 16000, 24000, 32000]`)으로 맞췄다. 이것 자체가 편차이고 그렇게 기술해야 한다 —
    `docs/DEEPTEX-DEVIATIONS.md` §4.
 
@@ -232,7 +236,7 @@ those two deleted files.
 `external/DeepTextures/train_esrgan.py` **원본**을 그대로 돌린 결과로 한다
 (`-Stage paper`, `docs/DEEPTEX-DEVIATIONS.md` §0.4).
 
-사전학습을 복원한 판(`scripts/deeptex/deeptex_train.py --stage psnr` + `--stage esrgan`)은
+사전학습을 복원한 판(`variants/deeptex/paper_loop/main.py --experiment fixed --stage psnr` + `--stage esrgan`)은
 지우지 않고 남겨 뒀다. 다만 그 arm은 **네 변수가 동시에 다르므로**(사전학습·shuffle·손실·LR
 스케줄) 사전학습만의 기여를 분리하지 못한다. 그걸 알고 싶으면 세 번째 실행이 필요하다.
 
@@ -257,12 +261,12 @@ paper's method without separating them.
 
 **RESOLVED 2026-09-16 — config 2종으로 배포하고, 한쪽을 다른 쪽으로 편집하지 않는다.**
 
-- `configs/deeptex/esrgan_scaled.yaml` — `lr_steps: [5000, 10000, 20000, 30000]`.
+- `variants/deeptex/fixed/esrgan_scaled.yaml` — `lr_steps: [5000, 10000, 20000, 30000]`.
   upstream이 `niter`를 나눈 것과 같은 10으로 경계값도 나눈 것이라, ESRGAN이 발표한 스케줄의
   *형태*가 복원된다. **비교는 이걸로 돌린다.**
-- `configs/deeptex/esrgan_asconfigured.yaml` — upstream의 `[50000, ...]` 그대로. 감쇠는 여전히 안 걸린다.
+- `variants/deeptex/fixed/esrgan_asconfigured.yaml` — upstream의 `[50000, ...]` 그대로. 감쇠는 여전히 안 걸린다.
 
-`scripts/deeptex/deeptex_train.py`가 **`lr_steps[0] < niter`를 단언**하고, `--allow-dead-lr-schedule`이
+`variants/deeptex/fixed/hooks.py`가 **`lr_steps[0] < niter`를 단언**하고, `--allow-dead-lr-schedule`이
 없으면 시작을 거부한다. 조용한 no-op을 기록된 선택으로 바꾸는 것이고, 실제 문제가 바로 그것이었다 —
 아무도 감쇠가 안 걸리게 하기로 *결정*한 적이 없다.
 
@@ -396,7 +400,7 @@ Output reaches 27% of the GT `|grad|`.
 ### Measured across all 12 materials of `test-00000`
 
 The single-material conclusion did not survive. `matup/bilinear` on `|grad|`,
-from `scripts/compare/matup_postprocess.py --metrics`:
+from `variants/compare/matup_postprocess.py --metrics`:
 
 | map | above 1.0 | range |
 |---|---|---|
@@ -424,7 +428,7 @@ itself concedes metalness diverges and adds a regulariser, §3.2);
 `--alpha_reg 1e-1` possibly over-regularising; and whether the effect survives
 outside this shard.
 
-Note the reconstructed `height` (scripts/matup/matup_height.py) exceeds 1.0 on all 12,
+Note the reconstructed `height` (variants/matup/baseline/matup_height.py) exceeds 1.0 on all 12,
 but that says nothing about MatUp — that map is built by integration plus a
 high-pass, so adding high frequency is what it does by construction.
 
@@ -478,7 +482,7 @@ would establish whether it holds beyond these 12.
 1. **`test.py`로는 직접 학습한 모델을 평가할 수 없다.** `:36`이 체크포인트 경로를
    `'./checkpoints/original'`로 하드코딩하는데(+주석 처리된 대안 8개) 학습은
    `./checkpoints/<sub_name>`에 쓴다. CLI 플래그도 없다. donor는
-   `'./checkpoints/' + cfg['sub_name']`이었다. → `scripts/deeptex/deeptex_sr.py`로 대체.
+   `'./checkpoints/' + cfg['sub_name']`이었다. → `variants/deeptex/infer/deeptex_sr.py`로 대체.
 2. **`train_esrgan.py:23-25`가 엉뚱한 로거를 죽인다.** Python 로거를 끄는데, 정작 시끄러운
    cuBLAS/NUMA는 C++ 로거에서 나온다(#5). 결과적으로 체크포인트 불일치 경고가 사라져서
    **#6이 조용했던 것**이다.

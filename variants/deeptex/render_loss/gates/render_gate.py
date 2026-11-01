@@ -3,9 +3,9 @@
 
 Runs in the deeptex container (TF 2.10.1, Python 3.8), ON THE GPU:
 
-    docker compose run --rm deeptex python /workspace/scripts/deeptex/render_gate.py --part export
-    docker compose run --rm matup   python /workspace/scripts/matup/render_parity_torch.py --part all
-    docker compose run --rm deeptex python /workspace/scripts/deeptex/render_gate.py \\
+    docker compose run --rm deeptex python /workspace/variants/deeptex/render_loss/gates/render_gate.py --part export
+    docker compose run --rm matup   python /workspace/variants/deeptex/render_loss/gates/render_parity_torch.py --part all
+    docker compose run --rm deeptex python /workspace/variants/deeptex/render_loss/gates/render_gate.py \\
         --part grads,flow,grid,chunks,mask,graph
 
 (run_deeptex.ps1 -Stage gate-render -Gate parity runs exactly that sequence.)

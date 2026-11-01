@@ -3,7 +3,7 @@
 # which differs from this file in that path and in these header comments.
 #
 # Verify that claim:
-#   diff --strip-trailing-cr <(sed '1,15d' configs/deeptex/esrgan_matsynth.yaml) \
+#   diff --strip-trailing-cr <(sed '1,15d' variants/deeptex/matsynth/esrgan_matsynth.yaml) \
 #        external/DeepTextures/configs/esrgan.yaml
 # (the submodule checkout has CRLF line endings, so without the flag every line differs)
 #

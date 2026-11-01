@@ -3,8 +3,8 @@
 
 Run it in the dataprep container (pyarrow + cv2, no TensorFlow):
 
-    docker compose run --rm dataprep python scripts/deeptex/matsynth_make_pairs.py --check-eval
-    docker compose run --rm dataprep python scripts/deeptex/matsynth_make_pairs.py --jobs 4
+    docker compose run --rm dataprep python variants/deeptex/matsynth/matsynth_make_pairs.py --check-eval
+    docker compose run --rm dataprep python variants/deeptex/matsynth/matsynth_make_pairs.py --jobs 4
 
 Layout produced under --out:
 
