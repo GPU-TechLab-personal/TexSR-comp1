@@ -93,7 +93,7 @@ These are why MatUp output paths and file names must not move:
 | | old | new |
 |---|---|---|
 | repo root | `Split-Path -Parent (Split-Path -Parent $PSScriptRoot)` | three `Split-Path -Parent` (one level deeper) |
-| preflight | `. (Join-Path (Split-Path -Parent $PSScriptRoot) "common\preflight.ps1")` | `. (Join-Path $repo "variants\common\preflight.ps1")` (byte copy of `scripts/common/preflight.ps1`) |
+| preflight | `. (Join-Path (Split-Path -Parent $PSScriptRoot) "common\preflight.ps1")` | `. (Join-Path $repo "variants\util\preflight.ps1")` (byte copy of `scripts/common/preflight.ps1`) |
 | height | `scripts/matup/matup_height.py` | `variants/matup/baseline/matup_height.py` |
 | renders | `/workspace/scripts/matup/matup_render.py` | `/workspace/variants/matup/baseline/matup_render.py` |
 | postprocess | `scripts/compare/matup_postprocess.py` | `variants/compare/matup_postprocess.py` |

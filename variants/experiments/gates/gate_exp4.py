@@ -19,7 +19,7 @@ import torch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
 from variants.experiments.common import cli                               # noqa: E402
-from variants.experiments.exp4_grf_stats import grf_stats as G            # noqa: E402
+from variants.experiments.matup_grf_stats import grf_stats as G            # noqa: E402
 
 FAILS = []
 

@@ -49,7 +49,7 @@ def main():
         # nothing. 2 = hide INFO, keep WARNING and ERROR (defect #4).
         os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
-    from variants.common import paths
+    from variants.util import paths
     paths.use_deeptex()
 
     if name == "paper":

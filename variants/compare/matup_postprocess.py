@@ -48,10 +48,10 @@ import sys
 import cv2
 import numpy as np
 
-# texsr_metrics lives in variants/common because BOTH methods must measure with
+# texsr_metrics lives in variants/util because BOTH methods must measure with
 # the same code - see the note in that file about runs/montages/ being committed.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 2)))
-from variants.common import texsr_metrics  # noqa: E402
+from variants.util import texsr_metrics  # noqa: E402
 from variants.compare.matup_runs import newest_run  # noqa: E402
 
 # map name -> (LR/GT filename, MatUp output filename)

@@ -134,7 +134,7 @@ sys.path.insert(0, os.path.join(HERE, os.pardir, os.pardir, os.pardir, os.pardir
 import tensorflow as tf  # noqa: E402
 import yaml  # noqa: E402
 
-from variants.common import matup_lights, paths  # noqa: E402
+from variants.util import matup_lights, paths  # noqa: E402
 from variants.deeptex.render_loss import grouped_dataset, render_tf  # noqa: E402
 
 PARTS = ("export", "grads", "flow", "grid", "chunks", "mask", "graph")

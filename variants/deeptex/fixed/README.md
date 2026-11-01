@@ -44,7 +44,7 @@ against the old trainer.
 
 ## run.ps1
 
-Stages `pretrain` and `train`, plus `preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+Stages `pretrain` and `train`, plus `preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/util/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
 The trainer call is `paper_loop/main.py --experiment fixed` followed by the old
 `deeptex_train.py` flags, unchanged.
 

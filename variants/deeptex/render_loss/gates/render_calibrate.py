@@ -95,7 +95,7 @@ import numpy as np  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, os.pardir, os.pardir, os.pardir, os.pardir))  # repo root
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 SUBMODULE = paths.use_deeptex()
 
 import tensorflow as tf  # noqa: E402

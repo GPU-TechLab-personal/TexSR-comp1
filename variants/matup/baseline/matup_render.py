@@ -38,7 +38,7 @@ import numpy as np
 import torch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 MATUP_ROOT = paths.use_matup()
 
 from matup import data_utils, dataLoader, file_utils, render_utils   # noqa: E402

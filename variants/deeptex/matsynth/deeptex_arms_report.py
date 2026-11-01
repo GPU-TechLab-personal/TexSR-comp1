@@ -66,7 +66,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 from variants.compare import matup_postprocess as post  # noqa: E402
 from variants.compare import matup_montage as mont  # noqa: E402
 from variants.compare import matup_overview as ov  # noqa: E402

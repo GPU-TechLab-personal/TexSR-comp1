@@ -57,7 +57,7 @@ $logDir  = Join-Path $repo "runs\_logs\$stamp"
 # against a Y-inverted surface.
 $OGL = "--ogl_normals"
 
-. (Join-Path $repo "variants\common\preflight.ps1")
+. (Join-Path $repo "variants\util\preflight.ps1")
 
 function Say([string]$msg, [string]$colour = "Gray") { Write-Host $msg -ForegroundColor $colour }
 
@@ -66,7 +66,7 @@ function Say([string]$msg, [string]$colour = "Gray") { Write-Host $msg -Foregrou
 function Invoke-Preflight {
     Say "preflight" "Cyan"
 
-    # The docker-context and stray-container checks live in variants/common/preflight.ps1
+    # The docker-context and stray-container checks live in variants/util/preflight.ps1
     # so this script and run_deeptex.ps1 cannot drift apart on the two-daemon trap,
     # which is the most-warned-about failure in this repo. The reason a stray
     # container matters differs per method, so it is passed in.

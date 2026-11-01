@@ -38,9 +38,9 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 
-# The submodule root (DEEPTEX_ROOT override included) comes from common/paths.py.
+# The submodule root (DEEPTEX_ROOT override included) comes from util/paths.py.
 SUBMODULE = paths.DEEPTEX_ROOT
 TRAINER = os.path.join(SUBMODULE, "train_esrgan.py")
 

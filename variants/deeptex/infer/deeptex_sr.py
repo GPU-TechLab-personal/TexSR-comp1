@@ -61,7 +61,7 @@ import numpy as np
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 SUBMODULE = paths.use_deeptex()
 
 import tensorflow as tf  # noqa: E402

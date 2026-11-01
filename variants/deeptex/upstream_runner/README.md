@@ -13,7 +13,7 @@ Shared by every DeepTextures arm that trains with the released `train_esrgan.py`
 
 | new | was | change |
 |---|---|---|
-| `run_upstream_train.py:40-44` | `run_upstream_train.py:40` | bootstrap; `SUBMODULE = paths.DEEPTEX_ROOT` (same DEEPTEX_ROOT override, now from `common/paths.py`) |
+| `run_upstream_train.py:40-44` | `run_upstream_train.py:40` | bootstrap; `SUBMODULE = paths.DEEPTEX_ROOT` (same DEEPTEX_ROOT override, now from `util/paths.py`) |
 | `texsr_build_tfrecord.py:75-87` (`parser`) | `texsr_build_tfrecord.py:80-97` | the shared options, so `matsynth/recipes.py` builds with the same ones |
 | `texsr_build_tfrecord.py:90-189` (`build(args, repeats)`) | `texsr_build_tfrecord.py:106-197` | the old body after argument parsing, line for line; returns the meta |
 | `texsr_build_tfrecord.py:192-204` (`main`) | `texsr_build_tfrecord.py:82-85, 99-102` | `--hr/--lr` only; every pair packed once (`[1] * len(hr)`, what the old code did without `--repeat`) |

@@ -39,7 +39,7 @@ import numpy as np
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 SUBMODULE = paths.use_deeptex()
 
 import tensorflow as tf  # noqa: E402
@@ -47,7 +47,7 @@ import tensorflow as tf  # noqa: E402
 from modules.models import RRDB_Model  # noqa: E402
 from modules.utils import load_yaml, set_memory_growth  # noqa: E402
 
-from variants.common import map_encode  # noqa: E402
+from variants.util import map_encode  # noqa: E402
 from variants.compare.matup_runs import newest_run  # noqa: E402,F401  (re-exported)
 from variants.deeptex.infer import deeptex_sr  # noqa: E402
 

@@ -2,16 +2,16 @@
 (or the `docker run` mounts in variants/experiments/README.md).
 
 Moved from experiments/common/paths.py. The names are the same; what changed:
-  * WORKSPACE / MATUP come from variants/common/paths.py (REPO, MATUP_ROOT) -
+  * WORKSPACE / MATUP come from variants/util/paths.py (REPO, MATUP_ROOT) -
     in the container both are the old literals, /workspace and
     /workspace/external/matup_egsr.
   * add_matup / add_swinir no longer edit sys.path themselves; they call
-    variants/common/paths.py, the one place a submodule goes onto sys.path
+    variants/util/paths.py, the one place a submodule goes onto sys.path
     (variants/README.md rule 2).
 """
 import os
 
-from variants.common import paths as _root
+from variants.util import paths as _root
 
 WORKSPACE = _root.REPO
 MATUP = _root.MATUP_ROOT

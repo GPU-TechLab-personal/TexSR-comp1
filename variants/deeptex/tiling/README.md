@@ -8,7 +8,7 @@
 
 | new | was | change |
 |---|---|---|
-| `deeptex_tiling_report.py:63-65` | `deeptex_tiling_report.py:63-64` | `texsr_metrics` from `variants.common` instead of `sys.path.insert(0, "/workspace/scripts/common")` |
+| `deeptex_tiling_report.py:63-65` | `deeptex_tiling_report.py:63-64` | `texsr_metrics` from `variants.util` instead of `sys.path.insert(0, "/workspace/scripts/common")` |
 
 L3 regenerates `runs/tiling/tiling_report.json` with old and new: numerically identical
 to the committed file, old and new byte-identical (`l3_reports.py tiling`).

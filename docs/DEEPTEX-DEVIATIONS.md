@@ -372,7 +372,7 @@ donor를 명시적으로 크레딧하는 문장은 없다.
 
 **열화를 평가와 같게 만든 방법.** `variants/deeptex/matsynth/matsynth_make_pairs.py`는
 `matsynth_extract.py`(평가 12개를 만든 스크립트)의 함수를 **import해서** 같은 순서로 부르고,
-`variants/common/map_encode.to_rgb8`로 8-bit RGB를 만든다. `deeptex_compare.load_as_rgb01`도 같은
+`variants/util/map_encode.to_rgb8`로 8-bit RGB를 만든다. `deeptex_compare.load_as_rgb01`도 같은
 함수를 부르도록 바꿨다(132개 입력에서 리팩터 전후 배열 동일 확인). `--check-eval`이 test-00000에서
 평가 12개를 다시 만들어 `runs/matsynth`와 **120개 파일 전부 픽셀 동일**임을 확인한다 — 학습 전 게이트.
 
@@ -605,7 +605,7 @@ arm마다 학습이 한 번이고 시드가 없으므로, 차이가 작으면 �
 | 12 | `test.py:57,68,70` | 학습은 RGB(`tf.image.decode_png`), 추론은 **BGR**(`cv2.imread`). 학습된 채널별 거동이 엉뚱한 채널에 적용된다 | 추론 경로에서 **cv2를 아예 쓰지 않는다** — `tf.io.decode_image(channels=3)` → `tf.io.encode_png`. 실수로 되돌아올 수 없는 구조 | 없음 |
 | 13 | `test.py:75` | `if len(matrix_images[0]) > 1:` — N행×1열이면 join을 건너뛰고 **좌상단 타일만** 저장 | 2차원 그리드 루프, 특례 없음 | 없음 |
 | 14 | `data/convert_train_tfrecord.py:93-97` | `exit(1)`(출력 이미 존재)이 `except SystemExit: pass`에 먹혀 **프로세스 종료 코드 0**. `test.py:108-111`도 동일 | argparse + 평범한 `sys.exit(n)`. absl 래퍼 없음 | 없음 |
-| 15 | `modules/utils.py:329-333` | `calculate_ssim` 3채널 분기가 `for _ in range(3): ssims.append(_ssim(img1, img2))` — 같은 전체 SSIM을 3번 평균. RGB 입력에 대해 무의미한 값 | 쓰지 않는다. `variants/common/texsr_metrics.py`가 채널별로 제대로 계산 | 없음 |
+| 15 | `modules/utils.py:329-333` | `calculate_ssim` 3채널 분기가 `for _ in range(3): ssims.append(_ssim(img1, img2))` — 같은 전체 SSIM을 3번 평균. RGB 입력에 대해 무의미한 값 | 쓰지 않는다. `variants/util/texsr_metrics.py`가 채널별로 제대로 계산 | 없음 |
 | 16 | `modules/utils.py:340-365` | `rgb2ycbcr`이 `:350`에서 인자를 **in-place 변형**하고 `:351`에서 채널을 뒤집는다 — 이름과 달리 실제로는 BGR을 기대한다 | 쓰지 않는다 | 없음 |
 | 17 | `modules/utils.py:64` | `tensor2img`가 `astype(uint8)`로 **절단**(반올림 아님) → 약 0.5 LSB, PSNR 약 −0.1 dB | `np.rint` | 없음 |
 | 18 | `modules/utils.py:16` | `yaml.load(..., Loader=yaml.Loader)` — 안전하지 않은 로더 | 우리 config는 우리 코드가 읽는다. 서브모듈 `load_yaml`은 우리가 쓴 파일에만 쓰이므로 실질 위험은 없지만 기록해 둔다 | 없음 |

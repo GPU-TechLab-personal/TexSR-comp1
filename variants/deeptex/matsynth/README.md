@@ -32,7 +32,7 @@ The three configs differ from `paper/esrgan_paper.yaml` only in their header com
 
 | new | was | change |
 |---|---|---|
-| `matsynth_make_pairs.py:75-79` | `matsynth_make_pairs.py:75-78` | bootstrap; `map_encode`, `matsynth_extract` from `variants.common` |
+| `matsynth_make_pairs.py:75-79` | `matsynth_make_pairs.py:75-78` | bootstrap; `map_encode`, `matsynth_extract` from `variants.util` |
 | `recipes.py:39-43` | `run_deeptex.ps1:539-543` | the recipe table moves into Python |
 | `recipes.py:55-68` | `texsr_build_tfrecord.py:86-88, 102-105` | `--repeat` and its check; calls `upstream_runner/texsr_build_tfrecord.build(args, repeats)` |
 | `eval_arms.py:50-57` | `deeptex_compare.py:95-102` | all six jobs (the core has baseColor and render only) |
@@ -75,7 +75,7 @@ The three configs differ from `paper/esrgan_paper.yaml` only in their header com
 
 Stages `prep-matsynth` (`-Recipe all|chratio|basecolor`) and `eval-arms`, plus
 `preflight`; `-Stage` is mandatory (the old default `all` is the paper arm's).
-Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/util/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
 Changed: the record build is one `recipes.py --recipe <R> --root <ms>` call
 instead of the per-map `--hr/--lr[/--repeat k]` list, and the `recipe <R> : ...`
 console line is printed by `recipes.py` (L5 rule R checks that the old list is

@@ -25,9 +25,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.
 from variants.experiments.common import paths   # noqa: E402
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-TRAIN = os.path.normpath(os.path.join(_HERE, os.pardir, "exp2_esrgan", "core", "train.py"))
-CONFIGS = sorted(glob.glob(os.path.join(_HERE, os.pardir, "exp2_esrgan", "configs", "*.yaml"))
-                 + glob.glob(os.path.join(_HERE, os.pardir, "exp3_render_loss", "configs", "*.yaml")))
+TRAIN = os.path.normpath(os.path.join(_HERE, os.pardir, "esrgan_map_degradation", "core", "train.py"))
+CONFIGS = sorted(glob.glob(os.path.join(_HERE, os.pardir, "esrgan_map_degradation", "configs", "*.yaml"))
+                 + glob.glob(os.path.join(_HERE, os.pardir, "esrgan_render_loss", "configs", "*.yaml")))
 SET = ["data.root=%s" % os.path.join(paths.EXPDATA, "_gate_train"), "data.workers=2", "train.psnr_iters=10",
        "log.every=10", "eval.every=20", "save.every=20", "train.milestones=[15]"]
 
@@ -37,7 +37,7 @@ def main():
     only = sys.argv[1:]                     # optional substrings, e.g. "3-1 3-2"
     for cfg in [c for c in CONFIGS if not only or any(o in c for o in only)]:
         name = "_smoke_" + os.path.basename(cfg).replace(".yaml", "")
-        exp = "exp3" if "exp3_" in cfg else "exp2"
+        exp = "exp3" if "esrgan_render_loss" in cfg else "exp2"
         run = os.path.join(paths.RUNS, exp, name)
         shutil.rmtree(run, ignore_errors=True)
         ok = True

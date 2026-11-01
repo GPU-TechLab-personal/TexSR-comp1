@@ -49,7 +49,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 SUBMODULE = paths.use_deeptex()
 
 from modules.utils import imresize_np  # noqa: E402

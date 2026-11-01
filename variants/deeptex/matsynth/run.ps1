@@ -101,7 +101,7 @@ $DRIFT_SHEET = "0844_syntetic_foam"
 $EvalTagGiven = $PSBoundParameters.ContainsKey("EvalTag")
 if (-not $EvalTag) { $EvalTag = $Dataset }
 
-. (Join-Path $repo "variants\common\lib.ps1")
+. (Join-Path $repo "variants\util\lib.ps1")
 
 # Moved from (old line ranges); paths per variants/tests/l5_deeptex.ps1:
 #   Stage-PrepMatsynth       run_deeptex.ps1:545-584

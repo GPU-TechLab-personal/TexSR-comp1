@@ -3,7 +3,7 @@ Common evaluation protocol (공통 평가 프로토콜), one implementation for 
 
 Primary, per claimed map, with the metric that fits the map:
     basecolor   PSNR / SSIM (sRGB, 8-bit ladder, shared texsr_metrics code -
-                variants/common/texsr_metrics.py, moved from scripts/common/),
+                variants/util/texsr_metrics.py, moved from scripts/common/),
                 LPIPS-alex (sRGB), CIEDE2000 deltaE
     normal      mean / median angular error (deg), % within 5 and 10 deg
     roughness   MAE
@@ -22,7 +22,7 @@ import os
 import numpy as np
 import torch
 
-from variants.common import texsr_metrics
+from variants.util import texsr_metrics
 from variants.experiments.common import render as R
 from variants.experiments.common.protocol import MAP_NAMES, crop_border, normalize
 

@@ -95,7 +95,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from variants.common import matup_lights  # noqa: E402  (numpy only; see that file for why it is not imported from MatUp)
+from variants.util import matup_lights  # noqa: E402  (numpy only; see that file for why it is not imported from MatUp)
 
 
 # ------------------------------------------------------------------- constants

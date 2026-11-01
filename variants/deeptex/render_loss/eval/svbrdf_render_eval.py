@@ -150,14 +150,14 @@ import torch  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 4)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 REPO = paths.REPO
 MATUP_ROOT = paths.use_matup()
 
 from matup import data_utils, dataLoader, file_utils, light_utils, render_utils  # noqa: E402
 from matup.renderer import Renderer  # noqa: E402
 
-from variants.common import matup_lights  # noqa: E402
+from variants.util import matup_lights  # noqa: E402
 from variants.compare import matup_montage as mont  # noqa: E402
 from variants.compare import matup_overview as ov  # noqa: E402
 from variants.compare import matup_postprocess as post  # noqa: E402

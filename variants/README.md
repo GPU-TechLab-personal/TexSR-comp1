@@ -28,7 +28,7 @@ Each folder's README lists its files against the old ones, the odd behaviour it
 keeps, and the defects found but not fixed. The orchestrators: every stage of
 `scripts/deeptex/run_deeptex.ps1` now lives in exactly one arm `run.ps1`, with
 the same stage name and parameters; the helpers they share are
-`common/lib.ps1` (L5 compares their docker argv stage by stage).
+`util/lib.ps1` (L5 compares their docker argv stage by stage).
 
 ## Rules every file here follows
 
@@ -40,13 +40,13 @@ the same stage name and parameters; the helpers they share are
    ```python
    import os, sys
    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * N)))
-   from variants.common import paths      # N = depth of this file below the repo root
+   from variants.util import paths      # N = depth of this file below the repo root
    paths.use_deeptex()                    # or use_matup() / use_swinir()
    ```
 
    Libraries import siblings as `from variants.<...> import x`, never through a
    `sys.path` edit. Submodule paths, the DEEPTEX_ROOT override and the pin check
-   live only in `common/paths.py`.
+   live only in `util/paths.py`.
 3. **Moved vs decomposed.** A file without experiment branches is copied and only
    its import lines / path constants change; L0 proves the AST is identical. Only
    files with experiment branches are actually split, and L0 then checks that
@@ -113,9 +113,9 @@ feature and gan.
 4. The config: copy an existing one (`fixed/esrgan_scaled.yaml`) and give it its
    own `sub_name` and `checkpoint_root`. Keep those keys top-level, one per line:
    the ps1 files read them with line regexes.
-5. `run.ps1`: copy `fixed/run.ps1` (it dot-sources `common/lib.ps1`) and change
+5. `run.ps1`: copy `fixed/run.ps1` (it dot-sources `util/lib.ps1`) and change
    the trainer call to `--experiment <name>`. To evaluate with `eval_arms.py` or
-   the render eval, add the tag to `Get-ArmInfo` in `common/lib.ps1`.
+   the render eval, add the tag to `Get-ArmInfo` in `util/lib.ps1`.
 
 A variant of an existing arm that only changes numbers (another `w_render`) is
 just a new config; one that needs more hooks subclasses `RenderHooks` or
@@ -123,7 +123,7 @@ just a new config; one that needs more hooks subclasses `RenderHooks` or
 
 ### Experiments (exp2/exp3 style): a new arm
 
-The config decides the arm: `exp2_esrgan/core/assemble.py` holds the
+The config decides the arm: `esrgan_map_degradation/core/assemble.py` holds the
 predicates (generator by `model.*`, discriminators by `disc.mode`, loss terms by
 `loss.*`). `Criterion` is a list of terms; a term has a `key` and
 `in_psnr_stage` and returns `(weight, value)` or `None`.
@@ -168,7 +168,7 @@ A row in `RECIPES` (`deeptex/matsynth/recipes.py`) and a config yaml; train with
 
 | folder | contents |
 |---|---|
-| `common/` | `paths.py`, moved helpers (`map_encode`, `matsynth_extract`, `matup_lights`, `texsr_metrics`), `lib.ps1`, `preflight.ps1` |
+| `util/` | `paths.py`, moved helpers (`map_encode`, `matsynth_extract`, `matup_lights`, `texsr_metrics`), `lib.ps1`, `preflight.ps1` |
 | `deeptex/paper_loop/`, `hooks_common/`, `fixed/`, `render_loss/` (trainer, gates) | DeepTextures trainer = the paper loop plus per-experiment hooks |
 | `deeptex/upstream_runner/`, `infer/`, `paper/`, `matsynth/`, `tiling/`, `render_loss/eval/`, `render_loss/build/`, `compare/` | data prep, inference, evaluation, reports |
 | `matup/baseline/` | MatUp baseline |

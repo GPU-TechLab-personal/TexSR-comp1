@@ -16,15 +16,15 @@ MatUp 서브모듈도 수정하지 않고 바깥에서 import해 구동한다 (`
 
 ```powershell
 # 1. 실험 1 파일럿 (5재질) — 연구 동기 확인                          ~30분
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/run_C.py --pilot --s swinir bilinear
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/run_residuals.py --pilot --s swinir --with-init
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/analyze.py
+docker compose run --rm exp python variants/experiments/light_inconsistency/run_C.py --pilot --s swinir bilinear
+docker compose run --rm exp python variants/experiments/light_inconsistency/run_residuals.py --pilot --s swinir --with-init
+docker compose run --rm exp python variants/experiments/light_inconsistency/analyze.py
 # 2. 실험 4 파일럿 (orig는 위 결과 재사용)                           ~1시간
-docker compose run --rm exp python variants/experiments/exp4_grf_stats/run.py --pilot --s swinir
-docker compose run --rm exp python variants/experiments/exp4_grf_stats/analyze.py
+docker compose run --rm exp python variants/experiments/matup_grf_stats/run.py --pilot --s swinir
+docker compose run --rm exp python variants/experiments/matup_grf_stats/analyze.py
 # 3. 실험 2·3: 학습셋 완성(~2-3시간, 이어하기) 후 팔마다 ~5-7시간 (2-2는 ~20시간)
 docker compose run --rm exp python experiments/data/build_train_set.py
-docker compose run --rm exp python variants/experiments/exp2_esrgan/core/train.py --config variants/experiments/exp2_esrgan/configs/2-0_base_scratch.yaml
+docker compose run --rm exp python variants/experiments/esrgan_map_degradation/core/train.py --config variants/experiments/esrgan_map_degradation/configs/2-0_base_scratch.yaml
 # 4. 실험 5: 이미 1회 측정됨 (§9). 재측정은 같은 명령
 ```
 
@@ -75,7 +75,7 @@ Docker VM 메모리는 15.5 GB다. **MatSynth 샤드는 샤드당 row group 1개
 
 | 리스트 항목 | 구현 |
 |---|---|
-| basecolor PSNR/SSIM/LPIPS(sRGB), ΔE | `metrics.basecolor_metrics` — PSNR/SSIM은 **저장소 공유 코드 `variants/common/texsr_metrics.py`**(8-bit 사다리)를 그대로 호출, LPIPS-alex, CIEDE2000 |
+| basecolor PSNR/SSIM/LPIPS(sRGB), ΔE | `metrics.basecolor_metrics` — PSNR/SSIM은 **저장소 공유 코드 `variants/util/texsr_metrics.py`**(8-bit 사다리)를 그대로 호출, LPIPS-alex, CIEDE2000 |
 | normal 평균 각도 오차, 5°/10° 비율 | `metrics.normal_metrics` (atan2 기반, 0 근처에서 arccos보다 안정) |
 | roughness·metalness MAE, metalness 0/1 정확도 | `roughness_metrics`, `metallic_metrics` |
 | height MAE, gradient 오차 | `height_metrics` (+평균 정렬 MAE: 법선 적분 height는 상수항이 자유) |
@@ -83,7 +83,7 @@ Docker VM 메모리는 15.5 GB다. **MatSynth 샤드는 샤드당 row group 1개
 | 주장하지 않는 맵도 공개 | `evaluate(maps=claimed)` — claimed와 무관하게 존재하는 모든 맵을 보고 |
 | LR 생성 통일 | `protocol.downsample` — basecolor는 **linear 공간** 평균, normal은 평균 후 **재정규화**, roughness는 **LEAN**(기본) / Toksvig / area, 모든 방법·실험이 이 함수 하나 |
 | 같은 테스트셋·배율·crop | 평가 재질은 `/expdata/materials/eval12` 하나 (512² GT / 128² LR, ×4) |
-| tiling 경계 영역 오차 | `band_mask` + `masked_pixel_metrics`, `exp2_esrgan/evaluate.py --tile N` |
+| tiling 경계 영역 오차 | `band_mask` + `masked_pixel_metrics`, `esrgan_map_degradation/core/evaluate.py --tile N` |
 | baseline off-the-shelf + 재학습 | 실험 2의 `2-0`(scratch 재학습) / `2-1`(자연영상 사전학습 init) |
 | 입력 정보량 맞추기 | 실험 2-4 / 실험 3이 "모든 맵 입력"을 ablation 팔로 분리 |
 
@@ -137,12 +137,12 @@ docker compose run --rm exp python experiments/data/build_train_set.py
 
 ```powershell
 # 파일럿 (5재질)
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/run_C.py --pilot --s swinir bilinear
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/run_residuals.py --pilot --s swinir
+docker compose run --rm exp python variants/experiments/light_inconsistency/run_C.py --pilot --s swinir bilinear
+docker compose run --rm exp python variants/experiments/light_inconsistency/run_residuals.py --pilot --s swinir
 # 본 실험 (50재질)
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/run_C.py --s swinir sdx4 bilinear
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/run_residuals.py --s swinir sdx4
-docker compose run --rm exp python variants/experiments/exp1_inconsistency/analyze.py
+docker compose run --rm exp python variants/experiments/light_inconsistency/run_C.py --s swinir sdx4 bilinear
+docker compose run --rm exp python variants/experiments/light_inconsistency/run_residuals.py --s swinir sdx4
+docker compose run --rm exp python variants/experiments/light_inconsistency/analyze.py
 ```
 
 - **bilinear의 C ≈ 0.0011은 0이 아니라 8-bit 양자화 바닥이다** (1/(255·√12) = 0.00113). S의 C는 이 값과 비교한다.
@@ -155,7 +155,7 @@ docker compose run --rm exp python variants/experiments/exp1_inconsistency/analy
 
 ## 5. 실험 2 — ESRGAN 비-basecolor 맵 저하 원인 분리
 
-트레이너 하나(`exp2_esrgan/train.py`) + 팔마다 config 하나. **모든 팔은 `2-0`을 상속하고 요인 하나만 바꾼다.**
+트레이너 하나(`esrgan_map_degradation/core/train.py`) + 팔마다 config 하나. **모든 팔은 `2-0`을 상속하고 요인 하나만 바꾼다.**
 
 | config | 바꾸는 것 | 검증하는 가설 |
 |---|---|---|
@@ -171,9 +171,9 @@ docker compose run --rm exp python variants/experiments/exp1_inconsistency/analy
 `--set init.weights=/expdata/cache/pretrained/RRDB_ESRGAN_x4.pth`로 그대로 로드된다(구 명명 자동 변환).
 
 ```powershell
-docker compose run --rm exp python variants/experiments/exp2_esrgan/core/train.py --config variants/experiments/exp2_esrgan/configs/2-0_base_scratch.yaml
+docker compose run --rm exp python variants/experiments/esrgan_map_degradation/core/train.py --config variants/experiments/esrgan_map_degradation/configs/2-0_base_scratch.yaml
 # ... 2-1 ~ 2-4 동일
-docker compose run --rm exp python variants/experiments/exp2_esrgan/core/evaluate.py --run exp2/2-0_base_scratch
+docker compose run --rm exp python variants/experiments/esrgan_map_degradation/core/evaluate.py --run exp2/2-0_base_scratch
 ```
 
 선행 확인 항목(Alonso & Patow의 fine-tune 여부)은 논문 확인 사항이라 코드로 해결되지 않는다.
@@ -200,9 +200,9 @@ docker compose run --rm exp python variants/experiments/exp2_esrgan/core/evaluat
 - 손실: P×P 출력 패치 배치의 표본 모멘트를 Σ, Σ_g에 상관 정규화해 맞춤. 총 손실 = MatUp(Lfit+Lreg) + λ·L_stat.
 
 ```powershell
-docker compose run --rm exp python variants/experiments/exp4_grf_stats/run.py --pilot --s swinir
-docker compose run --rm exp python variants/experiments/exp4_grf_stats/run.py --s swinir sdx4 --lambdas 0.001 0.003 0.01
-docker compose run --rm exp python variants/experiments/exp4_grf_stats/analyze.py
+docker compose run --rm exp python variants/experiments/matup_grf_stats/run.py --pilot --s swinir
+docker compose run --rm exp python variants/experiments/matup_grf_stats/run.py --s swinir sdx4 --lambdas 0.001 0.003 0.01
+docker compose run --rm exp python variants/experiments/matup_grf_stats/analyze.py
 ```
 
 `orig`(MatUp 원본) 팔은 실험 1 `run_residuals.py`와 **같은 실행 결과를 공유**한다 (`/expdata/runs/matup/<set>/<S>/<재질>/orig`).
@@ -246,10 +246,10 @@ config 상속이 맵별 손실을 교체 대신 병합.
 ## 9. 실험 5 — 속도·메모리
 
 ```powershell
-docker compose run --rm exp python variants/experiments/exp5_benchmark/bench_infer.py     # RRDBNet/SwinIR/DiT 1·4·20·50/MatUp MLP
-docker compose run --rm exp python variants/experiments/exp5_benchmark/bench_train.py     # 팔별 iter/s, MatUp step/s
-docker compose run --rm exp python variants/experiments/exp5_benchmark/texel_cost.py      # 텍셀당 MAC·저장량
-docker compose run --rm exp python variants/experiments/exp5_benchmark/gpu_hours.py --target normal_angle<=3 --target basecolor_psnr>=28
+docker compose run --rm exp python variants/experiments/speed_memory/bench_infer.py     # RRDBNet/SwinIR/DiT 1·4·20·50/MatUp MLP
+docker compose run --rm exp python variants/experiments/speed_memory/bench_train.py     # 팔별 iter/s, MatUp step/s
+docker compose run --rm exp python variants/experiments/speed_memory/texel_cost.py      # 텍셀당 MAC·저장량
+docker compose run --rm exp python variants/experiments/speed_memory/gpu_hours.py --target normal_angle<=3 --target basecolor_psnr>=28
 ```
 
 조건: LR 128² → ×4, fp16, 워밍업 10회 후 100회 평균, 매 회 `torch.cuda.synchronize()`,

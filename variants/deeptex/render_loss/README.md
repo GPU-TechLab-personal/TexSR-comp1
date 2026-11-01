@@ -38,7 +38,7 @@ hooks_common, as in the old trainer: the render arm prints the
 ## Kept as it was, and named
 
 * **max_to_keep is 3.** The eight checkpoints of a 40k run are the
-  `-KeepAllCheckpoints` copier's (run.ps1 → `variants/common/lib.ps1`), not the
+  `-KeepAllCheckpoints` copier's (run.ps1 → `variants/util/lib.ps1`), not the
   trainer's.
 * `check_grouped_dataset`'s message still names
   `scripts\deeptex\run_deeptex.ps1 -Stage prep-grouped` - kept byte-identical
@@ -68,7 +68,7 @@ hooks_common, as in the old trainer: the render arm prints the
 
 Stages `prep-grouped`, `gate-render` (`-Gate parity|calibrate|overfit|smoke|premise`),
 `render-train` (`-Arm r0a|r0b|r1`), `eval-render`, `eval-perceptual`, plus
-`preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/common/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
+`preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/util/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
 The trainer calls are `paper_loop/main.py --experiment render` + the old flags;
 every `deeptex_compare --maps all --scalar-collapse mean` is `matsynth/eval_arms.py`.
 The README `eval-render` writes into `runs/montages/deeptex_render_loss/` now names

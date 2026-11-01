@@ -7,21 +7,19 @@
 
 모든 `file:line`은 2026-10-30 기준 작업 트리(커밋 `e0eb4c5`)를 가리킵니다. 기존 config 주석, `deeptex_train.py`·`grouped_dataset.py` docstring, `DEEPTEX-DEVIATIONS.md`는 고치지 않고 줄 번호로만 인용합니다.
 
-경로 안내: 그 뒤 `scripts/`·`experiments/`·`configs/`의 옛 코드는 작업 트리에서 지워졌고, 지금은 `variants/` 아래에 있습니다(옛 파일 → 새 폴더 대응은 `variants/README.md`). 이 문서가 줄 번호로 인용하는 옛 파일(`deeptex_train.py`, `run_deeptex.ps1`, `render_tf.py` 등)은 태그 `variants-verified`에서 그대로 읽을 수 있습니다(`git show variants-verified:<경로>`, 인용한 파일은 `e0eb4c5`와 같습니다).
-
 ## 0. 학습 코드는 두 개입니다
 
 | | 원본 | 우리 트레이너 |
 |---|---|---|
-| 파일 | `external/DeepTextures/train_esrgan.py` (git submodule, 수정하지 않음) | `variants/deeptex/paper_loop/main.py --experiment render` (줄 번호 인용은 옛 `deeptex_train.py`) |
+| 파일 | `external/DeepTextures/train_esrgan.py` (git submodule, 수정하지 않음) | `scripts/deeptex/deeptex_train.py` |
 | 쓴 arm | 논문 arm: textures_db, `matsynth_all`, data_ratio (`run_deeptex.ps1:444`, "upstream train_esrgan.py VERBATIM") | **R0a, R0b, R1** (`run_deeptex.ps1:1306-1308`) |
 | 손실·네트워크 | `modules/losses.py`, `modules/models.py` | **원본 모듈을 그대로 import합니다**(`deeptex_train.py:98-103`). R0/R1은 `--losses upstream`이라 RaGAN도 원본 함수입니다(`:444-445`, `:645-653`) |
 
 R0/R1 실행 명령은 다음과 같습니다(`run_deeptex.ps1:1306-1308`).
 
 ```
-variants/deeptex/paper_loop/main.py --experiment render --stage esrgan --losses upstream --shuffle off --allow-dead-lr-schedule
-                                    --pretrain-dir none --no-val --log-every 100 --render-monitor-every 100
+deeptex_train.py --stage esrgan --losses upstream --shuffle off --allow-dead-lr-schedule
+                 --pretrain-dir none --no-val --log-every 100 --render-monitor-every 100
 ```
 
 `--shuffle off`, `--allow-dead-lr-schedule`, `--pretrain-dir none`은 원본이 실제로 한 동작(셔플 없음, LR 감쇠가 한 번도 걸리지 않음, scratch 시작)을 그대로 재현하려고 넣은 옵션입니다.
@@ -105,7 +103,7 @@ $$
 \mathcal L_{render}=\frac{1}{|\Omega|\,L}\sum_{p\in\Omega}\sum_{l=1}^{L}\sqrt{\max\Big(\sum_{c\in\{R,G,B\}}\big(\underbrace{T(R_l(\mathcal D(\hat S)))}_{\text{SR 렌더}}-\underbrace{\mathrm{sg}\,T(R_l(\mathcal D(S)))}_{\text{GT 렌더}}\big)_{p,c}^2,\;10^{-15}\Big)}
 $$
 
-$p$는 배치 안 두 재질의 모든 텍셀이고($N=2\cdot128^2$), $L=100$입니다. 계산은 모두 **우리 코드**(`variants/deeptex/render_loss/render_tf.py`)에서 합니다. 이 코드는 MatUp torch 렌더러를 TF로 한 줄씩 옮긴 것이며, 각 줄 주석에 MatUp 원래 위치가 적혀 있습니다. parity 게이트에서 torch와 float64 대비 약 1e-6 수준으로 일치함을 확인했습니다(2026-10-07).
+$p$는 배치 안 두 재질의 모든 텍셀이고($N=2\cdot128^2$), $L=100$입니다. 계산은 모두 **우리 코드**(`scripts/deeptex/render_tf.py`)에서 합니다. 이 코드는 MatUp torch 렌더러를 TF로 한 줄씩 옮긴 것이며, 각 줄 주석에 MatUp 원래 위치가 적혀 있습니다. parity 게이트에서 torch와 float64 대비 약 1e-6 수준으로 일치함을 확인했습니다(2026-10-07).
 
 | 기호 | 요소 | 식 | 코드 | 의미 |
 |---|---|---|---|---|

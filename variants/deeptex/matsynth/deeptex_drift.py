@@ -46,7 +46,7 @@ import numpy as np
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 SUBMODULE = paths.use_deeptex()
 
 import tensorflow as tf  # noqa: E402
@@ -59,7 +59,7 @@ from modules.utils import load_yaml, set_memory_growth  # noqa: E402
 # the infer core plus the all-maps arm. eval_arms re-exports all four.
 from variants.deeptex.matsynth import eval_arms as deeptex_compare  # noqa: E402
 from variants.deeptex.infer import deeptex_sr  # noqa: E402
-from variants.common import map_encode  # noqa: E402
+from variants.util import map_encode  # noqa: E402
 from variants.compare import matup_montage  # noqa: E402
 from variants.compare.matup_overview import fit  # noqa: E402
 

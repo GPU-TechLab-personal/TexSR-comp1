@@ -10,11 +10,11 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.experiments.exp2_esrgan.core.config import load_config   # noqa: E402
+from variants.experiments.esrgan_map_degradation.core.config import load_config   # noqa: E402
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-C2 = os.path.normpath(os.path.join(_HERE, os.pardir, "exp2_esrgan", "configs")) + os.sep
-C3 = os.path.normpath(os.path.join(_HERE, os.pardir, "exp3_render_loss", "configs")) + os.sep
+C2 = os.path.normpath(os.path.join(_HERE, os.pardir, "esrgan_map_degradation", "configs")) + os.sep
+C3 = os.path.normpath(os.path.join(_HERE, os.pardir, "esrgan_render_loss", "configs")) + os.sep
 
 # arm -> (reference arm, the only top-level-path prefixes allowed to differ)
 EXPECT = {

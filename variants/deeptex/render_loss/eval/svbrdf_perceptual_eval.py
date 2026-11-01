@@ -124,7 +124,7 @@ import torch  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 4)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 
 # Its import puts MatUp on sys.path (paths.use_matup()) and binds mr, post,
 # data_utils and Renderer; the names below come from there.

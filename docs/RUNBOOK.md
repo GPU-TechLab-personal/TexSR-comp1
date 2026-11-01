@@ -51,7 +51,7 @@ docker ps
 ### 2.1 샤드에서 뭐가 있는지 본다
 
 ```powershell
-docker compose run --rm dataprep python variants/common/matsynth_extract.py --list
+docker compose run --rm dataprep python variants/util/matsynth_extract.py --list
 ```
 
 기본 샤드는 `test-00000-of-00008.parquet`(12개 재질). 다른 샤드는 `--shard`로.
@@ -61,7 +61,7 @@ MatUp은 학습이 없으므로 test만으로 충분하다.
 ### 2.2 뽑는다
 
 ```powershell
-docker compose run --rm dataprep python variants/common/matsynth_extract.py --index 8
+docker compose run --rm dataprep python variants/util/matsynth_extract.py --index 8
 ```
 
 `runs/matsynth/<이름>/` 아래에 만들어진다:
@@ -376,7 +376,7 @@ ENOMEM으로 두 번 죽었다. 지금은 열 하나씩 읽고 shard마다 새 �
 | 평가·추론 | `variants/deeptex/infer/deeptex_sr.py` (`test.py` 대체) |
 | 비교 연결부 | `variants/deeptex/infer/deeptex_compare.py` |
 | 데이터 준비 | `variants/deeptex/paper/texsr_{normalize,make_pairs}.py`, `variants/deeptex/upstream_runner/texsr_{build_tfrecord,verify_tfrecord}.py` |
-| 오케스트레이션 | `variants/deeptex/{paper,matsynth,fixed,render_loss}/run.ps1` (공용 함수는 `variants/common/lib.ps1`) |
+| 오케스트레이션 | `variants/deeptex/{paper,matsynth,fixed,render_loss}/run.ps1` (공용 함수는 `variants/util/lib.ps1`) |
 
 **upstream 결함은 둘이 아니라 열여덟이었다.** 전체 목록과 각각에 대한 우리 대응은
 `docs/DEEPTEX-DEVIATIONS.md`에 있다. 원래 알려져 있던 둘은 이제 해소됐다:
@@ -405,7 +405,7 @@ ENOMEM으로 두 번 죽었다. 지금은 열 하나씩 읽고 shard마다 새 �
 | TF 실행 시 cuBLAS·NUMA 경고 | 무해하다. 쫓지 말 것 (OPEN-ITEMS #5) |
 | 서브모듈 폴더가 비어 있다 | 초기화 안 된 것. `SRFlow`가 비어 있는 건 **의도**다 (재현 불가·라이선스 상이) |
 
-DeepTextures 쪽은 실패가 다른 모양으로 나온다. `variants/common/lib.ps1`이 로그에서 아래를 찾아 분류한다:
+DeepTextures 쪽은 실패가 다른 모양으로 나온다. `variants/util/lib.ps1`이 로그에서 아래를 찾아 분류한다:
 
 | 증상 | 진짜 원인 |
 |---|---|

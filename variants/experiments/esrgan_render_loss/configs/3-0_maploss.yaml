@@ -1,0 +1,10 @@
+# 실험 3 reference arm: concat input (15ch), pretrained body with a NEW head
+# (conv_first / conv_last do not fit 15 channels and are re-initialised - logged
+# in setup.json), map-space losses only, per-map discriminator.
+base: ../../esrgan_map_degradation/configs/2-0_base_scratch.yaml
+name: 3-0_maploss
+experiment: exp3
+model:
+  input: concat
+init:
+  mode: pretrained

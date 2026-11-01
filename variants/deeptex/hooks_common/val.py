@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-from variants.common import texsr_metrics
+from variants.util import texsr_metrics
 
 
 def load_val_pairs(cfg, limit):

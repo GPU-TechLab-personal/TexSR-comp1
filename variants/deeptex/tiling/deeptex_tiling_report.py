@@ -61,8 +61,8 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
-from variants.common import texsr_metrics  # noqa: E402
+from variants.util import paths  # noqa: E402
+from variants.util import texsr_metrics  # noqa: E402
 
 TILE = 512  # split_large_image's hardcoded grid (modules/utils.py:376-395)
 

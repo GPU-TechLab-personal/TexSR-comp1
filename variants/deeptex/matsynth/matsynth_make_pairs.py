@@ -73,9 +73,9 @@ import pyarrow.parquet as pq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
-from variants.common import map_encode  # noqa: E402
-from variants.common.matsynth_extract import (MAPS, as_integer, decode,  # noqa: E402
+from variants.util import paths  # noqa: E402
+from variants.util import map_encode  # noqa: E402
+from variants.util.matsynth_extract import (MAPS, as_integer, decode,  # noqa: E402
                                               fit_channels, resize_square)
 
 LFS_STUB_BYTES = 1 << 20

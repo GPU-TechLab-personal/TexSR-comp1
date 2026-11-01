@@ -34,7 +34,7 @@ import tensorflow as tf
 from modules.models import RRDB_Model
 from modules.utils import load_yaml, set_memory_growth
 
-from variants.common import paths
+from variants.util import paths
 from variants.deeptex.paper_loop.hooks import Hooks, PsnrHooks
 from variants.deeptex.hooks_common import ckpt, log, safety, seed as seeding, val
 from variants.deeptex.hooks_common.safety import die

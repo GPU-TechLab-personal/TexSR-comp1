@@ -127,14 +127,14 @@ import torch  # noqa: E402
 REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                      os.pardir, os.pardir, os.pardir, os.pardir))
 sys.path.insert(0, REPO)
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 EXTERNAL = paths.EXTERNAL
 paths.use_matup()                                          # the `matup` package
 
 from matup import data_utils, dataLoader, file_utils, light_utils, render_utils  # noqa: E402
 from matup.renderer import Renderer  # noqa: E402
 
-from variants.common import matup_lights  # noqa: E402
+from variants.util import matup_lights  # noqa: E402
 from variants.matup.baseline import matup_render  # noqa: E402
 
 DEFAULT_NPZ = "/workspace/runs/deeptex/render_gate/parity_tf.npz"

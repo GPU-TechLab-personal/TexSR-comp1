@@ -9,7 +9,7 @@ The extra_loss hook (f):
         -> extra_loss(model, dataset, step) -> (tensor, dict)
     The tensor is added to MatUp's loss every step; the dict's values land in
     the epoch record (only the last step's). extra_factory=None reproduces MatUp.
-    The one producer is exp4_grf_stats/grf_stats.factory.
+    The one producer is matup_grf_stats/grf_stats.factory.
 """
 import time
 

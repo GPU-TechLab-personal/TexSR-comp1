@@ -35,7 +35,7 @@ import numpy as np
 import tensorflow as tf
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * 3)))
-from variants.common import paths  # noqa: E402
+from variants.util import paths  # noqa: E402
 
 FEAT = {"image/img_name": tf.io.FixedLenFeature([], tf.string),
         "image/hr_encoded": tf.io.FixedLenFeature([], tf.string),

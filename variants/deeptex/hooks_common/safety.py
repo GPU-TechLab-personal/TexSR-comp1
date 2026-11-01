@@ -19,7 +19,7 @@ import time
 
 import tensorflow as tf
 
-from variants.common import paths
+from variants.util import paths
 
 # deeptex_train.py:87-88 derived this from its own location; paths.py owns it now.
 EXTERNAL_DIR = paths.EXTERNAL

@@ -15,7 +15,7 @@ method-specific: the DeepTextures column and sheet of the paper arm are
 
 | new | was | change |
 |---|---|---|
-| `matup_postprocess.py:53-55` | `matup_postprocess.py:46-48` | bootstrap; `texsr_metrics` from `variants.common`, `newest_run` from `matup_runs` |
+| `matup_postprocess.py:53-55` | `matup_postprocess.py:46-48` | bootstrap; `texsr_metrics` from `variants.util`, `newest_run` from `matup_runs` |
 | `matup_postprocess.py:78-80` | `matup_postprocess.py:71-82` | `DEEPTEX_COLUMN` / `DEEPTEX_MAPS` / `ORDER_WITH_DEEPTEX` moved to `deeptex/paper/deeptex_postprocess.py` |
 | `matup_postprocess.py:257-399` (`process(mat_dir, args, extra=None)`) | `matup_postprocess.py:258-414` | `newest_run` instead of the inline glob (:260-267); the column order and the five DeepTextures spots are `extra.*` calls (:268, :307, :335, :356, :387, :394) |
 | `matup_postprocess.py:402-431` | `matup_postprocess.py:417-443` | `parser()`, `run(args, extra)`, `main()`; `--deeptex-root` moved to the paper arm |

@@ -5,8 +5,8 @@
 **동작은 바꾸지 않았다.** L0·L6가 옛 코드와 같다는 것을 확인한 뒤 옛 코드와 그 테스트를 지웠다(둘 다 태그 `variants-verified`에 있다).
 
 - **자기완결.** 이 트리는 `scripts/`와 `experiments/`를 import하지 않는다. 밖에서 가져오는 코드는 `external/*`(MatUp)뿐이다.
-  `texsr_metrics`는 `variants/common/texsr_metrics.py`에서 가져온다.
-  sys.path 조작은 `variants/common/paths.py`가 맡는다. `common/paths.py`의 `add_matup()`과 `add_swinir()`는 그 파일의 `use_matup()`과 `use_swinir()`를 부른다.
+  `texsr_metrics`는 `variants/util/texsr_metrics.py`에서 가져온다.
+  sys.path 조작은 `variants/util/paths.py`가 맡는다. `common/paths.py`의 `add_matup()`과 `add_swinir()`는 그 파일의 `use_matup()`과 `use_swinir()`를 부른다.
 - **외부 계약은 그대로다.** config 키와 파일(8개 yaml, 바이트 동일), 출력 경로(`/expdata/runs/{exp1,exp2,exp3,exp4,exp5,matup}/...`),
   exp2 `state_dict` 키(G `net.*` / `nets.<map>.*`, D `shared.*` / `ds.<map>.*` / `joint.*`), 체크포인트 객체 이름
   (`G, opt_g, sch_g, D, opt_d, sch_d, iter, train_seconds, config`), 로그 줄과 `log.jsonl` 키 순서도 바뀌지 않았다.
@@ -24,11 +24,11 @@
 |---|---|---|---|
 | 공통 프로토콜 | `common/` | — | `experiments/common/` (`matup_driver.py`만 `matup_driver/`로 분리) |
 | MatUp 구동 (1·4·5가 공유) | `matup_driver/` | — | `experiments/common/matup_driver.py` |
-| 1 불일치 원인 | `exp1_inconsistency/` | `run_C.py`, `run_residuals.py`, `analyze.py` | 같은 이름 |
-| 2 ESRGAN 저하 원인 | `exp2_esrgan/core/`, `exp2_esrgan/arms/`, `exp2_esrgan/configs/` | `core/train.py`, `core/evaluate.py` | `experiments/exp2_esrgan/{train,evaluate,model,losses,data}.py` |
-| 3 렌더링 loss | `exp3_render_loss/arms/`, `exp3_render_loss/configs/` | (트레이너는 exp2 `core/train.py`) | `losses.py`의 RenderLoss·extra_l1·joint D 분기 |
-| 4 GRF 통계항 | `exp4_grf_stats/` | `run.py`, `analyze.py` | 같은 이름 |
-| 5 속도·메모리 | `exp5_benchmark/` | `bench_infer.py`, `bench_train.py`, `gpu_hours.py`, `texel_cost.py` | 같은 이름 |
+| 1 불일치 원인 | `light_inconsistency/` | `run_C.py`, `run_residuals.py`, `analyze.py` | 같은 이름 |
+| 2 ESRGAN 저하 원인 | `esrgan_map_degradation/core/`, `esrgan_map_degradation/arms/`, `esrgan_map_degradation/configs/` | `core/train.py`, `core/evaluate.py` | `experiments/exp2_esrgan/{train,evaluate,model,losses,data}.py` |
+| 3 렌더링 loss | `esrgan_render_loss/arms/`, `esrgan_render_loss/configs/` | (트레이너는 `esrgan_map_degradation/core/train.py`) | `losses.py`의 RenderLoss·extra_l1·joint D 분기 |
+| 4 GRF 통계항 | `matup_grf_stats/` | `run.py`, `analyze.py` | 같은 이름 |
+| 5 속도·메모리 | `speed_memory/` | `bench_infer.py`, `bench_train.py`, `gpu_hours.py`, `texel_cost.py` | 같은 이름 |
 | 게이트 | `gates/` | `gate_*.py` | 같은 이름 |
 
 ### 옮긴 파일과 분해한 파일
@@ -37,7 +37,7 @@
 (`git show variants-verified:variants/tests/moves/experiments.json`).
 
 - **moves (파일 통째, import와 경로 상수만 바꿈):** `common/{cli,protocol,shards,render,upscalers,sr_cache,metrics,matup_runs}.py`,
-  `exp1_inconsistency/*`, `exp2_esrgan/data.py → core/dataset.py`, `exp4_grf_stats/*`, `exp5_benchmark/{bench_infer,gpu_hours,texel_cost}.py`,
+  `light_inconsistency/*`, `exp2_esrgan/data.py → esrgan_map_degradation/core/dataset.py`, `matup_grf_stats/*`, `speed_memory/{bench_infer,gpu_hours,texel_cost}.py`,
   `gates/{gate_protocol,gate_matup_driver,gate_configs}.py`. `gate_configs`는 `C2`·`C3` 상수만 `__file__` 기준 경로로 바꿨다.
 - **functions (함수 단위로 옮김, AST 동일):** `matup_driver`의 7개 함수 전부, exp2 `model.py`의 RRDBNet·VGG D·perceptual·pretrained 로더,
   `losses.py`의 `angular`·`ragan_g/d`·`srgb_to_linear_t`·`render_tensors`·`RenderLoss`·`cat`·`Discriminators.active`,
@@ -71,20 +71,20 @@ output_maps_from_list), 서브모듈 파일은 고치지 않았다. 각 변경�
 
 ## 3. 실험 2·3 — arm 모듈
 
-트레이너(`exp2_esrgan/core/train.py`)는 하나이고 팔마다 config가 하나다. config 키는 예전 것을 그대로 쓴다.
+트레이너(`esrgan_map_degradation/core/train.py`)는 하나이고 팔마다 config가 하나다. config 키는 예전 것을 그대로 쓴다.
 어느 arm이 G, D, Criterion의 어느 부분을 만드는지는 `core/assemble.py`가 config에서 읽는다. 이 판정은 예전 `train/model/losses`에 흩어져 있던 if/else를 한곳으로 옮긴 것이다.
 **생성 순서**(G → init → D → VGG → RenderLoss)도 예전과 같다. 그래서 같은 seed로 초기 가중치가 바이트 동일하게 나온다(L6 `build` 검사).
 
 | config | 2-0 대비 바꾸는 것 | arm 코드 (새 file:line) |
 |---|---|---|
-| `2-0_base_scratch` | 기준: 공유 RRDBNet 3→3(5맵을 배치로), 공유 3ch D 1개, 맵별 L1+VGG+RaGAN | `exp2_esrgan/arms/base.py` — `SharedSR` :54, `Discriminators`(D 없음) :74, `SharedD` :95, `Criterion` :109, `L1Term` :149, `VGGTerm` :163, `PerMapGanTerm` :179 |
+| `2-0_base_scratch` | 기준: 공유 RRDBNet 3→3(5맵을 배치로), 공유 3ch D 1개, 맵별 L1+VGG+RaGAN | `esrgan_map_degradation/arms/base.py` — `SharedSR` :54, `Discriminators`(D 없음) :74, `SharedD` :95, `Criterion` :109, `L1Term` :149, `VGGTerm` :163, `PerMapGanTerm` :179 |
 | `2-1_base_pretrained` | init: RealESRGAN_x4plus | `arms/pretrained.py` — `load` :70 (`ensure_pretrained` :38, `load_pretrained` :50); 선택 `core/assemble.py:91-92` |
 | `2-2_separate` | **G 5개 + D 5개** (config는 `model.arch`만 말한다) | `arms/separate.py` — `SeparateSR` :23 (5개 명시 :33-39), `owns_discriminators` :49, `PerMapD` :55 (`ds` :62); 선택 `assemble.py:52-58, 99` |
 | `2-3_mapaware_loss` | normal=각도, roughness·metallic=L1만 | `arms/mapaware_loss.py` — `AngularTerm` :27 (pixel 그룹, L1 뒤); config 교체 의미는 `core/config.py:30-33` (REPLACE_CHILDREN) |
 | `2-4_concat_input` | 15→15 concat G | `arms/concat.py` — `ConcatSR` :14 |
 | `3-0_maploss` | concat + pretrained(새 head) | 별도 arm 없음: concat.py + pretrained.py. conv_first와 conv_last 3텐서는 `setup.json`의 `skipped`로 남는다 |
-| `3-1_render` | + 렌더링 loss, + extra_l1 | `exp3_render_loss/arms/render_loss.py` — `RenderLoss` :47, `ExtraL1Term` :77, `RenderTerm` :92 |
-| `3-2_render_jointD` | + joint D(15ch 1개) | `exp3_render_loss/arms/joint_d.py` — `JointD` :21, `JointGanTerm` :33 |
+| `3-1_render` | + 렌더링 loss, + extra_l1 | `esrgan_render_loss/arms/render_loss.py` — `RenderLoss` :47, `ExtraL1Term` :77, `RenderTerm` :92 |
+| `3-2_render_jointD` | + joint D(15ch 1개) | `esrgan_render_loss/arms/joint_d.py` — `JointD` :21, `JointGanTerm` :33 |
 
 Criterion 항 순서(합산 순서가 같아야 비트 동일): 맵마다 `[L1, Angular]` pixel 그룹 → `ExtraL1 → VGG → PerMapGan`, 그 뒤에 `JointGan → Render`.
 `base.py` 머리 주석에 이 순서와 각 항이 PSNR 단계에서 도는지(`in_psnr_stage`)가 적혀 있다.
@@ -100,7 +100,7 @@ Criterion 항 순서(합산 순서가 같아야 비트 동일): 맵마다 `[L1, 
 | 5 | PSNR 단계의 pixel 가중치는 config와 무관하게 1.0이다. `l1` 키만 있으면 가중치 0이어도 돈다. 3-1에서 basecolor·normal·roughness의 L1은 GAN 단계에서 per_map 0.01 + extra 0.01 = 0.02가 된다 | `losses.py:100-108` | `base.py:149-160`, `mapaware_loss.py:27-38`, `render_loss.py:8-10` | generator[psnr/gan] 비트 동일 |
 | 6 | `TrainSet`은 `default_rng()`를 seed 없이 쓴다. 그래서 `train.seed`가 같아도 패치와 증강이 매번 다르다(`self.seed`는 쓰이지 않는다) | `data.py:87` | `core/dataset.py:89-92` | (move, L0) |
 | 7 | `disc.mode`가 none/per_map/joint 외의 값이면(오타 포함) D가 조용히 0개가 된다 | `losses.py:151-157` | `base.py:74-92`, `assemble.py:52-61` | build: D mode/active |
-| 8 | `bench_esrgan`(실험 5)은 pretrained init을 하지 않고, D 폭을 기본값으로 두고, G에는 num_block만 넘긴다. 속도 측정용이라 품질과 무관하다 | `bench_train.py:40-51` | `exp5_benchmark/bench_train.py` `bench_esrgan` docstring | (decomposed, L0) |
+| 8 | `bench_esrgan`(실험 5)은 pretrained init을 하지 않고, D 폭을 기본값으로 두고, G에는 num_block만 넘긴다. 속도 측정용이라 품질과 무관하다 | `bench_train.py:40-51` | `speed_memory/bench_train.py` `bench_esrgan` docstring | (decomposed, L0) |
 
 ## 5. 실행
 
@@ -112,7 +112,7 @@ compose 없이 마운트를 직접 주는 경우(Git Bash):
 MSYS_NO_PATHCONV=1 docker run --rm --gpus all --shm-size 8g \
   -v "$(pwd -W):/workspace" -v D:/experimentdata:/data:ro -v D:/experimentdata/texsr_exp:/expdata \
   -w /workspace texsr/exp:torch2.0.0-cu117 \
-  python variants/experiments/exp2_esrgan/core/train.py --config variants/experiments/exp2_esrgan/configs/2-0_base_scratch.yaml
+  python variants/experiments/esrgan_map_degradation/core/train.py --config variants/experiments/esrgan_map_degradation/configs/2-0_base_scratch.yaml
 ```
 
 나머지 명령은 `EXPERIMENTS.md`에 있다. 시간 단위 실행(실험 1 본 실험, 4, 2·3의 100k it)은 직접 돌려야 한다. 소요 시간은 `EXPERIMENTS.md` §8 표와 같다.
