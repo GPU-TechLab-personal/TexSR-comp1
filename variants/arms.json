@@ -7,10 +7,14 @@
     "  checkpoint = tf | torch | none (how a step is found: tf = <prefix>.index files).",
     "arms.<tag>: method, display (row name), reference (the arm it is compared against; null = none),",
     "  config (repo-relative), checkpoint_root (container path; 'from_config' = the config's checkpoint_root key; {RSMOKE} = the smoke root of run.ps1).",
-    "head_to_head: arm-vs-arm comparisons, in report order. A report shows the pairs whose two arms it was given (the map report: the first such pair)."
+    "head_to_head: arm-vs-arm comparisons, in report order. A report shows the pairs whose two arms it was given (the map report: the first such pair).",
+    "torch arms (variants/sr_finetune/): config null = zero-shot, nothing trained; checkpoint_root = where the weight files are (the official file, or the trainer's models/ folder);",
+    "  their arm folders are written by sr_finetune/write_arm.py, never through Get-ArmInfo (which reads a DeepTextures yaml)."
   ],
   "methods": {
-    "deeptex": {"display": "DeepTextures", "key_prefix": "dt_", "checkpoint": "tf"}
+    "deeptex": {"display": "DeepTextures", "key_prefix": "dt_", "checkpoint": "tf"},
+    "esrgan_bsr": {"display": "ESRGAN", "key_prefix": "bsr_", "checkpoint": "torch"},
+    "swinir_kair": {"display": "SwinIR", "key_prefix": "kair_", "checkpoint": "torch"}
   },
   "arms": {
     "textures_db":        {"method": "deeptex", "display": "DeepTextures (textures_db)", "reference": null,
@@ -34,13 +38,38 @@
     "smoke_r0a":          {"method": "deeptex", "display": "smoke_r0a", "reference": null,
                            "config": "variants/deeptex/render_loss/r0a.yaml", "checkpoint_root": "{RSMOKE}/smoke_r0a/checkpoints"},
     "smoke_r1":           {"method": "deeptex", "display": "smoke_r1", "reference": null,
-                           "config": "variants/deeptex/render_loss/r1.yaml", "checkpoint_root": "{RSMOKE}/smoke_r1/checkpoints"}
+                           "config": "variants/deeptex/render_loss/r1.yaml", "checkpoint_root": "{RSMOKE}/smoke_r1/checkpoints"},
+    "esrgan_zs":          {"method": "esrgan_bsr", "display": "ESRGAN official (zero-shot)", "reference": null,
+                           "config": null, "checkpoint_root": "/workspace/runs/sr_ft/weights"},
+    "esrgan_ft":          {"method": "esrgan_bsr", "display": "ESRGAN official (fine-tuned)", "reference": "esrgan_zs",
+                           "config": "variants/sr_finetune/esrgan/esrgan_ft.yml",
+                           "checkpoint_root": "/workspace/runs/sr_ft/basicsr/experiments/esrgan_ft/models"},
+    "swinir_cls_zs":      {"method": "swinir_kair", "display": "SwinIR-M classical (zero-shot)", "reference": null,
+                           "config": null, "checkpoint_root": "/workspace/runs/sr_ft/weights"},
+    "swinir_cls_ft":      {"method": "swinir_kair", "display": "SwinIR-M classical (fine-tuned)", "reference": "swinir_cls_zs",
+                           "config": "variants/sr_finetune/swinir/swinir_cls_ft.json",
+                           "checkpoint_root": "/workspace/runs/sr_ft/kair/swinir_cls_ft/models"},
+    "swinir_real_zs":     {"method": "swinir_kair", "display": "SwinIR-M real (zero-shot)", "reference": null,
+                           "config": null, "checkpoint_root": "/workspace/runs/sr_ft/weights"},
+    "swinir_real_ft":     {"method": "swinir_kair", "display": "SwinIR-M real (fine-tuned)", "reference": "swinir_real_zs",
+                           "config": "variants/sr_finetune/swinir/swinir_real_ft.json",
+                           "checkpoint_root": "/workspace/runs/sr_ft/kair/swinir_real_ft/models"},
+    "swinir_realL_zs":    {"method": "swinir_kair", "display": "SwinIR-L real (zero-shot)", "reference": null,
+                           "config": null, "checkpoint_root": "/workspace/external/matup_egsr/pretrained_models"}
   },
   "head_to_head": [
     ["render_r1", "render_r0a"],
     ["render_r1", "render_r0b"],
     ["render_r0a", "render_r0b"],
     ["matsynth_basecolor", "matsynth_chratio"],
-    ["matsynth_all", "textures_db"]
+    ["matsynth_all", "textures_db"],
+    ["esrgan_ft", "esrgan_zs"],
+    ["swinir_cls_ft", "swinir_cls_zs"],
+    ["swinir_real_ft", "swinir_real_zs"],
+    ["esrgan_ft", "matsynth_all"],
+    ["swinir_cls_ft", "matsynth_all"],
+    ["swinir_real_ft", "matsynth_all"],
+    ["swinir_real_ft", "render_r1"],
+    ["swinir_real_zs", "swinir_realL_zs"]
   ]
 }

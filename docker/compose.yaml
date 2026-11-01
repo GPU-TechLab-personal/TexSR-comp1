@@ -16,6 +16,8 @@
 #
 # The two stacks are deliberately NOT sharing an image: MatUp needs CUDA 11.7
 # (torch 2.0.0) and DeepTextures needs CUDA 11.2 (TF 2.10.1).
+# torchbase is the shared torch-side base for new experiments; matup keeps its
+# own image because it freezes MatUp's environment (docs/RUNBOOK.md section 8).
 
 # Without this the project name would default to the directory name ("docker"),
 # producing containers called docker-matup-1.
@@ -67,6 +69,37 @@ services:
     volumes:
       - ..:/workspace
       - ${DAS_ROOT:-./_das_placeholder}:/data
+    shm_size: "8gb"
+    <<: *gpu
+    stdin_open: true
+    tty: true
+
+  # The project's shared torch environment (docker/torchbase): torch 2.0.0 /
+  # CUDA 11.7 with every package pinned at texsr/matup's measured versions.
+  # Built here so `docker compose build` makes it; services below run on it.
+  torchbase:
+    build: ./torchbase
+    image: texsr/torchbase:torch2.0.0-cu117
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    <<: *gpu
+    stdin_open: true
+    tty: true
+
+  # Official ESRGAN (BasicSR) / SwinIR (KAIR) fine-tuning, variants/sr_finetune/.
+  # Needs nothing beyond torchbase, so it runs on that image (build it first:
+  # docker compose build torchbase). No /data mount: it reads only the MatSynth
+  # pairs and eval set already under runs/, and must never write to the DAS.
+  srft:
+    image: texsr/torchbase:torch2.0.0-cu117
+    working_dir: /workspace
+    environment:
+      # BasicSR's perceptual loss fetches torchvision's vgg19 here (gitignored runs/).
+      TORCH_HOME: /workspace/runs/sr_ft/cache/torch
+    volumes:
+      - ..:/workspace
+    # KAIR / BasicSR DataLoaders run several workers - same /dev/shm reason as matup.
     shm_size: "8gb"
     <<: *gpu
     stdin_open: true

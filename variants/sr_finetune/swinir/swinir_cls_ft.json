@@ -1,0 +1,93 @@
+// SwinIR-M classical x4 fine-tuned on MatSynth - external/KAIR/options/swinir/train_swinir_sr_classical.json
+// (KAIR @ fc1732f) with ONLY the lines marked CHANGED / REMOVED altered. KAIR strips
+// everything after "//" on each line (utils/utils_option.py parse), so these comments
+// are legal; no value may contain "//". Trained by variants/sr_finetune/swinir/kair_train.py
+// (run.ps1 -Stage train -Arm swinir_cls): models land in
+// runs/sr_ft/kair/swinir_cls_ft/models/<N>_{G,E}.pth (variants/arms.json checkpoint_root).
+{
+  "task": "swinir_cls_ft"                // CHANGED (was swinir_sr_classical_patch48_x2)
+  , "model": "plain"
+  , "gpu_ids": [0]                       // CHANGED (was [0..7]): one GPU
+  , "dist": false                        // CHANGED (was true)
+
+  , "scale": 4                           // CHANGED (was 2): the released x4 model
+  , "n_channels": 3
+
+  , "path": {
+    "root": "/workspace/runs/sr_ft/kair"  // CHANGED (was superresolution)
+    // Both null as in the official file, and IGNORED by KAIR anyway: the run starts
+    // from models/0_G.pth + 0_E.pth, which kair_train.py writes from the official
+    // 001_classicalSR_DF2K_s64w8_SwinIR-M_x4.pth (sr_finetune/weights.py --kair-init).
+    , "pretrained_netG": null
+    , "pretrained_netE": null
+  }
+
+  , "datasets": {
+    "train": {
+      "name": "train_dataset"
+      , "dataset_type": "sr"
+      , "dataroot_H": "/workspace/runs/sr_ft/pairs/HR"     // CHANGED: MatSynth, five maps 1:1 (prep_pairs.py)
+      , "dataroot_L": "/workspace/runs/sr_ft/pairs/LRx4"   // CHANGED: area LR, as evaluated
+
+      , "H_size": 256                    // CHANGED (was 96): LR patch 64, the s64 the released x4 model was trained at
+
+      , "dataloader_shuffle": true
+      , "dataloader_num_workers": 8      // CHANGED (was 16)
+      // CHANGED (was 32): the official total is 4 per GPU x 8 GPUs; one GPU at the official
+      // per-GPU 4. 8 does not fit a 12 GB card (measured 2026-11-02: VRAM full, ~30 s/iter).
+      , "dataloader_batch_size": 4
+    }
+    // REMOVED: "test" (Set5). No validation during training; see checkpoint_test.
+  }
+
+  , "netG": {
+    "net_type": "swinir"
+    , "upscale": 4                       // CHANGED (was 2)
+    , "in_chans": 3
+    , "img_size": 64                     // CHANGED (was 48): must match the weights - the attention masks are in the state_dict
+    , "window_size": 8
+    , "img_range": 1.0
+    , "depths": [6, 6, 6, 6, 6, 6]
+    , "embed_dim": 180
+    , "num_heads": [6, 6, 6, 6, 6, 6]
+    , "mlp_ratio": 2
+    , "upsampler": "pixelshuffle"
+    , "resi_connection": "1conv"
+
+    , "init_type": "default"
+  }
+
+  , "train": {
+    "G_lossfn_type": "l1"
+    , "G_lossfn_weight": 1.0
+
+    , "E_decay": 0.999
+
+    , "G_optimizer_type": "adam"
+    // CHANGED (was 2e-4): the official file's own note - "We fine-tune X3/X4/X8 models
+    // from X2 model, so that G_optimizer_lr and G_scheduler_milestones can be halved" -
+    // i.e. the released x4 model was itself fine-tuned at 1e-4.
+    , "G_optimizer_lr": 1e-4
+    , "G_optimizer_wd": 0
+    , "G_optimizer_clipgrad": null
+    , "G_optimizer_reuse": true
+
+    , "G_scheduler_type": "MultiStepLR"
+    , "G_scheduler_milestones": [20000, 30000]   // CHANGED (was [250000, 400000, 450000, 475000, 500000])
+    , "G_scheduler_gamma": 0.5
+
+    , "G_regularizer_orthstep": null
+    , "G_regularizer_clipstep": null
+
+    , "G_param_strict": true
+    , "E_param_strict": true
+
+    , "manual_seed": 0                   // ADDED: the official file leaves the seed random
+
+    // CHANGED (was 5000): there is no test set, and the loop reads test_loader at
+    // every checkpoint_test step (main_train_psnr.py), so it must never be reached.
+    , "checkpoint_test": 1000000000
+    , "checkpoint_save": 5000
+    , "checkpoint_print": 200
+  }
+}

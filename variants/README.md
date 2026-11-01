@@ -25,6 +25,7 @@ experiment or shared job.
 | `deeptex/infer/` | DeepTextures inference and its comparison inputs | `deeptex_sr.py`, `deeptex_compare.py` |
 | `deeptex/tiling/` | tile-boundary study of DeepTextures outputs | `deeptex_tiling_report.py` |
 | `experiments/` | experiments 1-5 (PyTorch, `texsr/exp` image) | `light_inconsistency/`, `esrgan_map_degradation/`, `esrgan_render_loss/`, `matup_grf_stats/`, `speed_memory/`, plus `common/`, `matup_driver/`, `gates/`; plan and commands in `experiments/EXPERIMENTS.md` |
+| `sr_finetune/` | the official ESRGAN (BasicSR) and SwinIR (KAIR) fine-tuned on MatSynth, and zero-shot | `nets.py`, `write_arm.py`, `esrgan/`, `swinir/`, `drift.py`, `gates/`, `run.ps1` |
 | `tests/` | the check to run after editing the trainer skeleton | `l0_skeleton.py` |
 
 Each folder's README says what it is for, what is in it, how it works and how
@@ -40,6 +41,7 @@ to run it, and lists its known behaviour and defects.
 | Render loss (R0a / R0b / R1) | `deeptex/render_loss/run.ps1 -Stage prep-grouped\|gate-render\|render-train\|eval-render\|eval-perceptual` |
 | Tiling study | `python variants/deeptex/tiling/deeptex_tiling_report.py` |
 | MatUp baseline | `matup/baseline/run.ps1` |
+| Official ESRGAN / SwinIR on MatSynth | `sr_finetune/run.ps1 -Stage setup\|prep\|gate\|train\|infer\|eval` |
 | Experiments 1-5 | `experiments/EXPERIMENTS.md` (from `docker/exp`: `docker compose run --rm exp python variants/experiments/...`) |
 
 Every `run.ps1` is run as

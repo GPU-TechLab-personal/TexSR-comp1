@@ -7,3 +7,12 @@
 [submodule "external/esrgan-tf2"]
 	path = external/esrgan-tf2
 	url = https://github.com/peteryuX/esrgan-tf2.git
+[submodule "external/BasicSR"]
+	path = external/BasicSR
+	url = https://github.com/XPixelGroup/BasicSR.git
+[submodule "external/KAIR"]
+	path = external/KAIR
+	url = https://github.com/cszn/KAIR.git
+[submodule "external/SwinIR"]
+	path = external/SwinIR
+	url = https://github.com/JingyunLiang/SwinIR.git

@@ -1,0 +1,27 @@
+# What texsr/torchbase installs on top of pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime.
+# torch 2.0.0, torchvision 0.15.0, PyYAML, requests and tqdm come with the base
+# image and are not reinstalled. Exact versions, with transitive ones, are in
+# constraints.txt; this file says WHY each is here.
+
+# numpy must stay 1.x: torch 2.0.0 is built against the NumPy 1.x C ABI.
+numpy==1.26.4
+# variants/util (arm_output, report) and every map reader; 4.x on purpose (the
+# 5.x wheels need numpy 2 - docker/matup/requirements.txt has the history).
+opencv-python==4.11.0.86
+scikit-image==0.25.2
+# NOT matup's 1.15.3. KAIR's BSRGAN degradation (utils/utils_blindsr.py) needs two
+# scipy names newer releases dropped, both only at CALL time:
+#   :12   scipy.interpolate.interp2d - from 1.14 it imports, then raises
+#         NotImplementedError when called (measured in texsr/matup, 2026-11-01)
+#   :195  scipy.finfo (fspecial_gaussian, every BSRGAN blur kernel) - gone in
+#         1.12.0 and 1.13.1 (AttributeError; gate env caught it on 1.13.1)
+# 1.11.4 has both working (measured 2026-11-01) and is exactly scikit-image 0.25's
+# floor (scipy>=1.11.4).
+scipy==1.11.4
+# KAIR utils/utils_image.py imports matplotlib at module level.
+matplotlib==3.10.9
+# BasicSR / KAIR training logs.
+tensorboard==2.21.0
+# SwinIR's network_swinir.py does `from timm.models.layers import DropPath, ...`,
+# a path removed in timm 1.0.
+timm==0.6.13

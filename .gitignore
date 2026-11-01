@@ -33,6 +33,11 @@ runs/montages/deeptex_render_loss/render_*.png
 # and its summary) is a few MB. Everything it was derived from stays ignored -
 # runs/deeptex/tiling/ holds a 375 MB checkpoint copy and ~100 MB of JPEG tiles.
 !runs/tiling/
+# runs/montages/sr_finetune/ (variants/sr_finetune/run.ps1 -Stage eval), the same
+# two exceptions as deeptex_render_loss: per-material render sheets regenerate,
+# and checkpoints/ holds drift tables, not weights.
+runs/montages/sr_finetune/render_*.png
+!runs/montages/sr_finetune/checkpoints/
 
 # DAS placeholder is bind-mounted at /data until DAS_ROOT is set,
 # so anything written there would otherwise land in the repo
