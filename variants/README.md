@@ -1,39 +1,72 @@
 # variants/
 
-Every experiment run on top of the unmodified submodules (DeepTextures `e4ee562`,
-matup_egsr `c74ec99`), one folder per experiment. It reimplements the old
-`scripts/`, `experiments/` and `configs/`, which were deleted once the
-equivalence tests (L0-L6) passed against them.
+All of the project's code: the two super-resolution methods compared on
+MatSynth SVBRDFs (DeepTextures, a TF ESRGAN, and MatUp, a per-material
+optimisation), their data preparation, training, inference and evaluation, and
+experiments 1-5. Everything runs on the unmodified submodules in `external/`
+(DeepTextures `e4ee562`, matup_egsr `c74ec99`, esrgan-tf2), one folder per
+experiment or shared job.
 
-**Tag `variants-verified`** is the last commit with the old code and the tests
-next to this tree (full pass `20261101-004941`, all eight layers PASS). The
-READMEs here still name old files, test layers (L0-L6), `l*_*.py` scripts and
-`variants/tests/moves/*.json` as the record of what was moved and proven: read
-them with `git show variants-verified:<path>`. Line numbers in old paths refer
-to that tag.
+## Folders
 
-## Experiment → folder → what changed
+| folder | purpose | main contents |
+|---|---|---|
+| `util/` | helpers no single method owns | `paths.py` (submodule paths, the only `sys.path` setup), MatSynth extraction, map encoding, MatUp light tables, shared metrics, `lib.ps1` / `preflight.ps1` for every `run.ps1` |
+| `compare/` | the comparison/report layer over the MatUp baseline's output tree | metrics, comparison montages (LR / bilinear / MatUp / GT columns), the two-method overview, newest-MatUp-run lookup; the DeepTextures arms add their column through hooks |
+| `matup/baseline/` | the MatUp baseline over the extracted materials | `run.ps1` (MatUp in its container), `matup_render.py`, `matup_height.py` |
+| `deeptex/paper_loop/` | the DeepTextures trainer skeleton | `loop.py` = upstream `train_esrgan.py` + hook calls, `hooks.py` (defaults = the paper), `main.py --experiment paper\|fixed\|render` |
+| `deeptex/hooks_common/` | trainer machinery every DeepTextures experiment shares | checkpoints (verified resume, pretrain lookup), `[metrics]` logging, NaN / exit-code handling, seeding, validation |
+| `deeptex/paper/` | DeepTextures as released, on textures_db | data prep (normalize, pairs), `run.ps1` stages prep / smoke / paper / eval, the DeepTextures column and montage |
+| `deeptex/upstream_runner/` | runs the submodule's own trainer; builds and checks its TFRecords | `run_upstream_train.py`, `texsr_build_tfrecord.py`, `texsr_verify_tfrecord.py` |
+| `deeptex/matsynth/` | DeepTextures trained on MatSynth (all maps / channel ratio / basecolor only) | pair builder, `recipes.py` (map mix), `eval_arms.py`, arms report, colour-drift check, `run.ps1` |
+| `deeptex/fixed/` | DeepTextures with the upstream defects corrected (#2-#5, #8) | `hooks.py`, corrected RaGAN, configs, `run.ps1` |
+| `deeptex/render_loss/` | DeepTextures + MatUp's render loss (arms R0a / R0b / R1) | `hooks.py`, `terms.py`, `render_tf.py`, grouped dataset, `gates/`, `build/`, `eval/`, `run.ps1` |
+| `deeptex/infer/` | DeepTextures inference and its comparison inputs | `deeptex_sr.py`, `deeptex_compare.py` |
+| `deeptex/tiling/` | tile-boundary study of DeepTextures outputs | `deeptex_tiling_report.py` |
+| `experiments/` | experiments 1-5 (PyTorch, `texsr/exp` image) | `light_inconsistency/`, `esrgan_map_degradation/`, `esrgan_render_loss/`, `matup_grf_stats/`, `speed_memory/`, plus `common/`, `matup_driver/`, `gates/`; plan and commands in `experiments/EXPERIMENTS.md` |
+| `tests/` | the check to run after editing the trainer skeleton | `l0_skeleton.py` |
 
-| experiment | folder | run it with | what changed against the old code |
-|---|---|---|---|
-| DeepTextures paper arm (textures_db, upstream `train_esrgan.py` as released) | `deeptex/paper/`, `deeptex/upstream_runner/`, `deeptex/paper_loop/` | `deeptex/paper/run.ps1 -Stage prep\|smoke\|paper\|eval\|all` | `paper_loop/loop.py` is `train_esrgan.py` plus hook calls only (`upstream.diff`); the paper stage still execs the submodule's own trainer through `run_upstream_train.py`. The fifth comparison column moved out of `matup_postprocess` into `paper/deeptex_postprocess.py` / `deeptex_montage.py` |
-| DeepTextures on MatSynth (all / chratio / basecolor) | `deeptex/matsynth/` | `deeptex/matsynth/run.ps1 -Stage prep-matsynth\|eval-arms`; training: `paper/run.ps1 -Stage paper -PaperConfig variants/deeptex/matsynth/<cfg>.yaml -PaperRoot runs/deeptex/<arm>` | the recipe table and `--repeat` became `recipes.py --recipe`; `deeptex_compare --maps all --scalar-collapse` became `eval_arms.py` |
-| DeepTextures fixed arm (defects #2-#5, #8 corrected) | `deeptex/fixed/` | `deeptex/fixed/run.ps1 -Stage pretrain\|train` | `deeptex_train.py`'s fixed branches became `fixed/hooks.py` on the paper loop (`paper_loop/main.py --experiment fixed`, same flags) |
-| Render loss (R0a / R0b / R1) | `deeptex/render_loss/` | `deeptex/render_loss/run.ps1 -Stage prep-grouped\|gate-render\|render-train\|eval-render\|eval-perceptual` | the grouped/render branches became `render_loss/hooks.py` + `terms.py` (`--experiment render`); gates, record builder and render eval moved |
-| Tiling study | `deeptex/tiling/` | `python variants/deeptex/tiling/deeptex_tiling_report.py` | moved |
-| MatUp baseline | `matup/baseline/` | `matup/baseline/run.ps1` | moved; the shared comparison/montage code is `compare/` |
-| Experiments 1-5 | `experiments/exp*/`, `experiments/matup_driver/`, `experiments/gates/` | `experiments/EXPERIMENTS.md` (commands), `experiments/README.md` §5 | exp2 split into `core/` + one module per arm, exp3 arms on the exp2 trainer, `matup_driver` out of `common/` |
+Each folder's README says what it is for, what is in it, how it works and how
+to run it, and lists its known behaviour and defects.
 
-Each folder's README lists its files against the old ones, the odd behaviour it
-keeps, and the defects found but not fixed. The orchestrators: every stage of
-`scripts/deeptex/run_deeptex.ps1` now lives in exactly one arm `run.ps1`, with
-the same stage name and parameters; the helpers they share are
-`util/lib.ps1` (L5 compares their docker argv stage by stage).
+## Experiment → run
 
-## Rules every file here follows
+| experiment | run it with |
+|---|---|
+| DeepTextures paper arm | `deeptex/paper/run.ps1 -Stage prep\|smoke\|paper\|eval\|all` |
+| DeepTextures on MatSynth | `deeptex/matsynth/run.ps1 -Stage prep-matsynth\|eval-arms`; training: `deeptex/paper/run.ps1 -Stage paper -PaperConfig variants/deeptex/matsynth/<cfg>.yaml -PaperRoot runs/deeptex/<arm>` |
+| DeepTextures fixed arm | `deeptex/fixed/run.ps1 -Stage pretrain\|train` |
+| Render loss (R0a / R0b / R1) | `deeptex/render_loss/run.ps1 -Stage prep-grouped\|gate-render\|render-train\|eval-render\|eval-perceptual` |
+| Tiling study | `python variants/deeptex/tiling/deeptex_tiling_report.py` |
+| MatUp baseline | `matup/baseline/run.ps1` |
+| Experiments 1-5 | `experiments/EXPERIMENTS.md` (from `docker/exp`: `docker compose run --rm exp python variants/experiments/...`) |
 
-1. **Self-contained.** The only outside code is `external/*` (the old
-   `scripts/` and `experiments/` no longer exist).
+Every `run.ps1` is run as
+`powershell -NoProfile -ExecutionPolicy Bypass -File variants\<...>\run.ps1 ...`
+from the repo root; the four DeepTextures ones also take `-Stage preflight`.
+
+## How the pieces fit
+
+```
+MatSynth parquet ──util/matsynth_extract──> runs/matsynth/<m>/{SVBRDF 128², GT 512²}
+   │                                              │
+   │                                              ├─ matup/baseline/run.ps1 ──> matup-output-<m>/<stamp>/
+   │                                              │        (+ matup_render / matup_height)
+   │                                              │
+   │                                              └─ compare/ ──> compare/<stamp>/ metrics, montages
+   │                                                    ▲             ──> runs/montages/ (committed)
+   │                                                    │ DeepTextures column (paper hooks)
+   └─ deeptex/*/ data prep ──> runs/deeptex/datasets/*.tfrecord
+                                 └─ train: upstream_runner (paper) or paper_loop/main.py --experiment fixed|render
+                                      └─ checkpoints ──> infer/ ──> eval (eval_arms, render eval) ──> reports
+
+experiments/ (separate stack): /data (MatSynth, read-only) ──> /expdata/{materials,train,runs/exp1..exp5}
+```
+
+## Conventions
+
+1. **Self-contained.** The only outside code is `external/*`. Nothing is
+   imported from outside `variants/` and the submodules.
 2. **Package imports, one bootstrap.** Entry scripts put the repo root on
    `sys.path` and import by package:
 
@@ -41,31 +74,26 @@ the same stage name and parameters; the helpers they share are
    import os, sys
    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), *[os.pardir] * N)))
    from variants.util import paths      # N = depth of this file below the repo root
-   paths.use_deeptex()                    # or use_matup() / use_swinir()
+   paths.use_deeptex()                  # or use_matup() / use_swinir()
    ```
 
    Libraries import siblings as `from variants.<...> import x`, never through a
-   `sys.path` edit. Submodule paths, the DEEPTEX_ROOT override and the pin check
+   `sys.path` edit. Submodule paths, the `DEEPTEX_ROOT` override and the pin check
    live only in `util/paths.py`.
-3. **Moved vs decomposed.** A file without experiment branches is copied and only
-   its import lines / path constants change; L0 proves the AST is identical. Only
-   files with experiment branches are actually split, and L0 then checks that
-   every line of the old function is accounted for (verbatim, rewritten, or
-   dropped with a reason). Each area recorded its entries in its own
-   `variants/tests/moves/<area>.json` (tag `variants-verified`).
-4. **External contracts stay byte-identical.** Log prefixes (`[metrics]`,
+3. **Contracts that existing runs depend on.** Log prefixes (`[metrics]`,
    `[terms]`, `[render]`, `[init]`, `[*] resumed from`, `[fatal] non-finite loss`),
    exit codes 2-9, checkpoint object names, top-level config keys (the ps1 files
-   read them with line regexes), exp2 `state_dict` keys. Existing checkpoints and
-   eval folders must load unchanged.
-5. **Odd behaviour is kept and named, not fixed.** It is made explicit in the arm
-   module and written down in that arm's README.
-6. **No folder named `data/`.** `.gitignore:6` ignores it (that is why
-   `experiments/data/*.py` was never committed).
-7. **Checks write only under `runs/variants_verify/`.** Nothing in the existing
-   `runs/` is modified by a check.
-8. **One GPU job at a time.** Before any GPU step, check that no other `texsr*`
-   container is running (`docker ps`); docs/RUNBOOK.md's concurrency warning applies.
+   read them with line regexes), exp2 `state_dict` keys, and the output folders
+   (`runs/deeptex/<arm>/`, `runs/matsynth/`, `/expdata/runs/exp1..exp5/`).
+   Changing one breaks existing checkpoints, eval folders or the orchestrators.
+4. **Odd behaviour is named, not silently changed.** It is made explicit in the
+   module and listed in that folder's README; changing it is an experiment
+   decision.
+5. **No folder named `data/`.** `.gitignore:6` ignores it (the local
+   `experiments/data/*.py` data-prep scripts are not in the repository).
+6. **One GPU job at a time.** Before any GPU step, check that no other `texsr*`
+   container is running (`docker ps`); the `run.ps1` preflights refuse to start
+   otherwise (`util/preflight.ps1`, docs/RUNBOOK.md).
 
 ## Adding an experiment
 
@@ -121,7 +149,7 @@ A variant of an existing arm that only changes numbers (another `w_render`) is
 just a new config; one that needs more hooks subclasses `RenderHooks` or
 `FixedHooks`.
 
-### Experiments (exp2/exp3 style): a new arm
+### Experiments (PyTorch): a new arm
 
 The config decides the arm: `esrgan_map_degradation/core/assemble.py` holds the
 predicates (generator by `model.*`, discriminators by `disc.mode`, loss terms by
@@ -135,8 +163,10 @@ predicates (generator by `model.*`, discriminators by `disc.mode`, loss terms by
    the new factor; add it to `EXPECT` in `gates/gate_configs.py` (arm ->
    reference, the keys allowed to differ), which checks that nothing else leaks
    in through inheritance.
-4. A new experiment number gets `experiments/exp6_<name>/` with `arms/` and
-   `configs/`, training on exp2's `core/train.py` as exp3 does.
+4. A new experiment gets its own folder named after what it studies
+   (`experiments/<topic>/` with `arms/` and `configs/`), training on
+   `esrgan_map_degradation/core/train.py` as `esrgan_render_loss/` does; set
+   `experiment:` in its config to name its output folder under `/expdata/runs/`.
 
 ### Data only (another MatSynth map mix)
 
@@ -149,28 +179,19 @@ A row in `RECIPES` (`deeptex/matsynth/recipes.py`) and a config yaml; train with
   exist yet; then add the default to `paper_loop/hooks.py` and regenerate
   `upstream.diff` (`python variants/tests/l0_skeleton.py --write`).
   `python variants/tests/l0_skeleton.py` checks that loop.py is still upstream's
-  `train_esrgan.py` plus hook calls - the one check that stays, since it
-  compares against the submodule, not the old code.
+  `train_esrgan.py` plus hook calls.
 - Shared files (`hooks_common/`, `paper_loop/hooks.py`, `assemble.py`,
   `arms/base.py`) change every arm. Put the new behaviour in a new file and the
   switch in the shared one, and check that an existing arm is unchanged: run its
   short smoke (same `--seed`, `--max-steps`) before and after the change and
-  compare the logged numbers. For a bit-exact comparison, the determinism
-  harness (`variants/tests/_det_run.py`, `l1_trainer.py`) is at tag
-  `variants-verified`.
+  compare the logged numbers.
 - Smoke the new arm: DeepTextures `--max-steps 2 --save-steps 1 --no-val`
   (the term's own log line appears, a checkpoint is written); experiments,
-  `gates/gate_train_smoke.py` trains every yaml in the exp2/exp3 `configs/`
-  folders for a few iterations - a new experiment folder has to be added to
-  its `CONFIGS` glob.
+  `gates/gate_train_smoke.py` trains every yaml in the
+  `esrgan_map_degradation/` and `esrgan_render_loss/` `configs/` folders for a
+  few iterations - a new experiment folder has to be added to its `CONFIGS` glob.
+- Write smoke and check outputs under `runs/variants_verify/` (or a scratch
+  folder), never into an arm's own `runs/` folder.
 
-## Layout
-
-| folder | contents |
-|---|---|
-| `util/` | `paths.py`, moved helpers (`map_encode`, `matsynth_extract`, `matup_lights`, `texsr_metrics`), `lib.ps1`, `preflight.ps1` |
-| `deeptex/paper_loop/`, `hooks_common/`, `fixed/`, `render_loss/` (trainer, gates) | DeepTextures trainer = the paper loop plus per-experiment hooks |
-| `deeptex/upstream_runner/`, `infer/`, `paper/`, `matsynth/`, `tiling/`, `render_loss/eval/`, `render_loss/build/`, `compare/` | data prep, inference, evaluation, reports |
-| `matup/baseline/` | MatUp baseline |
-| `experiments/` | experiments 1-5 |
-| `tests/` | `l0_skeleton.py` (paper loop = upstream + hook calls); the equivalence tests are at tag `variants-verified` |
+History: this tree replaced the old `scripts/`, `experiments/` and `configs/`
+after equivalence tests against them passed; tag `variants-verified` keeps both.

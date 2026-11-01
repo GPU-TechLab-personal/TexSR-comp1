@@ -1,54 +1,80 @@
-# fixed/ - FX: the paper loop with the defects repaired
+# variants/deeptex/fixed/
 
-`docs/DEEPTEX-DEVIATIONS.md`'s fixed arm: PSNR pre-train, then ESRGAN from it.
+FX, the fixed arm of `docs/DEEPTEX-DEVIATIONS.md`: the DeepTextures paper loop
+with its code defects repaired. It trains a PSNR pre-train stage on
+`textures_db`, then ESRGAN from it.
 
-    python variants/deeptex/paper_loop/main.py --experiment fixed --stage psnr   --cfg_path /workspace/variants/deeptex/fixed/psnr_texsr.yaml ...
-    python variants/deeptex/paper_loop/main.py --experiment fixed --stage esrgan --cfg_path /workspace/variants/deeptex/fixed/esrgan_scaled.yaml ...
+## Contents
 
-`--stage psnr` runs `paper_loop/psnr_loop.py` (the donor's `train_psnr.py`
-with hooks), `--stage esrgan` runs `paper_loop/loop.py` (`train_esrgan.py`).
-Every flag is the old `scripts/deeptex/deeptex_train.py`'s.
+| file | what it does |
+|---|---|
+| `hooks.py` | the arm's hook bundle on top of `hooks_common/trainer.py`: its flags (`--stage`, `--losses`, `--shuffle`), refuses grouped / render configs, shuffled dataset, corrected or upstream RaGAN; `build(argv)` returns the hooks and `psnr_loop` or `loop` |
+| `losses_corrected.py` | RaGAN generator / discriminator losses with `from_logits=True` on the raw logits (upstream applies a sigmoid, then `from_logits=False`) |
+| `psnr_texsr.yaml` | stage 1: PSNR pre-train (G only, pixel loss), batch 16, niter 40000, lr_steps scaled to [8000, 16000, 24000, 32000]; `sub_name: psnr_texsr` |
+| `esrgan_scaled.yaml` | stage 2: ESRGAN, the config the comparison runs on; lr_steps scaled into the run ([5000, 10000, 20000, 30000]), `pretrain_dir: /workspace/runs/deeptex/checkpoints/psnr_texsr`; `sub_name: esrgan_texsr` |
+| `esrgan_asconfigured.yaml` | upstream's recipe through this trainer, both defects left in (`pretrain_dir: null`, lr_steps that never fire at niter 40000); needs `--losses upstream --shuffle off --allow-dead-lr-schedule` |
+| `run.ps1` | orchestrator: stages `preflight`, `pretrain`, `train` |
 
-## What this arm changes against the paper
+## How it works
+
+`run.ps1` runs `paper_loop/main.py --experiment fixed` in the deeptex service of
+`docker/compose.yaml`:
+
+| stage | runs |
+|---|---|
+| `preflight` | `Invoke-DeeptexPreflight` (`variants/util/lib.ps1`): stray containers, >= 6000 MiB free VRAM, >= 15 GB free disk. Runs before every stage unless `-SkipPreflight` |
+| `pretrain` | `--stage psnr` with `-PsnrConfig` -> `paper_loop/psnr_loop.py` (the donor's `train_psnr.py`) |
+| `train` | `--stage esrgan` with `-Config` -> `paper_loop/loop.py` (`train_esrgan.py`) |
+
+Both training stages pass `--tfrecord /workspace/runs/deeptex/datasets/<Dataset>/<Dataset>_lrx4.tfrecord`
+and validate on `.../<Dataset>/HR_val`, `.../<Dataset>/LRx4_val` (`-Dataset`
+defaults to `textures_db`; the record is built by `variants/deeptex/upstream_runner/`).
+Checkpoints go to `<checkpoint_root>/<sub_name>`, logs to `<log_root>/<sub_name>`
+(`/workspace/runs/deeptex/{checkpoints,logs}` in all three configs), so the
+ESRGAN stage finds the PSNR checkpoint at `runs/deeptex/checkpoints/psnr_texsr`.
+`run.ps1` reads `sub_name` and `niter` from the config with line regexes, maps
+the trainer's output to a failure kind (`Get-FailureKind`) and checks that a
+`[metrics] step=<niter>` line was reached.
+
+### What this arm changes against the paper
 
 | # | defect (DEEPTEX-DEVIATIONS) | upstream | here |
 |---|---|---|---|
 | #2 | pretrain lookup | `train_esrgan.py:71` `pretrain_dir = cfg['pretrain_name']` = `'./checkpoints/'`, misses `./checkpoints/psnr_pretrain/`, prints and trains from random init | `pretrain_dir` (absolute), exit 9 when nothing is there, restore **proven** by a weight delta (`hooks_common/ckpt.py`) |
 | #3 | dead LR schedule | `lr_steps[0] = 50000 >= niter = 40000` | refused (exit 8) unless `--allow-dead-lr-schedule` (`hooks_common/safety.check_lr_schedule`); `esrgan_scaled.yaml` has a live one |
-| #4 | log levels | `:20` C++ level set after the import; `:23-25` Python logger silenced | C++ level 2 before the import, Python logger at WARNING (`main.py`, `hooks_common/trainer.on_start`) |
+| #4 | log levels | `:20` C++ level set after the import; `:23-25` Python logger silenced | C++ level 2 before the import, Python logger at WARNING (`paper_loop/main.py`, `hooks_common/trainer.on_start`) |
 | #5 | frozen batch order | `:37` `shuffle=False` | `shuffle=True`; `--shuffle off` restores (`hooks.py build_dataset`) |
 | #8 | RaGAN on sigmoids | `modules/losses.py:56,80` `from_logits=False` after a manual sigmoid | `losses_corrected.py`, `from_logits=True`; `--losses upstream` restores (`hooks.py build_losses`) |
 | - | restore unchecked | `:66,:73` status discarded | `assert_existing_objects_matched()` on resume |
-| - | no numerics check | - | non-finite loss → `[fatal] non-finite loss`, save, exit 4 |
-| - | no validation | - | `--val-every` on the held-out split (`hooks_common/val.py`) |
+| - | no numerics check | - | non-finite loss -> `[fatal] non-finite loss`, save, exit 4 |
+| - | no validation | - | `--val-every` (default 2000) on the held-out split (`hooks_common/val.py`) |
 
-## Configs
+## Run
 
-`psnr_texsr.yaml`, `esrgan_scaled.yaml`, `esrgan_asconfigured.yaml`: copied
-byte for byte from `configs/deeptex/`. `esrgan_asconfigured.yaml` is upstream's
-recipe through this trainer (`--losses upstream --shuffle off
---allow-dead-lr-schedule`, `pretrain_dir: null`).
+    variants\deeptex\fixed\run.ps1 -Stage pretrain
+    variants\deeptex\fixed\run.ps1 -Stage train -Config variants/deeptex/fixed/esrgan_scaled.yaml
 
-**Kept as it was:** the old `run_deeptex.ps1` has no stage that runs
-`esrgan_asconfigured.yaml` (only `-Config` would reach it); the new `run.ps1`
-keeps that - this is recorded, not fixed.
+`-MaxSteps N` truncates a run (smoke test); an existing checkpoint directory is
+resumed unless `-Force -DeleteCheckpoints` moves it aside. The trainer call
+`run.ps1` makes:
 
-## Verified
+    python /workspace/variants/deeptex/paper_loop/main.py --experiment fixed --cfg_path /workspace/<cfg> \
+        --stage psnr|esrgan --tfrecord <TFREC> --val-hr <DS>/HR_val --val-lr <DS>/LRx4_val [--max-steps N]
 
-L1 (`variants/tests/l1_trainer.py`): `fixed_psnr`, `fixed_esrgan_corrected_shuffle`
-(PSNR → ESRGAN with the pretrain proof), `fixed_esrgan_resume_3_5`,
-`asconfigured_upstream_noshuffle_deadlr`, and the failure paths
-`fail_pretrain_missing` (9), `fail_dead_lr` (8), `fail_no_tfrecord` (5),
-`fail_nonfinite_fixed` (4): identical stdout and bit-identical checkpoints
-against the old trainer.
+Measured VRAM peaks on this card (200-step probes, recorded in
+`Invoke-DeeptexPreflight`): 4,491 MiB for the PSNR stage (batch 16), 3,234 MiB
+for ESRGAN (batch 8).
 
-## run.ps1
+## Known behaviour and defects
 
-Stages `pretrain` and `train`, plus `preflight`; `-Stage` is mandatory. Generated from `scripts/deeptex/run_deeptex.ps1`: each stage function below is the old one verbatim except the script/config paths (old line ranges in the file header). Shared helpers come from `variants/util/lib.ps1`. L5 (`variants/tests/l5_deeptex.ps1`) runs every stage through both and compares the docker argv, the console transcript and the files created.
-The trainer call is `paper_loop/main.py --experiment fixed` followed by the old
-`deeptex_train.py` flags, unchanged.
-
-Kept as it was: `-Config` still defaults to `variants/deeptex/paper/esrgan_paper.yaml`
-(the old default was `configs/deeptex/esrgan_paper.yaml`), so `-Stage train` without
-`-Config` runs this trainer on upstream's config; pass
-`-Config variants/deeptex/fixed/esrgan_scaled.yaml` for the scaled recipe.
+* **`-Config` defaults to `variants/deeptex/paper/esrgan_paper.yaml`**, so
+  `-Stage train` without `-Config` runs this trainer on upstream's config (and
+  stops at the dead-LR check, exit 8). Pass
+  `-Config variants/deeptex/fixed/esrgan_scaled.yaml` for the fixed recipe.
+* No stage runs `esrgan_asconfigured.yaml`; only `-Config` reaches it, and the
+  stage does not add the three flags it needs.
+* The `param` block is the one shared by every deeptex `run.ps1`: `-Recipe`,
+  `-Arm`, `-Gate`, `-Arms`, `-Steps`, `-EvalDevice` and the other render /
+  MatSynth parameters are accepted and ignored here.
+* A grouped config (`train_dataset.grouped: True`) or one with `w_render` /
+  `render:` is refused (exit 8): it belongs to `--experiment render`.
