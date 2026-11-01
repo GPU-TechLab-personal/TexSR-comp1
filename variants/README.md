@@ -97,6 +97,86 @@ experiments/ (separate stack): /data (MatSynth, read-only) ──> /expdata/{mat
    container is running (`docker ps`); the `run.ps1` preflights refuse to start
    otherwise (`util/preflight.ps1`, docs/RUNBOOK.md).
 
+## How an experiment is built
+
+An experiment is one folder plus its lines in `arms.json`. Everything it does
+not change - data, inference output, evaluation, reports - comes from the
+shared modules; the folder holds only its config, the code it changes, a
+`run.ps1` and a README.
+
+**Arm.** One SR training condition (method + data + recipe), named by a tag
+(`matsynth_all`, `render_r1`). `<tag>_<NN>k` is one checkpoint of it
+(`render_r1_40k`), and its *arm output folder*
+(`runs/<method>/eval/<tag>_<NN>k/<material>/<map>.png` + `sr_manifest.json`) is
+what every evaluator reads as `--arm TAG=DIR`: one row or column in a report.
+LR, bilinear, MatUp and GT are built-in columns, not arms. (In
+`experiments/`, "arm" means one config of experiments 2/3 - `2-2_separate` -
+which is not in `arms.json` and writes no arm output folder.)
+
+```
+1 data        2 training        3 arm output             4 evaluation             5 reports
+MatSynth ---> checkpoints ----> <eval>/<tag>/<m>/ -----> map / render / perceptual -> montages, tables
+```
+
+| step | what the experiment does | shared modules |
+|---|---|---|
+| 1 data | usually nothing; a new map mix is one `RECIPES` row | `util/matsynth_extract.py`, `util/map_encode.py`, `deeptex/matsynth/recipes.py`, `matsynth_make_pairs.py` |
+| 2 training | **what the experiment is about** | DeepTextures: `deeptex/paper_loop/` + `hooks_common/` (override hooks). PyTorch: `experiments/esrgan_map_degradation/core/` (`assemble.py` picks the arm from config keys) |
+| 3 arm output | wrap the model as `predict(NHWC) -> NHWC` | `util/arm_output.py` (`write_arm`, `super_resolve`, `save_sr`, the manifest) |
+| 4 evaluation | pass `--arm TAG=DIR` | map space `deeptex/matsynth/deeptex_arms_report.py`, render space `deeptex/render_loss/eval/svbrdf_render_eval.py`, perceptual `svbrdf_perceptual_eval.py`, colour drift `util/report/drift.py` |
+| 5 reports | nothing, or compose a new sheet | `util/report/` (images, metrics, sheets, layout, montage, overview) |
+| names, pairs | one line | `arms.json` via `util/arms.py` and `Get-ArmInfo` / `Get-DisplayName` |
+| orchestration | chain the steps | `util/lib.ps1` (`Invoke-Step`, `Get-CompleteEval`), `util/preflight.ps1` |
+
+Which kind of experiment it is decides where its folder goes (details in
+"Adding an experiment" below):
+
+| kind | folder | it adds |
+|---|---|---|
+| a DeepTextures training change | `deeptex/<name>/` | `hooks.py` (TrainerHooks subclass), config, `run.ps1`, one `EXPERIMENTS` line in `paper_loop/main.py` |
+| another SR method as an arm | `<method>/<name>/` | a writer around `arm_output.write_arm`, its training code, `methods.<method>` once in `arms.json` |
+| a PyTorch experiment-list arm | `experiments/<topic>/` | `arms/<arm>.py`, configs on `base:`, one condition in `assemble.py`, an `EXPECT` row in `gate_configs.py` |
+| data only | none | a `RECIPES` row, a config |
+| a new report or sheet | where it is used | compose `util/report` (`images.load_fit`, `metrics.full_reference`, `sheets.grid/table`, `layout`) |
+
+### Keeping track of each experiment
+
+| what | where |
+|---|---|
+| purpose, what changed, how to run, known behaviour | the folder's `README.md` (purpose / Contents / How it works / Run / Known behaviour) |
+| what differs from the reference | DeepTextures: the config header's diff command; PyTorch: `EXPECT` in `gates/gate_configs.py` |
+| what it is compared with | `reference` and `head_to_head` in `arms.json` |
+| which checkpoint made a result | the arm output's `sr_manifest.json` (checkpoint, step, `checkpoint_file`) |
+| checkpoints / arm outputs | `runs/<method>/<arm>/checkpoints/<sub_name>/` / `runs/<method>/eval/<tag>_<NN>k/` |
+| results to share (committed) | `runs/montages/<report>/` |
+| smoke and check outputs | `runs/variants_verify/` |
+
+Commit an experiment's results with its config and code, so both name one
+point in history.
+
+### From start to finish
+
+1. Pick the reference arm and the one factor to change (a kind from the table).
+2. Create the folder: config and the changed code.
+3. Register the arm in `arms.json` (display, reference, `head_to_head` if any).
+4. Smoke it: 2-20 training steps, write the arm output, one evaluation (minutes).
+5. The full training run (hours - started by hand).
+6. Arm outputs per step, then the evaluations (the `run.ps1` eval stage).
+7. Update `runs/montages/<report>/` and the README; commit.
+
+### Where the structure still falls short
+
+- The evaluators are generic but still live under `deeptex/matsynth/` and
+  `deeptex/render_loss/eval/`.
+- The `run.ps1` eval stages find checkpoint steps from TF `.index` files
+  (`Get-CheckpointSteps`, `Invoke-CompareAtSteps`); a torch arm needs its own
+  branch there.
+- The three evaluators still draw some sheets and aggregate tables with their
+  own code.
+- `experiments/` computes its renders and metrics with `experiments/common/`;
+  to put an experiment-list run next to the DeepTextures arms, export it as an
+  arm output folder (`util/arm_output.py`) and register it.
+
 ## Adding an experiment
 
 A new experiment must leave the existing arms unchanged, and gets its own
