@@ -36,7 +36,7 @@ runs/montages/deeptex_render_loss/render_*.png
 # runs/montages/sr_finetune/ (variants/sr_finetune/run.ps1 -Stage eval), the same
 # two exceptions as deeptex_render_loss: per-material render sheets regenerate,
 # and checkpoints/ holds drift tables, not weights.
-runs/montages/sr_finetune/render_*.png
+runs/montages/sr_finetune/renders/render_*.png
 !runs/montages/sr_finetune/checkpoints/
 
 # DAS placeholder is bind-mounted at /data until DAS_ROOT is set,
