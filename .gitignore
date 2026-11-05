@@ -39,6 +39,11 @@ runs/montages/deeptex_render_loss/render_*.png
 runs/montages/sr_finetune/renders/render_*.png
 !runs/montages/sr_finetune/checkpoints/
 
+# READMEs outside runs/ are kept locally only (taken out of the repository
+# 2026-11-05); the result folders' READMEs under runs/montages/ stay tracked.
+/README.md
+variants/**/README.md
+
 # DAS placeholder is bind-mounted at /data until DAS_ROOT is set,
 # so anything written there would otherwise land in the repo
 docker/_das_placeholder/*
